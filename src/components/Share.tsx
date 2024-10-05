@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { MdClose, MdContentCopy } from "react-icons/md";
+import QRCode from "react-qr-code";
 import { ShareProps } from "../interfaces";
-import { MdContentCopy, MdClose } from "react-icons/md";
 
 function Share(props: ShareProps) {
     const { setIsShowShare, isShowShare } = props;
-    const [link, setLink] = useState("https://example.com/share-link");
+    const [link, setLink] = useState("Không thể lấy địa chỉ IP local");
     const [copyMessage, setCopyMessage] = useState("");
 
     const handleCopy = () => {
@@ -17,7 +18,7 @@ function Share(props: ShareProps) {
         const fetchLocalIP = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:3000/api/local-ip",
+                    `${import.meta.env.VITE_SERVER_GET_LOCAL_IP_URL}/api/local-ip`,
                 );
                 const data = await response.json();
                 const localLink = `http://${data.localIP}:5173`;
@@ -45,12 +46,18 @@ function Share(props: ShareProps) {
                         <h2 className="text-2xl font-bold mb-4 text-center">
                             Chia sẻ
                         </h2>
+                        
                         <div className="w-64 h-64 mx-auto mb-4">
-                            {/* Replace with actual QR code component or image */}
                             <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                                <span className="text-gray-500">
-                                    QR Code Placeholder
-                                </span>
+                                {
+                                    link !== "Không thể lấy địa chỉ IP local" ? (
+                                        <QRCode value={link} />
+                                    ) : (
+                                        <span className="text-gray-500">
+                                            Không thể lấy địa chỉ IP local
+                                        </span>
+                                    )
+                                }
                             </div>
                         </div>
                         <div className="flex items-center justify-center mb-4">
