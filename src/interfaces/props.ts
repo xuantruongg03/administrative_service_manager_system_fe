@@ -75,6 +75,10 @@ interface InforBusinessPopupProps {
     id: string;
 }
 
+interface SidebarMobileProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
 
 export type {
     PaginationProps,
@@ -86,4 +90,5 @@ export type {
     ShareProps,
     FileUploadButtonProps,
     InforBusinessPopupProps,
+    SidebarMobileProps,
 };

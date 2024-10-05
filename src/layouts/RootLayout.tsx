@@ -7,8 +7,10 @@ function RootLayout() {
         <div className="h-screen">
             <Header />
             <div className="flex h-full w-full">
-                <SideBar />
-                <div className="mt-24 px-5 rounded-lg overflow-hidden w-full">
+                <div className="hidden md:block">
+                    <SideBar />
+                </div>
+                <div className="mt-24 md:ml-16 px-5 rounded-lg custom-scrollbar w-full">
                     <Outlet />
                 </div>
             </div>

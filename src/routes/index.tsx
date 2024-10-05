@@ -8,6 +8,7 @@ const App = lazy(() => import("../App"));
 const Business = lazy(() => import("../pages/Business"));
 const Documents = lazy(() => import("../pages/Documents"));
 const Map = lazy(() => import("../pages/Map"));
+const EditBusiness = lazy(() => import("../pages/EditBusiness"));
 
 const routes = createBrowserRouter([
     {
@@ -43,6 +44,14 @@ const routes = createBrowserRouter([
                 element: (
                     <LazyLayout>
                         <Map />
+                    </LazyLayout>
+                ),
+            },
+            {
+                path: CONSTANTS.PATH.EDIT_BUSINESS_PATH + ":code",
+                element: (
+                    <LazyLayout>
+                        <EditBusiness />
                     </LazyLayout>
                 ),
             },

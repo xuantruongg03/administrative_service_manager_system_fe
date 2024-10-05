@@ -3,7 +3,7 @@ import { PreviewFileProps } from "../interfaces/props";
 import { MdRemoveRedEye } from "react-icons/md";
 import { Document, Page, pdfjs } from "react-pdf";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
 
 function PreviewFile(props: PreviewFileProps) {
     const [isHovered, setIsHovered] = useState(false);

@@ -14,7 +14,7 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
     <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-            <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
+            <PrimeReactProvider value={{ pt: Tailwind }}>
                 <RouterProvider router={routes} />
             </PrimeReactProvider>
         </QueryClientProvider>

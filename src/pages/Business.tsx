@@ -6,9 +6,11 @@ import { BsTrash3Fill } from "react-icons/bs";
 import { FaEdit, FaEye, FaFileUpload } from "react-icons/fa";
 import { FaCircleInfo, FaFileArrowDown } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
+import { Link } from "react-router-dom";
 import InforBusinessPopup from "../components/InforBusinessPopup";
 import { NodeService } from "../services/NodeServices";
 import FileUploadButton from "../ui/FileUploadButton";
+import { CONSTANTS } from "../utils/constants";
 
 export default function Business() {
     const [nodes, setNodes] = useState<TreeNode[]>([]);
@@ -157,19 +159,19 @@ export default function Business() {
                     <Column
                         field="code"
                         header="Mã số DN"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                     ></Column>
                     <Column
                         field="registerDate"
                         header="Ngày ĐK"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                     ></Column>
                     <Column
                         field="name"
                         header="Tên doanh nghiệp"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs w-[250px] font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                         body={(rowData) => (
                             <div
@@ -183,11 +185,11 @@ export default function Business() {
                     <Column
                         field="address"
                         header="Địa chỉ"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left w-[300px] text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 text-sm text-gray-900"
                         body={(rowData) => (
                             <div
-                                className="w-[300px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                className="w-[250px] overflow-hidden text-ellipsis whitespace-nowrap"
                                 title={rowData.data.address}
                             >
                                 {rowData.data.address}
@@ -197,19 +199,19 @@ export default function Business() {
                     <Column
                         field="phoneNumber"
                         header="Số điện thoại"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                     ></Column>
                     <Column
                         field="size"
                         header="Quy mô"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                     ></Column>
                     <Column
                         field="type"
                         header="Trạng thái"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                         body={(rowData) => (
                             <div
@@ -235,7 +237,7 @@ export default function Business() {
                     <Column
                         field="action"
                         header="Hành động"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                         body={(rowData) => (
                             <div className="flex items-center justify-center gap-3">
@@ -245,11 +247,11 @@ export default function Business() {
                                         handleViewBusiness(rowData.data.code)
                                     }
                                 >
-                                    <FaEye className="text-gray-600 hover:text-blue-600" />
+                                    <FaEye className="text-gray-600 size-4 hover:text-blue-600" />
                                 </button>
-                                <button className="text-blue-500 ">
-                                    <FaEdit className="text-gray-600 hover:text-green-600" />
-                                </button>
+                                <Link to={CONSTANTS.PATH.EDIT_BUSINESS_PATH + rowData.data.code} className="text-blue-500 ">
+                                    <FaEdit className="text-gray-600 size-4 hover:text-green-600" />
+                                </Link>
                             </div>
                         )}
                     ></Column>

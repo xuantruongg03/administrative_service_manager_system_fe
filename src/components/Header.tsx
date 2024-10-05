@@ -1,21 +1,30 @@
 import { Avatar } from "primereact/avatar";
 import { useState } from "react";
 import { HiBell } from "react-icons/hi";
+import { FaBars } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 import userAvatar from "../assets/user.png";
 import { CONSTANTS } from "../utils/constants";
+import SidebarMobile from "./SidebarMobile";
 
 function Header() {
     const [showAlert, setShowAlert] = useState(false);
+    const [showSidebar, setShowSidebar] = useState(false);
 
     return (
-        <header className=" flex items-center justify-between w-full h-20 z-50 pl-9 fixed border-b border-gray-200 shadow-sm">
-            <div className="w-full justify-between px-5 float-end items-center flex relative">
-                <div>
+        <header className="flex items-center justify-between w-full h-20 z-50 fixed border-b bg-white border-gray-200 shadow-sm">
+            <div className="w-full justify-between px-5 items-center flex relative">
+                <div className="flex items-center md:ml-12">
+                    <button
+                        className="md:hidden mr-2 p-2 hover:bg-medhealth-blue-search hover:text-white transition-colors duration-300 rounded-full"
+                        onClick={() => setShowSidebar(!showSidebar)}
+                    >
+                        <FaBars className="size-6" />
+                    </button>
                     <Link
                         to={CONSTANTS.PATH.ROOT_PATH}
-                        className="flex items-center justify-center w-full px-3 my-3 ml-2"
+                        className="flex items-center justify-center px-3 my-3"
                     >
                         <img src={logo} alt="Logo" className="size-20" />
                     </Link>
@@ -66,6 +75,7 @@ function Header() {
                     <Avatar image={userAvatar} size="large" shape="circle" />
                 </div>
             </div>
+            <SidebarMobile isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
         </header>
     );
 }
