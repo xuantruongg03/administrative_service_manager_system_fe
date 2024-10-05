@@ -6,22 +6,29 @@ import { IoBusinessSharp, IoDocumentText, IoShareSocialSharp } from "react-icons
 import { Link, useLocation } from "react-router-dom";
 import { CONSTANTS } from "../utils/constants";
 import Share from "./Share";
+import { FaChartPie } from "react-icons/fa";
 
 const bar = [
     {
         id: 1,
         path: CONSTANTS.PATH.ROOT_PATH,
+        title: "Thống kê",
+        icon: <FaChartPie className="size-5 my-5" />,
+    },
+    {
+        id: 2,
+        path: CONSTANTS.PATH.BUSINESS_PATH,
         title: "Doanh nghiệp",
         icon: <IoBusinessSharp className="size-5 my-5" />,
     },
     {
-        id: 2,
-        path: "/map",
+        id: 3,
+        path: CONSTANTS.PATH.MAP_PATH,
         title: "Bản đồ",
         icon: <FaMapMarkerAlt className="size-5 my-5" />,
     },
     {
-        id: 3,
+        id: 4,
         path: CONSTANTS.PATH.ATTACHMENTS_DOCUMENTS_PATH,
         title: "Tài liệu",
         icon: <IoDocumentText className="size-5 my-5" />,
@@ -111,20 +118,6 @@ function Sidebar() {
                                     </span>
                                 </Link>
                             ))}
-                            <div className="flex-grow"></div>
-                            <Link
-                                to={CONSTANTS.PATH.DOCS_PATH}
-                                className={`flex items-center w-36 overflow-hidden h-12 px-3 mt-2 rounded-lg hover:text-white hover:bg-medhealth-blue ${
-                                    CONSTANTS.PATH.DOCS_PATH ===
-                                    baseUrl.pathname
-                                        ? "bg-medhealth-blue text-white"
-                                        : ""
-                                }`}
-                            >
-                                <span className="ml-2 text-sm font-medium">
-                                    Tài liệu
-                                </span>
-                            </Link>
                         </div>
                     </div>
                 </div>

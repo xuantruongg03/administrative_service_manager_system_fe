@@ -7,6 +7,7 @@ const CONSTANTS = {
         MAP_PATH: "/map",
         DOCS_PATH: "/docs",
         CONTACT_PATH: "/contact",   
+        BUSINESS_PATH: "/business"
     },
     NAME_TOKEN: "token",
     STATUS_LOGIN: "status-login",
