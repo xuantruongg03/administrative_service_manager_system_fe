@@ -50,4 +50,32 @@ interface MapRenderProps {
     hoveredItemId: number | null;
 }
 
-export type { PaginationProps, FilterProps, TypographyProps, TemplatePopupMapProps, MapRenderProps };
+interface PreviewFileProps {
+    file: string;
+    type: string;
+    typePreview: "mini" | "full";
+    closePreview?: () => void;
+}
+
+interface ShareProps {
+    isShowShare: boolean;
+    setIsShowShare: (isShowShare: boolean) => void;
+}
+
+interface FileUploadButtonProps {
+    onFileSelect: (file: File) => void;
+    label?: string;
+    icon?: React.ReactNode;
+    accept?: string;
+}
+
+export type {
+    PaginationProps,
+    FilterProps,
+    TypographyProps,
+    TemplatePopupMapProps,
+    MapRenderProps,
+    PreviewFileProps,
+    ShareProps,
+    FileUploadButtonProps
+};

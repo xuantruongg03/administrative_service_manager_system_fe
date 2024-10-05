@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { FaBars, FaMapMarkerAlt } from "react-icons/fa";
-import { IoBusinessSharp } from "react-icons/io5";
+import { GrHelpBook } from "react-icons/gr";
+import { IoIosHelpBuoy } from "react-icons/io";
+import { IoBusinessSharp, IoDocumentText, IoShareSocialSharp } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
 import { CONSTANTS } from "../utils/constants";
-import { IoDocumentText } from "react-icons/io5";
-import { IoIosHelpBuoy } from "react-icons/io";
-import { GrHelpBook } from "react-icons/gr";
+import Share from "./Share";
 
 const bar = [
     {
@@ -31,11 +31,12 @@ const bar = [
 function Sidebar() {
     const baseUrl = useLocation();
     const [isShowBar, setIsShowBar] = useState(false);
+    const [isShowShare, setIsShowShare] = useState(false);
 
     return (
         <>
             <div className="flex h-full z-50">
-                <div className="flex flex-col items-center w-16 h-full overflow-hidden bg-medhealth-dialog-blue rounded py-3 z-50">
+                <div className="flex flex-col items-center w-16 h-full overflow-hidden bg-medhealth-dialog-blue-200 rounded py-3 z-50">
                     <div className="flex items-center justify-center">
                         <div
                             onClick={() => setIsShowBar(!isShowBar)}
@@ -59,7 +60,7 @@ function Sidebar() {
                             </Link>
                         ))}
                         <div className="flex-grow"></div>
-                        <div className="w-10 h-0.5 bg-gray-300 my-3"></div>
+                        <div className="w-10 h-0.5 bg-gray-600 my-3"></div>
                         <Link
                             to={CONSTANTS.PATH.DOCS_PATH}
                             className={`flex items-center justify-center w-12 h-12 mt-2 hover:text-white hover:bg-medhealth-blue rounded-lg ${
@@ -80,6 +81,12 @@ function Sidebar() {
                         >
                             <IoIosHelpBuoy className="size-5 my-5" />
                         </Link>
+                        <button
+                            onClick={() => setIsShowShare(true)}
+                            className="flex items-center justify-center w-12 h-12 mt-2 hover:text-white hover:bg-medhealth-blue rounded-lg"
+                        >
+                            <IoShareSocialSharp className="size-5 my-5" />
+                        </button>
                     </div>
                 </div>
                 <div
@@ -122,6 +129,12 @@ function Sidebar() {
                     </div>
                 </div>
             </div>
+            {isShowShare && (
+                <Share
+                    isShowShare={isShowShare}
+                    setIsShowShare={setIsShowShare}
+                />
+            )}
         </>
     );
 }

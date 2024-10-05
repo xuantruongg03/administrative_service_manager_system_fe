@@ -2,15 +2,20 @@ import { Column } from "primereact/column";
 import { TreeNode } from "primereact/treenode";
 import { TreeTable } from "primereact/treetable";
 import { useEffect, useState } from "react";
-import { NodeService } from "./services/NodeServices";
 import { BsTrash3Fill } from "react-icons/bs";
-import { FaCircleInfo } from "react-icons/fa6";
+import { FaFileUpload } from "react-icons/fa";
+import { FaCircleInfo, FaFileArrowDown } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
-import { FaFileArrowDown } from "react-icons/fa6";
+import { NodeService } from "./services/NodeServices";
+import FileUploadButton from "./ui/FileUploadButton";
 
 export default function App() {
     const [nodes, setNodes] = useState<TreeNode[]>([]);
     const [selectedNodeKeys, setSelectedNodeKeys] = useState("");
+
+    const handleFileSelect = (file: File) => {
+        console.log(file);
+    };
 
     useEffect(() => {
         NodeService.getTreeTableNodes().then((data) => setNodes(data));
@@ -54,12 +59,27 @@ export default function App() {
                                 <FaCircleInfo className="cursor-pointer hover:text-blue-500 transition-colors duration-200" />
                                 <IoMdMore className="cursor-pointer size-6 hover:text-gray-700 transition-colors duration-200" />
                             </div>
-                            <button className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100">
-                                <FaFileArrowDown className="text-gray-600" />
-                                <span className="text-sm font-medium text-gray-700">
-                                    Export
-                                </span>
-                            </button>
+                            <div className="flex items-center gap-4">
+                                <FileUploadButton
+                                    onFileSelect={handleFileSelect}
+                                    icon={
+                                        <FaFileUpload className="text-gray-600" />
+                                    }
+                                    label="Nhập"
+                                    accept=".xlsx, .xls"
+                                />
+                                <input
+                                    type="file"
+                                    id="fileInput"
+                                    className="hidden"
+                                />
+                                <button className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100">
+                                    <FaFileArrowDown className="text-gray-600" />
+                                    <span className="text-sm font-medium text-gray-700">
+                                        Xuất
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -71,7 +91,6 @@ export default function App() {
                     className="min-w-full divide-y divide-gray-200"
                     selectionMode="checkbox"
                     selectionKeys={selectedNodeKeys}
-                    // responsiveLayout="scroll"
                 >
                     <Column
                         field="code"

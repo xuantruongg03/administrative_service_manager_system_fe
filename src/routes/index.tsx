@@ -1,40 +1,46 @@
 import { lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
-import Auth from "../pages/Auth";
-import { CONSTANTS } from "../utils/constants";
 import LazyLayout from "../layouts/LazyLayout";
 import RootLayout from "../layouts/RootLayout";
 import NotFound from "../pages/NotFound";
-const App = lazy(() => import("../App.js"));
-const Map = lazy(() => import("../pages/Map.js"));
+const App = lazy(() => import("../App"));
+const Documents = lazy(() => import("../pages/Documents"));
+const Map = lazy(() => import("../pages/Map"));
 
 const routes = createBrowserRouter([
     {
-        path: CONSTANTS.PATH.ROOT_PATH,
-        element: <Auth />,
+        path: "/",
+        element: <RootLayout />,
         children: [
             {
-                path: "",
+                index: true,
                 element: (
                     <LazyLayout>
-                        <RootLayout>
-                            <App />
-                        </RootLayout>
+                        <App />
                     </LazyLayout>
                 ),
             },
             {
-                path: "/map",
+                path: "attachments-documents",
                 element: (
                     <LazyLayout>
-                        <RootLayout>
-                            <Map />
-                        </RootLayout>
+                        <Documents />
+                    </LazyLayout>
+                ),
+            },
+            {
+                path: "map",
+                element: (
+                    <LazyLayout>
+                        <Map />
                     </LazyLayout>
                 ),
             },
         ],
-        errorElement: <NotFound />,
+    },
+    {
+        path: "*",
+        element: <NotFound />,
     },
 ]);
 

@@ -114,7 +114,7 @@ function MapRender(props: MapRenderProps, className?: string) {
     }, [renderMap]);
 
     return (
-        <div className={`position-relative w-full h-[570px] ${className}`}>
+        <div className={`position-relative w-full h-[550px] ${className}`}>
             <div
                 ref={mapContainer}
                 className="position-absolute w-full h-full"
