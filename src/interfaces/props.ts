@@ -69,6 +69,13 @@ interface FileUploadButtonProps {
     accept?: string;
 }
 
+interface InforBusinessPopupProps {
+    isOpen: boolean;
+    onClose: () => void;
+    id: string;
+}
+
+
 export type {
     PaginationProps,
     FilterProps,
@@ -77,5 +84,6 @@ export type {
     MapRenderProps,
     PreviewFileProps,
     ShareProps,
-    FileUploadButtonProps
+    FileUploadButtonProps,
+    InforBusinessPopupProps,
 };

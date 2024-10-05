@@ -4,7 +4,8 @@ import {
     FilterProps,
     TypographyProps,
     ShareProps,
-    FileUploadButtonProps
+    FileUploadButtonProps,
+    InforBusinessPopupProps,
 } from "./props";
 
 export type {
@@ -13,5 +14,6 @@ export type {
     FilterProps,
     TypographyProps,
     ShareProps,
-    FileUploadButtonProps
+    FileUploadButtonProps,
+    InforBusinessPopupProps,
 };

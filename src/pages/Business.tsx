@@ -3,18 +3,26 @@ import { TreeNode } from "primereact/treenode";
 import { TreeTable } from "primereact/treetable";
 import { useEffect, useState } from "react";
 import { BsTrash3Fill } from "react-icons/bs";
-import { FaFileUpload } from "react-icons/fa";
+import { FaEye, FaFileUpload } from "react-icons/fa";
 import { FaCircleInfo, FaFileArrowDown } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
+import InforBusinessPopup from "../components/InforBusinessPopup";
 import { NodeService } from "../services/NodeServices";
 import FileUploadButton from "../ui/FileUploadButton";
 
 export default function Business() {
     const [nodes, setNodes] = useState<TreeNode[]>([]);
     const [selectedNodeKeys, setSelectedNodeKeys] = useState("");
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [idBusiness, setIdBusiness] = useState<string>("");
 
     const handleFileSelect = (file: File) => {
         console.log(file);
+    };
+
+    const handleViewBusiness = (data: string) => {
+        setIsPopupOpen(true);
+        setIdBusiness(data);
     };
 
     useEffect(() => {
@@ -109,6 +117,11 @@ export default function Business() {
                         header="Tên doanh nghiệp"
                         headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                        body={(rowData) => (
+                            <div className="max-w-[250px] overflow-hidden text-ellipsis whitespace-nowrap" title={rowData.data.name}>
+                                {rowData.data.name}
+                            </div>
+                        )}
                     ></Column>
                     <Column
                         field="shortName"
@@ -120,17 +133,16 @@ export default function Business() {
                         field="address"
                         header="Địa chỉ"
                         headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                        bodyClassName="px-4 py-2 md:px-6 md:py-4 text-sm text-gray-900"
+                        body={(rowData) => (
+                            <div className="w-[350px] overflow-hidden text-ellipsis whitespace-nowrap" title={rowData.data.address}>
+                                {rowData.data.address}
+                            </div>
+                        )}
                     ></Column>
                     <Column
                         field="phoneNumber"
                         header="Số điện thoại"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                    ></Column>
-                    <Column
-                        field="registeredCapital"
-                        header="Vốn điều lệ (VNĐ)"
                         headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                     ></Column>
@@ -166,8 +178,31 @@ export default function Business() {
                             </div>
                         )}
                     ></Column>
+                    <Column
+                        field="action"
+                        header="Hành động"
+                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                        body={(rowData) => (
+                            <div className="flex items-center justify-center gap-2">
+                                <button
+                                    className="text-blue-500 hover:text-blue-600"
+                                    onClick={() =>
+                                        handleViewBusiness(rowData.data.code)
+                                    }
+                                >
+                                    <FaEye className="text-gray-600" />
+                                </button>
+                            </div>
+                        )}
+                    ></Column>
                 </TreeTable>
             </div>
+            <InforBusinessPopup
+                isOpen={isPopupOpen}
+                onClose={() => setIsPopupOpen(false)}
+                id={idBusiness}
+            />
         </div>
     );
 }
