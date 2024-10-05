@@ -3,7 +3,7 @@ import { TreeNode } from "primereact/treenode";
 import { TreeTable } from "primereact/treetable";
 import { useEffect, useState } from "react";
 import { BsTrash3Fill } from "react-icons/bs";
-import { FaEye, FaFileUpload } from "react-icons/fa";
+import { FaEdit, FaEye, FaFileUpload } from "react-icons/fa";
 import { FaCircleInfo, FaFileArrowDown } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
 import InforBusinessPopup from "../components/InforBusinessPopup";
@@ -12,7 +12,7 @@ import FileUploadButton from "../ui/FileUploadButton";
 
 export default function Business() {
     const [nodes, setNodes] = useState<TreeNode[]>([]);
-    const [selectedNodeKeys, setSelectedNodeKeys] = useState("");
+    const [selectedBusiness, setSelectedBusiness] = useState<string[]>([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [idBusiness, setIdBusiness] = useState<string>("");
 
@@ -23,6 +23,28 @@ export default function Business() {
     const handleViewBusiness = (data: string) => {
         setIsPopupOpen(true);
         setIdBusiness(data);
+    };
+
+    const handleCheckboxChange = (rowKey: string) => {
+        if (selectedBusiness.includes(rowKey)) {
+            setSelectedBusiness(
+                selectedBusiness.filter((code) => code !== rowKey),
+            );
+        } else {
+            setSelectedBusiness([...selectedBusiness, rowKey]);
+        }
+    };
+
+    const handleSelectAllBusiness = () => {
+        if(selectedBusiness.length === nodes.length) {
+            setSelectedBusiness([]);
+        } else {
+            setSelectedBusiness(nodes.map(node => node.data.code));
+        }
+    };
+
+    const handleDeleteBusiness = () => {
+        console.log(selectedBusiness);
     };
 
     useEffect(() => {
@@ -63,7 +85,10 @@ export default function Business() {
                         <div className="h-8 w-px bg-gray-300 hidden md:block"></div>
                         <div className="flex items-center gap-4 md:gap-6 justify-between md:w-full">
                             <div className="flex items-center gap-4">
-                                <BsTrash3Fill className="cursor-pointer hover:text-red-500 transition-colors duration-200" />
+                                <BsTrash3Fill
+                                    className="cursor-pointer hover:text-red-500 transition-colors duration-200"
+                                    onClick={handleDeleteBusiness}
+                                />
                                 <FaCircleInfo className="cursor-pointer hover:text-blue-500 transition-colors duration-200" />
                                 <IoMdMore className="cursor-pointer size-6 hover:text-gray-700 transition-colors duration-200" />
                             </div>
@@ -98,8 +123,37 @@ export default function Business() {
                     tableStyle={{ minWidth: "50rem" }}
                     className="min-w-full divide-y divide-gray-200"
                     selectionMode="checkbox"
-                    selectionKeys={selectedNodeKeys}
                 >
+                    <Column
+                        headerStyle={{ width: "3rem" }}
+                        header = {
+                            <div className="flex items-center justify-center">
+                            <input
+                                type="checkbox"
+                                className="form-checkbox size-4 text-blue-600"
+                                checked={selectedBusiness.length === nodes.length}
+                                onChange={handleSelectAllBusiness}
+                            />
+                        </div>
+                        }
+                        bodyStyle={{ textAlign: "center" }}
+                        body={(rowData) => (
+                            <div className="flex items-center justify-center">
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox size-4 text-blue-600"
+                                    checked={
+                                        selectedBusiness.includes(
+                                            rowData.data.code,
+                                        ) || false
+                                    }
+                                    onChange={() =>
+                                        handleCheckboxChange(rowData.data.code)
+                                    }
+                                />
+                            </div>
+                        )}
+                    />
                     <Column
                         field="code"
                         header="Mã số DN"
@@ -118,16 +172,13 @@ export default function Business() {
                         headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                         body={(rowData) => (
-                            <div className="max-w-[250px] overflow-hidden text-ellipsis whitespace-nowrap" title={rowData.data.name}>
+                            <div
+                                className="w-[170px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={rowData.data.name}
+                            >
                                 {rowData.data.name}
                             </div>
                         )}
-                    ></Column>
-                    <Column
-                        field="shortName"
-                        header="Tên viết tắt"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                     ></Column>
                     <Column
                         field="address"
@@ -135,7 +186,10 @@ export default function Business() {
                         headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 text-sm text-gray-900"
                         body={(rowData) => (
-                            <div className="w-[350px] overflow-hidden text-ellipsis whitespace-nowrap" title={rowData.data.address}>
+                            <div
+                                className="w-[300px] overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={rowData.data.address}
+                            >
                                 {rowData.data.address}
                             </div>
                         )}
@@ -184,14 +238,17 @@ export default function Business() {
                         headerClassName="px-4 py-2 md:px-6 md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                         body={(rowData) => (
-                            <div className="flex items-center justify-center gap-2">
+                            <div className="flex items-center justify-center gap-3">
                                 <button
-                                    className="text-blue-500 hover:text-blue-600"
+                                    className="text-blue-500 "
                                     onClick={() =>
                                         handleViewBusiness(rowData.data.code)
                                     }
                                 >
-                                    <FaEye className="text-gray-600" />
+                                    <FaEye className="text-gray-600 hover:text-blue-600" />
+                                </button>
+                                <button className="text-blue-500 ">
+                                    <FaEdit className="text-gray-600 hover:text-green-600" />
                                 </button>
                             </div>
                         )}

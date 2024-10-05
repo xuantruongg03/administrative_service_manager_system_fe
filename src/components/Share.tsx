@@ -18,7 +18,9 @@ function Share(props: ShareProps) {
         const fetchLocalIP = async () => {
             try {
                 const response = await fetch(
-                    `${import.meta.env.VITE_SERVER_GET_LOCAL_IP_URL}/api/local-ip`,
+                    `${
+                        import.meta.env.VITE_SERVER_GET_LOCAL_IP_URL
+                    }/api/local-ip`,
                 );
                 const data = await response.json();
                 const localLink = `http://${data.localIP}:5173`;
@@ -30,14 +32,28 @@ function Share(props: ShareProps) {
         };
 
         fetchLocalIP();
-    }, []);
+
+        const handleEscKey = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setIsShowShare(false);
+            }
+        };
+
+        if (isShowShare) {
+            document.addEventListener("keydown", handleEscKey);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleEscKey);
+        };
+    }, [isShowShare, setIsShowShare]);
 
     if (isShowShare) {
         return (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg w-[360px] relative">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-[360px] relative animate-zoom-in">
                     <button
-                        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
                         onClick={() => setIsShowShare(false)}
                     >
                         <MdClose size={20} />
@@ -46,7 +62,8 @@ function Share(props: ShareProps) {
                         Chia sẻ
                     </h2>
                     <p className="text-sm text-gray-600 mb-4 text-center">
-                        Quét mã QR hoặc sao chép đường link bên dưới để chia sẻ ứng dụng
+                        Quét mã QR hoặc sao chép đường dẫn bên dưới để chia sẻ
+                        ứng dụng
                     </p>
                     <div className="w-48 h-48 mx-auto mb-4">
                         {link !== "Không thể lấy địa chỉ IP local" ? (
@@ -77,7 +94,8 @@ function Share(props: ShareProps) {
                         </p>
                     )}
                     <p className="text-xs text-gray-500 text-center">
-                        Thiết bị chia sẻ phải kết nối cùng mạng với thiết bị được chia sẻ
+                        Thiết bị chia sẻ phải kết nối cùng mạng với thiết bị
+                        được chia sẻ
                     </p>
                 </div>
             </div>
