@@ -80,6 +80,12 @@ interface SidebarMobileProps {
     onClose: () => void;
 }
 
+interface AddEmployeeModalProps {
+    show: boolean;
+    onHide: () => void;
+}
+
+
 export type {
     PaginationProps,
     FilterProps,
@@ -91,4 +97,5 @@ export type {
     FileUploadButtonProps,
     InforBusinessPopupProps,
     SidebarMobileProps,
+    AddEmployeeModalProps,
 };

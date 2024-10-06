@@ -7,6 +7,7 @@ import {
     FileUploadButtonProps,
     InforBusinessPopupProps,
     SidebarMobileProps,
+    AddEmployeeModalProps,
 } from "./props";
 
 export type {
@@ -18,4 +19,5 @@ export type {
     FileUploadButtonProps,
     InforBusinessPopupProps,
     SidebarMobileProps,
+    AddEmployeeModalProps,
 };

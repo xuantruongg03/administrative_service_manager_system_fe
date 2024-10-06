@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { Chart } from 'primereact/chart';
 import { Card } from 'primereact/card';
 import { Dropdown } from 'primereact/dropdown';
+// Fake data
 
 function App() {
-    const [timeRange, setTimeRange] = useState('month');
-
-    // Fake data
     const stats = {
         totalBusinesses: 1234,
         totalDocuments: 5678,
@@ -47,7 +45,8 @@ function App() {
             }]
         }
     };
-
+    const [timeRange, setTimeRange] = useState('month');
+    
     return (
         <div className="">
             <div className="flex flex-col md:flex-row justify-between items-center ">
@@ -65,18 +64,22 @@ function App() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className='p-4'>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <Card className='p-1'>
                     <div className="text-sm font-medium text-gray-500 mb-2">Tổng số doanh nghiệp</div>
                     <div className="text-3xl font-bold">{stats.totalBusinesses}</div>
                 </Card>
-                <Card className='p-4'>
+                <Card className='p-1'>
                     <div className="text-sm font-medium text-gray-500 mb-2">Tổng số tài liệu</div>
                     <div className="text-3xl font-bold">{stats.totalDocuments}</div>
                 </Card>
-                <Card className='p-4'>
+                <Card className='p-1'>
                     <div className="text-sm font-medium text-gray-500 mb-2">Doanh nghiệp mới trong kỳ</div>
                     <div className="text-3xl font-bold">{stats.newBusinesses}</div>
+                </Card>
+                <Card className='p-1'>
+                    <div className="text-sm font-medium text-gray-500 mb-2">Doanh nghiệp vi phạm</div>
+                    <div className="text-3xl font-bold">{stats.totalBusinesses}</div>
                 </Card>
             </div>
 
