@@ -8,13 +8,15 @@ const CONSTANTS = {
         DOCS_PATH: "/docs",
         CONTACT_PATH: "/contact",   
         BUSINESS_PATH: "/business",
-        EDIT_BUSINESS_PATH: "/business/edit/"
+        EDIT_BUSINESS_PATH: "/business/edit/",
+        HELP_PATH: "/help",
     },
     NAME_TOKEN: "token",
     STATUS_LOGIN: "status-login",
-    LIMIT_POST: 5,
+    LIMIT_BUSINESS: 7,
     INIT_POST: 0,
     DATE_DEFAULT: new Date().toISOString().split("T")[0],
+    PAGE_DEFAULT: 1,
 };
 
 export { CONSTANTS };

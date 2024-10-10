@@ -63,10 +63,10 @@
     width: 64px;
     height: 64px;
     position: relative;
-    background-image: linear-gradient(#BBE6FF 16px, transparent 0),
+    background-image: linear-gradient(#bbe6ff 16px, transparent 0),
         linear-gradient(#53a7d8 16px, transparent 0),
         linear-gradient(#53a7d8 16px, transparent 0),
-        linear-gradient(#BBE6FF 16px, transparent 0);
+        linear-gradient(#bbe6ff 16px, transparent 0);
     background-repeat: no-repeat;
     background-size: 16px 16px;
     background-position: left top, left bottom, right top, right bottom;
@@ -87,5 +87,53 @@
         width: 64px;
         height: 64px;
         transform: rotate(360deg);
+    }
+}
+
+.loader-mini {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    position: relative;
+    animation: rotate 1s linear infinite;
+}
+.loader-mini::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    inset: 0px;
+    border-radius: 50%;
+    border: 3px solid #4170f0;
+    animation: prixClipFix 2s linear infinite;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes prixClipFix {
+    0% {
+        clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
+    }
+    25% {
+        clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
+    }
+    50% {
+        clip-path: polygon(
+            50% 50%,
+            0 0,
+            100% 0,
+            100% 100%,
+            100% 100%,
+            100% 100%
+        );
+    }
+    75% {
+        clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+    }
+    100% {
+        clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
     }
 }

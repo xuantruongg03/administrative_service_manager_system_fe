@@ -9,6 +9,7 @@ import {
     SidebarMobileProps,
     AddEmployeeModalProps,
 } from "./props";
+import { BusinessDataApi } from "./api";
 
 export type {
     Action,
@@ -20,4 +21,5 @@ export type {
     InforBusinessPopupProps,
     SidebarMobileProps,
     AddEmployeeModalProps,
+    BusinessDataApi
 };

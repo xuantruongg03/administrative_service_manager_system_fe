@@ -3,4 +3,9 @@ const formatVND = (value: number) => {
     return formatted.replace('₫', '').trim();
 }
 
-export { formatVND };
+const formatDate = (date: string) => {
+    const formatted = new Date(date).toLocaleDateString('vi-VN');
+    return formatted;
+}
+
+export { formatVND, formatDate };

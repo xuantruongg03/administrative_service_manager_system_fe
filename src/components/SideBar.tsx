@@ -73,9 +73,9 @@ function Sidebar() {
                         <div className="mt-auto">
                             <div className="w-10 h-0.5 bg-gray-600 my-3"></div>
                             <Link
-                                to={CONSTANTS.PATH.DOCS_PATH}
+                                to={CONSTANTS.PATH.HELP_PATH}
                                 className={`flex items-center justify-center w-12 h-12 mt-2 hover:text-white hover:bg-medhealth-blue rounded-lg ${
-                                    CONSTANTS.PATH.DOCS_PATH ===
+                                    CONSTANTS.PATH.HELP_PATH ===
                                     baseUrl.pathname
                                         ? "bg-medhealth-blue text-white"
                                         : ""

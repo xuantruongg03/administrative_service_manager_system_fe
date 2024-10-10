@@ -1,3 +1,4 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Column } from "primereact/column";
 import { TreeNode } from "primereact/treenode";
 import { TreeTable } from "primereact/treetable";
@@ -8,18 +9,52 @@ import { FaCircleInfo, FaFileArrowDown } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
 import InforBusinessPopup from "../components/InforBusinessPopup";
-import { NodeService } from "../services/NodeServices";
+import LoadingMini from "../components/LoadingMini";
+import Pagination from "../components/Pagination";
+import useCreateBusinessByExcel from "../hooks/createBusinessByExcel";
+import { BusinessDataApi } from "../interfaces";
+import businessService from "../services/business";
 import FileUploadButton from "../ui/FileUploadButton";
 import { CONSTANTS } from "../utils/constants";
+import { formatDate } from "../utils/format";
+import Loading from "./Loading";
+import useExportBusinessToExcel from "../hooks/exportBusinessToExcel";
+
+const getBusiness = async (params: { page: number; limit: number }) => {
+    const response = await businessService.getBusiness(params);
+    return response;
+};
 
 export default function Business() {
-    const [nodes, setNodes] = useState<TreeNode[]>([]);
+    const [nodes, setNodes] = useState<BusinessDataApi[]>([]);
     const [selectedBusiness, setSelectedBusiness] = useState<string[]>([]);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [idBusiness, setIdBusiness] = useState<string>("");
+    const [page, setPage] = useState<number>(CONSTANTS.PAGE_DEFAULT);
+
+    const queryClient = useQueryClient();
+
+    const { data, isLoading } = useQuery({
+        queryKey: ["business", page],
+        queryFn: () => getBusiness({ page, limit: CONSTANTS.LIMIT_BUSINESS }),
+    });
+
+    const {
+        isPending: isPendingExportBusinessToExcel,
+        exportBusinessToExcelMutation,
+    } = useExportBusinessToExcel();
+
+    const {
+        isPending: isPendingCreateBusinessByExcel,
+        createBusinessByExcelMutation,
+    } = useCreateBusinessByExcel();
+
+    const handleExportBusiness = () => {
+        exportBusinessToExcelMutation();
+    };
 
     const handleFileSelect = (file: File) => {
-        console.log(file);
+        createBusinessByExcelMutation({ file });
     };
 
     const handleViewBusiness = (data: string) => {
@@ -38,10 +73,10 @@ export default function Business() {
     };
 
     const handleSelectAllBusiness = () => {
-        if(selectedBusiness.length === nodes.length) {
+        if (selectedBusiness.length === nodes?.length) {
             setSelectedBusiness([]);
         } else {
-            setSelectedBusiness(nodes.map(node => node.data.code));
+            setSelectedBusiness(nodes.map((node) => node.code));
         }
     };
 
@@ -49,9 +84,25 @@ export default function Business() {
         console.log(selectedBusiness);
     };
 
+    // Prefetch next page
     useEffect(() => {
-        NodeService.getTreeTableNodes().then((data) => setNodes(data));
-    }, []);
+        if (!data?.isLastPage) {
+            const nextPage = page + 1;
+            queryClient.prefetchQuery({
+                queryKey: ["business", nextPage],
+                queryFn: () =>
+                    getBusiness({
+                        page: nextPage,
+                        limit: CONSTANTS.LIMIT_BUSINESS,
+                    }),
+            });
+        }
+        setNodes(data?.data || []);
+    }, [data, queryClient, page]);
+
+    if (isLoading) {
+        return <Loading />;
+    }
 
     return (
         <div className="card bg-white">
@@ -95,21 +146,38 @@ export default function Business() {
                                 <IoMdMore className="cursor-pointer size-6 hover:text-gray-700 transition-colors duration-200" />
                             </div>
                             <div className="flex items-center gap-4">
-                                <FileUploadButton
-                                    onFileSelect={handleFileSelect}
-                                    icon={
-                                        <FaFileUpload className="text-gray-600" />
-                                    }
-                                    label="Nhập"
-                                    accept=".xlsx, .xls"
-                                />
-                                <input
-                                    type="file"
-                                    id="fileInput"
-                                    className="hidden"
-                                />
-                                <button className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100">
-                                    <FaFileArrowDown className="text-gray-600" />
+                                {isPendingCreateBusinessByExcel ? (
+                                    <FileUploadButton
+                                        onFileSelect={handleFileSelect}
+                                        icon={<LoadingMini />}
+                                        label="Nhập"
+                                        accept=".xlsx, .xls"
+                                        disabled={
+                                            isPendingCreateBusinessByExcel
+                                        }
+                                    />
+                                ) : (
+                                    <>
+                                        <FileUploadButton
+                                            onFileSelect={handleFileSelect}
+                                            icon={
+                                                <FaFileUpload className="text-gray-600" />
+                                            }
+                                            label="Nhập"
+                                            accept=".xlsx, .xls"
+                                        />
+                                    </>
+                                )}
+                                <button
+                                    className={`flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100 ${isPendingExportBusinessToExcel ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    onClick={handleExportBusiness}
+                                    disabled={isPendingExportBusinessToExcel}
+                                >
+                                    {isPendingExportBusinessToExcel ? (
+                                        <LoadingMini />
+                                    ) : (
+                                        <FaFileArrowDown className="text-gray-600" />
+                                    )}
                                     <span className="text-sm font-medium text-gray-700">
                                         Xuất
                                     </span>
@@ -121,22 +189,25 @@ export default function Business() {
             </div>
             <div className="overflow-x-auto custom-scrollbar">
                 <TreeTable
-                    value={nodes}
+                    value={nodes as TreeNode[]}
                     tableStyle={{ minWidth: "50rem" }}
                     className="min-w-full divide-y divide-gray-200"
                     selectionMode="checkbox"
                 >
                     <Column
                         headerStyle={{ width: "3rem" }}
-                        header = {
+                        header={
                             <div className="flex items-center justify-center">
-                            <input
-                                type="checkbox"
-                                className="form-checkbox size-4 text-blue-600"
-                                checked={selectedBusiness.length === nodes.length}
-                                onChange={handleSelectAllBusiness}
-                            />
-                        </div>
+                                <input
+                                    type="checkbox"
+                                    className="form-checkbox size-4 text-blue-600"
+                                    checked={
+                                        selectedBusiness.length ===
+                                        nodes?.length
+                                    }
+                                    onChange={handleSelectAllBusiness}
+                                />
+                            </div>
                         }
                         bodyStyle={{ textAlign: "center" }}
                         body={(rowData) => (
@@ -146,11 +217,11 @@ export default function Business() {
                                     className="form-checkbox size-4 text-blue-600"
                                     checked={
                                         selectedBusiness.includes(
-                                            rowData.data.code,
+                                            rowData.code,
                                         ) || false
                                     }
                                     onChange={() =>
-                                        handleCheckboxChange(rowData.data.code)
+                                        handleCheckboxChange(rowData.code)
                                     }
                                 />
                             </div>
@@ -159,26 +230,42 @@ export default function Business() {
                     <Column
                         field="code"
                         header="Mã số DN"
-                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                        body={(rowData) => (
+                            <div
+                                className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={rowData.code}
+                            >
+                                {rowData.code}
+                            </div>
+                        )}
                     ></Column>
                     <Column
-                        field="registerDate"
+                        field="created_at"
                         header="Ngày ĐK"
-                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                        body={(rowData) => (
+                            <div
+                                className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={formatDate(rowData.created_at)}
+                            >
+                                {formatDate(rowData.created_at)}
+                            </div>
+                        )}
                     ></Column>
                     <Column
-                        field="name"
+                        field="name_vietnamese"
                         header="Tên doanh nghiệp"
                         headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs w-[250px] font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                         body={(rowData) => (
                             <div
-                                className="w-[170px] overflow-hidden text-ellipsis whitespace-nowrap"
-                                title={rowData.data.name}
+                                className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={rowData.name_vietnamese}
                             >
-                                {rowData.data.name}
+                                {rowData.name_vietnamese}
                             </div>
                         )}
                     ></Column>
@@ -189,47 +276,67 @@ export default function Business() {
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 text-sm text-gray-900"
                         body={(rowData) => (
                             <div
-                                className="w-[250px] overflow-hidden text-ellipsis whitespace-nowrap"
-                                title={rowData.data.address}
+                                className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={rowData.address}
                             >
-                                {rowData.data.address}
+                                {rowData.address}
                             </div>
                         )}
                     ></Column>
                     <Column
-                        field="phoneNumber"
+                        field="phone"
                         header="Số điện thoại"
-                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                    ></Column>
-                    <Column
-                        field="size"
-                        header="Quy mô"
-                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                    ></Column>
-                    <Column
-                        field="type"
-                        header="Trạng thái"
                         headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                         bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                         body={(rowData) => (
                             <div
-                                className={`flex items-center px-0 ${
-                                    rowData.data.type === "Hoạt động"
+                                className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={rowData.phone}
+                            >
+                                {rowData.phone}
+                            </div>
+                        )}
+                    ></Column>
+                    <Column
+                        field="number_of_employees"
+                        header="Quy mô (người)"
+                        headerClassName="px-4 py-2 md:px-6 w-[140px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                        body={(rowData) => (
+                            <div
+                                className="text-center overflow-hidden text-ellipsis whitespace-nowrap"
+                                title={rowData.number_of_employees}
+                            >
+                                {rowData.number_of_employees > 0
+                                    ? rowData.number_of_employees
+                                    : "Chưa cập nhật"}
+                            </div>
+                        )}
+                    ></Column>
+                    <Column
+                        field="status"
+                        header="Trạng thái"
+                        headerClassName="px-4 py-2 md:px-6 w-[150px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                        bodyClassName="px-4 py-2 w-[150px] md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                        body={(rowData) => (
+                            <div
+                                className={`flex items-center overflow-hidden text-ellipsis whitespace-nowra px-0 ${
+                                    rowData.status === "active"
                                         ? "text-green-600"
                                         : "text-red-600"
                                 }`}
                             >
                                 <span
                                     className={`w-2 h-2 mr-2 rounded-full ${
-                                        rowData.data.type === "Hoạt động"
+                                        rowData.status === "active"
                                             ? "bg-green-500"
                                             : "bg-red-500"
                                     }`}
                                 ></span>
-                                <span className="text-sm font-medium">
-                                    {rowData.data.type}
+                                <span className="text-sm font-medium overflow-hidden text-ellipsis whitespace-nowra">
+                                    {rowData.status === "active"
+                                        ? "Hoạt động"
+                                        : "Ngừng hoạt động"}
                                 </span>
                             </div>
                         )}
@@ -244,12 +351,18 @@ export default function Business() {
                                 <button
                                     className="text-blue-500 "
                                     onClick={() =>
-                                        handleViewBusiness(rowData.data.code)
+                                        handleViewBusiness(rowData.code)
                                     }
                                 >
                                     <FaEye className="text-gray-600 size-4 hover:text-blue-600" />
                                 </button>
-                                <Link to={CONSTANTS.PATH.EDIT_BUSINESS_PATH + rowData.data.code} className="text-blue-500 ">
+                                <Link
+                                    to={
+                                        CONSTANTS.PATH.EDIT_BUSINESS_PATH +
+                                        rowData.code
+                                    }
+                                    className="text-blue-500 "
+                                >
                                     <FaEdit className="text-gray-600 size-4 hover:text-green-600" />
                                 </Link>
                             </div>
@@ -257,6 +370,15 @@ export default function Business() {
                     ></Column>
                 </TreeTable>
             </div>
+            <Pagination
+                currentPage={page}
+                totalPage={data?.totalPages || 1}
+                recordsPerPage={CONSTANTS.LIMIT_BUSINESS}
+                totalRecords={data?.totalRecords}
+                onNextPage={() => setPage(page + 1)}
+                onPrevPage={() => setPage(page - 1)}
+                isLast={data?.isLastPage}
+            />
             <InforBusinessPopup
                 isOpen={isPopupOpen}
                 onClose={() => setIsPopupOpen(false)}

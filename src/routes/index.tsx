@@ -4,6 +4,7 @@ import LazyLayout from "../layouts/LazyLayout";
 import RootLayout from "../layouts/RootLayout";
 import NotFound from "../pages/NotFound";
 import { CONSTANTS } from "../utils/constants";
+const Help = lazy(() => import("../pages/Help"));
 const App = lazy(() => import("../App"));
 const Business = lazy(() => import("../pages/Business"));
 const Documents = lazy(() => import("../pages/Documents"));
@@ -52,6 +53,14 @@ const routes = createBrowserRouter([
                 element: (
                     <LazyLayout>
                         <EditBusiness />
+                    </LazyLayout>
+                ),
+            },
+            {
+                path: CONSTANTS.PATH.HELP_PATH,
+                element: (
+                    <LazyLayout>
+                        <Help />
                     </LazyLayout>
                 ),
             },

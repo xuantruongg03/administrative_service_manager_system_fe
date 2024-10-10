@@ -1,4 +1,3 @@
-import Typography from "../ui/Typography";
 import { MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import { PaginationProps } from "../interfaces";
 
@@ -14,41 +13,53 @@ function Pagination(props: PaginationProps) {
     };
 
     return (
-        <div className="flex items-center justify-between p-4 mt-4">
-            <div className="w-2/3">
-                <Typography
-                    variant="small"
-                    color="blue-gray"
-                    className="font-normal"
-                    children={`Total record count: ${props.totalRecords}`}
-                />
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4 mt-4 bg-white shadow-sm rounded-lg">
+            <div className="flex items-center space-x-2 mb-4 sm:mb-0">
+                <span className="text-sm text-gray-700">
+                    Hiển thị{" "}
+                    <span className="font-medium">
+                        {Math.min(
+                            props.currentPage * props.recordsPerPage -
+                                props.recordsPerPage +
+                                1,
+                            props.totalRecords,
+                        )}
+                    </span>{" "}
+                    tới{" "}
+                    <span className="font-medium">
+                        {Math.min(
+                            props.currentPage * props.recordsPerPage,
+                            props.totalRecords,
+                        )}
+                    </span>{" "}
+                    trong số{" "}
+                    <span className="font-medium">{props.totalRecords}</span>{" "}
+                    kết quả
+                </span>
             </div>
-            <div className="flex items-center w-1/3 justify-between">
-                <Typography
-                    variant="small"
-                    color="blue-gray"
-                    className="font-normal"
-                    children={`Page 1: ${props.recordsPerPage} records`}
-                />
-                <div className="flex items-center">
-                    <Typography
-                        variant="small"
-                        color="blue-gray"
-                        className="font-normal"
-                        children={`Between ${props.currentPage} in ${props.totalPage} pages`}
-                    />
-                    <div className="flex ml-2">
-                        <MdNavigateBefore
-                            onClick={handlePrevPage}
-                            className="h-7 w-7 hover:bg-medhealth-button-blue cursor-pointer"
-                        />
-                        <MdNavigateNext
-                            onClick={handleNextPage}
-                            className="h-7 w-7 hover:bg-medhealth-button-blue cursor-pointer"
-                        />
-                    </div>
+            {props.totalRecords > props.recordsPerPage && (
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={handlePrevPage}
+                        disabled={props.currentPage === 1}
+                        className="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <MdNavigateBefore className="h-5 w-5" />
+                    </button>
+                    <span className="text-sm text-gray-700">
+                        Trang{" "}
+                        <span className="font-medium">{props.currentPage}</span>{" "}
+                        / <span className="font-medium">{props.totalPage}</span>
+                    </span>
+                    <button
+                        onClick={handleNextPage}
+                        disabled={props.isLast}
+                        className="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <MdNavigateNext className="h-5 w-5" />
+                    </button>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

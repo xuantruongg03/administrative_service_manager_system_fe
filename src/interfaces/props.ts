@@ -67,6 +67,7 @@ interface FileUploadButtonProps {
     label?: string;
     icon?: React.ReactNode;
     accept?: string;
+    disabled?: boolean;
 }
 
 interface InforBusinessPopupProps {

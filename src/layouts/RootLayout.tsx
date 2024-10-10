@@ -1,6 +1,8 @@
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function RootLayout() {
     return (
@@ -14,6 +16,7 @@ function RootLayout() {
                     <Outlet />
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 }
