@@ -11,15 +11,18 @@ import { Link } from "react-router-dom";
 import InforBusinessPopup from "../components/InforBusinessPopup";
 import LoadingMini from "../components/LoadingMini";
 import Pagination from "../components/Pagination";
-import useCreateBusinessByExcel from "../hooks/createBusinessByExcel";
+import useCreateBusinessByExcel from "../hooks/useCreateBusinessByExcel";
 import { BusinessDataApi } from "../interfaces";
 import businessService from "../services/business";
 import FileUploadButton from "../ui/FileUploadButton";
 import { CONSTANTS } from "../utils/constants";
 import { formatDate } from "../utils/format";
 import Loading from "./Loading";
-import useExportBusinessToExcel from "../hooks/exportBusinessToExcel";
+import useExportBusinessToExcel from "../hooks/useExportBusinessToExcel";
 import useDebounce from "../hooks/useDebounce";
+import useDeleteBusiness from "../hooks/useDeleteBusiness";
+import YNModel from "../components/YNModel";
+import { toast } from "react-toastify";
 
 const getBusiness = async (params: {
     page: number;
@@ -38,6 +41,7 @@ export default function Business() {
     const [page, setPage] = useState<number>(CONSTANTS.PAGE_DEFAULT);
     const [keyword, setKeyword] = useState<string>("");
     const debouncedKeyword = useDebounce(keyword, 1000);
+    const [isYNModelOpen, setIsYNModelOpen] = useState(false);
 
     const queryClient = useQueryClient();
 
@@ -60,6 +64,8 @@ export default function Business() {
         exportBusinessToExcelMutation,
     } = useExportBusinessToExcel();
 
+    const { mutateAsync: deleteBusinessMutation } = useDeleteBusiness();
+
     const {
         isPending: isPendingCreateBusinessByExcel,
         createBusinessByExcelMutation,
@@ -69,8 +75,9 @@ export default function Business() {
         exportBusinessToExcelMutation();
     };
 
-    const handleFileSelect = (file: File) => {
-        createBusinessByExcelMutation({ file });
+    const handleFileSelect = async (file: File) => {
+        await createBusinessByExcelMutation({ file });
+        queryClient.invalidateQueries({ queryKey: ["business"] });
     };
 
     const handleViewBusiness = (data: string) => {
@@ -97,7 +104,18 @@ export default function Business() {
     };
 
     const handleDeleteBusiness = () => {
-        console.log(selectedBusiness);
+        if (selectedBusiness.length === 0) {
+            toast.error("Vui lòng chọn doanh nghiệp để xóa");
+            return;
+        }
+        setIsYNModelOpen(true);
+    };
+
+    const handleDeleteBusinessConfirm = async () => {
+        await deleteBusinessMutation(selectedBusiness);
+        queryClient.invalidateQueries({ queryKey: ["business"] });
+        setSelectedBusiness([]);
+        setIsYNModelOpen(false);
     };
 
     // Prefetch next page
@@ -412,6 +430,15 @@ export default function Business() {
                 isOpen={isPopupOpen}
                 onClose={() => setIsPopupOpen(false)}
                 id={idBusiness}
+            />
+            <YNModel
+                isOpen={isYNModelOpen}
+                onClose={() => setIsYNModelOpen(false)}
+                onConfirm={handleDeleteBusinessConfirm}
+                label="Xóa doanh nghiệp"
+                description="Bạn có chắc chắn muốn xóa doanh nghiệp này không?"
+                yesLabel="Xóa"
+                noLabel="Hủy"
             />
         </div>
     );

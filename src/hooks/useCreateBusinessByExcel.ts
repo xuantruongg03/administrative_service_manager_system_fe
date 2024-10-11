@@ -8,7 +8,7 @@ const addBusinessByExcel = async (params: {file: File}) => {
 
 const useCreateBusinessByExcel = () => {
    const {isPending, mutateAsync: createBusinessByExcelMutation} = useMutation({
-    mutationFn: addBusinessByExcel,
+    mutationFn: (params: {file: File}) => addBusinessByExcel(params),
    })
    return {isPending, createBusinessByExcelMutation};
 };
