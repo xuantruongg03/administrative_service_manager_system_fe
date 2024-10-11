@@ -1,7 +1,7 @@
 import axiosClient, { downloadFile, uploadFile } from "../apis/axiosClients";
 
-const getBusiness = async (params: {page: number, limit: number}) => {
-    const response = await axiosClient.get(`/businesses?page=${params.page}&limit=${params.limit}`);
+const getBusiness = async (params: {page: number, limit: number, keyword: string}) => {
+    const response = await axiosClient.get(`/businesses?page=${params.page}&limit=${params.limit}&keyword=${params.keyword}`);
     return response.data;
 };
 
@@ -16,10 +16,11 @@ const exportBusinessToExcel = async () => {
     return response;
 };
 
+
 const businessService = {
     getBusiness,
     addBusinessByExcel,
-    exportBusinessToExcel
+    exportBusinessToExcel,
 }
 
 export default businessService;

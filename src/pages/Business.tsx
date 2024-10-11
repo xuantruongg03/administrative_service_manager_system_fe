@@ -19,8 +19,13 @@ import { CONSTANTS } from "../utils/constants";
 import { formatDate } from "../utils/format";
 import Loading from "./Loading";
 import useExportBusinessToExcel from "../hooks/exportBusinessToExcel";
+import useDebounce from "../hooks/useDebounce";
 
-const getBusiness = async (params: { page: number; limit: number }) => {
+const getBusiness = async (params: {
+    page: number;
+    limit: number;
+    keyword: string;
+}) => {
     const response = await businessService.getBusiness(params);
     return response;
 };
@@ -31,13 +36,24 @@ export default function Business() {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [idBusiness, setIdBusiness] = useState<string>("");
     const [page, setPage] = useState<number>(CONSTANTS.PAGE_DEFAULT);
+    const [keyword, setKeyword] = useState<string>("");
+    const debouncedKeyword = useDebounce(keyword, 1000);
 
     const queryClient = useQueryClient();
 
     const { data, isLoading } = useQuery({
-        queryKey: ["business", page],
-        queryFn: () => getBusiness({ page, limit: CONSTANTS.LIMIT_BUSINESS }),
+        queryKey: ["business", page, debouncedKeyword],
+        queryFn: () =>
+            getBusiness({
+                page,
+                limit: CONSTANTS.LIMIT_BUSINESS,
+                keyword: debouncedKeyword,
+            }),
     });
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setKeyword(e.target.value);
+    };
 
     const {
         isPending: isPendingExportBusinessToExcel,
@@ -89,20 +105,17 @@ export default function Business() {
         if (!data?.isLastPage) {
             const nextPage = page + 1;
             queryClient.prefetchQuery({
-                queryKey: ["business", nextPage],
+                queryKey: ["business", nextPage, debouncedKeyword],
                 queryFn: () =>
                     getBusiness({
                         page: nextPage,
                         limit: CONSTANTS.LIMIT_BUSINESS,
+                        keyword: debouncedKeyword,
                     }),
             });
         }
         setNodes(data?.data || []);
-    }, [data, queryClient, page]);
-
-    if (isLoading) {
-        return <Loading />;
-    }
+    }, [data, queryClient, page, debouncedKeyword]);
 
     return (
         <div className="card bg-white">
@@ -120,6 +133,8 @@ export default function Business() {
                                     type="text"
                                     placeholder="Tìm kiếm..."
                                     className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-0"
+                                    value={keyword}
+                                    onChange={handleSearch}
                                 />
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -169,7 +184,11 @@ export default function Business() {
                                     </>
                                 )}
                                 <button
-                                    className={`flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100 ${isPendingExportBusinessToExcel ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    className={`flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100 ${
+                                        isPendingExportBusinessToExcel
+                                            ? "opacity-50 cursor-not-allowed"
+                                            : ""
+                                    }`}
                                     onClick={handleExportBusiness}
                                     disabled={isPendingExportBusinessToExcel}
                                 >
@@ -187,189 +206,199 @@ export default function Business() {
                     </div>
                 </div>
             </div>
-            <div className="overflow-x-auto custom-scrollbar">
-                <TreeTable
-                    value={nodes as TreeNode[]}
-                    tableStyle={{ minWidth: "50rem" }}
-                    className="min-w-full divide-y divide-gray-200"
-                    selectionMode="checkbox"
-                >
-                    <Column
-                        headerStyle={{ width: "3rem" }}
-                        header={
-                            <div className="flex items-center justify-center">
-                                <input
-                                    type="checkbox"
-                                    className="form-checkbox size-4 text-blue-600"
-                                    checked={
-                                        selectedBusiness.length ===
-                                        nodes?.length
-                                    }
-                                    onChange={handleSelectAllBusiness}
-                                />
-                            </div>
-                        }
-                        bodyStyle={{ textAlign: "center" }}
-                        body={(rowData) => (
-                            <div className="flex items-center justify-center">
-                                <input
-                                    type="checkbox"
-                                    className="form-checkbox size-4 text-blue-600"
-                                    checked={
-                                        selectedBusiness.includes(
-                                            rowData.code,
-                                        ) || false
-                                    }
-                                    onChange={() =>
-                                        handleCheckboxChange(rowData.code)
-                                    }
-                                />
-                            </div>
-                        )}
-                    />
-                    <Column
-                        field="code"
-                        header="Mã số DN"
-                        headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                        body={(rowData) => (
-                            <div
-                                className="overflow-hidden text-ellipsis whitespace-nowrap"
-                                title={rowData.code}
-                            >
-                                {rowData.code}
-                            </div>
-                        )}
-                    ></Column>
-                    <Column
-                        field="created_at"
-                        header="Ngày ĐK"
-                        headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                        body={(rowData) => (
-                            <div
-                                className="overflow-hidden text-ellipsis whitespace-nowrap"
-                                title={formatDate(rowData.created_at)}
-                            >
-                                {formatDate(rowData.created_at)}
-                            </div>
-                        )}
-                    ></Column>
-                    <Column
-                        field="name_vietnamese"
-                        header="Tên doanh nghiệp"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs w-[250px] font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                        body={(rowData) => (
-                            <div
-                                className="overflow-hidden text-ellipsis whitespace-nowrap"
-                                title={rowData.name_vietnamese}
-                            >
-                                {rowData.name_vietnamese}
-                            </div>
-                        )}
-                    ></Column>
-                    <Column
-                        field="address"
-                        header="Địa chỉ"
-                        headerClassName="px-4 py-2 md:px-6 md:py-3 text-left w-[300px] text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 text-sm text-gray-900"
-                        body={(rowData) => (
-                            <div
-                                className="overflow-hidden text-ellipsis whitespace-nowrap"
-                                title={rowData.address}
-                            >
-                                {rowData.address}
-                            </div>
-                        )}
-                    ></Column>
-                    <Column
-                        field="phone"
-                        header="Số điện thoại"
-                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                        body={(rowData) => (
-                            <div
-                                className="overflow-hidden text-ellipsis whitespace-nowrap"
-                                title={rowData.phone}
-                            >
-                                {rowData.phone}
-                            </div>
-                        )}
-                    ></Column>
-                    <Column
-                        field="number_of_employees"
-                        header="Quy mô (người)"
-                        headerClassName="px-4 py-2 md:px-6 w-[140px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                        body={(rowData) => (
-                            <div
-                                className="text-center overflow-hidden text-ellipsis whitespace-nowrap"
-                                title={rowData.number_of_employees}
-                            >
-                                {rowData.number_of_employees > 0
-                                    ? rowData.number_of_employees
-                                    : "Chưa cập nhật"}
-                            </div>
-                        )}
-                    ></Column>
-                    <Column
-                        field="status"
-                        header="Trạng thái"
-                        headerClassName="px-4 py-2 md:px-6 w-[150px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 w-[150px] md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                        body={(rowData) => (
-                            <div
-                                className={`flex items-center overflow-hidden text-ellipsis whitespace-nowra px-0 ${
-                                    rowData.status === "active"
-                                        ? "text-green-600"
-                                        : "text-red-600"
-                                }`}
-                            >
-                                <span
-                                    className={`w-2 h-2 mr-2 rounded-full ${
-                                        rowData.status === "active"
-                                            ? "bg-green-500"
-                                            : "bg-red-500"
-                                    }`}
-                                ></span>
-                                <span className="text-sm font-medium overflow-hidden text-ellipsis whitespace-nowra">
-                                    {rowData.status === "active"
-                                        ? "Hoạt động"
-                                        : "Ngừng hoạt động"}
-                                </span>
-                            </div>
-                        )}
-                    ></Column>
-                    <Column
-                        field="action"
-                        header="Hành động"
-                        headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                        bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                        body={(rowData) => (
-                            <div className="flex items-center justify-center gap-3">
-                                <button
-                                    className="text-blue-500 "
-                                    onClick={() =>
-                                        handleViewBusiness(rowData.code)
-                                    }
-                                >
-                                    <FaEye className="text-gray-600 size-4 hover:text-blue-600" />
-                                </button>
-                                <Link
-                                    to={
-                                        CONSTANTS.PATH.EDIT_BUSINESS_PATH +
-                                        rowData.code
-                                    }
-                                    className="text-blue-500 "
-                                >
-                                    <FaEdit className="text-gray-600 size-4 hover:text-green-600" />
-                                </Link>
-                            </div>
-                        )}
-                    ></Column>
-                </TreeTable>
-            </div>
+
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <>
+                    <div className="overflow-x-auto custom-scrollbar">
+                        <TreeTable
+                            value={nodes as TreeNode[]}
+                            tableStyle={{ minWidth: "50rem" }}
+                            className="min-w-full divide-y divide-gray-200"
+                            selectionMode="checkbox"
+                        >
+                            <Column
+                                headerStyle={{ width: "3rem" }}
+                                header={
+                                    <div className="flex items-center justify-center">
+                                        <input
+                                            type="checkbox"
+                                            className="form-checkbox size-4 text-blue-600"
+                                            checked={
+                                                selectedBusiness.length ===
+                                                nodes?.length
+                                            }
+                                            onChange={handleSelectAllBusiness}
+                                        />
+                                    </div>
+                                }
+                                bodyStyle={{ textAlign: "center" }}
+                                body={(rowData) => (
+                                    <div className="flex items-center justify-center">
+                                        <input
+                                            type="checkbox"
+                                            className="form-checkbox size-4 text-blue-600"
+                                            checked={
+                                                selectedBusiness.includes(
+                                                    rowData.code,
+                                                ) || false
+                                            }
+                                            onChange={() =>
+                                                handleCheckboxChange(
+                                                    rowData.code,
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                )}
+                            />
+                            <Column
+                                field="code"
+                                header="Mã số DN"
+                                headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div
+                                        className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                        title={rowData.code}
+                                    >
+                                        {rowData.code}
+                                    </div>
+                                )}
+                            ></Column>
+                            <Column
+                                field="created_at"
+                                header="Ngày ĐK"
+                                headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div
+                                        className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                        title={formatDate(rowData.created_at)}
+                                    >
+                                        {formatDate(rowData.created_at)}
+                                    </div>
+                                )}
+                            ></Column>
+                            <Column
+                                field="name_vietnamese"
+                                header="Tên doanh nghiệp"
+                                headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs w-[250px] font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div
+                                        className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                        title={rowData.name_vietnamese}
+                                    >
+                                        {rowData.name_vietnamese}
+                                    </div>
+                                )}
+                            ></Column>
+                            <Column
+                                field="address"
+                                header="Địa chỉ"
+                                headerClassName="px-4 py-2 md:px-6 md:py-3 text-left w-[300px] text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-4 text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div
+                                        className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                        title={rowData.address}
+                                    >
+                                        {rowData.address}
+                                    </div>
+                                )}
+                            ></Column>
+                            <Column
+                                field="phone"
+                                header="Số điện thoại"
+                                headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div
+                                        className="overflow-hidden text-ellipsis whitespace-nowrap"
+                                        title={rowData.phone}
+                                    >
+                                        {rowData.phone}
+                                    </div>
+                                )}
+                            ></Column>
+                            <Column
+                                field="number_of_employees"
+                                header="Quy mô (người)"
+                                headerClassName="px-4 py-2 md:px-6 w-[140px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div
+                                        className="text-center overflow-hidden text-ellipsis whitespace-nowrap"
+                                        title={rowData.number_of_employees}
+                                    >
+                                        {rowData.number_of_employees > 0
+                                            ? rowData.number_of_employees
+                                            : "Chưa cập nhật"}
+                                    </div>
+                                )}
+                            ></Column>
+                            <Column
+                                field="status"
+                                header="Trạng thái"
+                                headerClassName="px-4 py-2 md:px-6 w-[150px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 w-[150px] md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div
+                                        className={`flex items-center overflow-hidden text-ellipsis whitespace-nowra px-0 ${
+                                            rowData.status === "active"
+                                                ? "text-green-600"
+                                                : "text-red-600"
+                                        }`}
+                                    >
+                                        <span
+                                            className={`w-2 h-2 mr-2 rounded-full ${
+                                                rowData.status === "active"
+                                                    ? "bg-green-500"
+                                                    : "bg-red-500"
+                                            }`}
+                                        ></span>
+                                        <span className="text-sm font-medium overflow-hidden text-ellipsis whitespace-nowra">
+                                            {rowData.status === "active"
+                                                ? "Hoạt động"
+                                                : "Ngừng hoạt động"}
+                                        </span>
+                                    </div>
+                                )}
+                            ></Column>
+                            <Column
+                                field="action"
+                                header="Hành động"
+                                headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div className="flex items-center justify-center gap-3">
+                                        <button
+                                            className="text-blue-500 "
+                                            onClick={() =>
+                                                handleViewBusiness(rowData.code)
+                                            }
+                                        >
+                                            <FaEye className="text-gray-600 size-4 hover:text-blue-600" />
+                                        </button>
+                                        <Link
+                                            to={
+                                                CONSTANTS.PATH
+                                                    .EDIT_BUSINESS_PATH +
+                                                rowData.code
+                                            }
+                                            className="text-blue-500 "
+                                        >
+                                            <FaEdit className="text-gray-600 size-4 hover:text-green-600" />
+                                        </Link>
+                                    </div>
+                                )}
+                            ></Column>
+                        </TreeTable>
+                    </div>
+                </>
+            )}
             <Pagination
                 currentPage={page}
                 totalPage={data?.totalPages || 1}
