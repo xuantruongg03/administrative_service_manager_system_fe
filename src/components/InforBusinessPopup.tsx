@@ -1,55 +1,36 @@
 import { FaCheck, FaMinus, FaRegCopy } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
 import { InforBusinessPopupProps } from "../interfaces";
-import { formatVND } from "../utils/format";
-import { useState } from "react";
+import { formatDate, formatVND } from "../utils/format";
+import { useEffect, useState } from "react";
+import businessService from "../services/business";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "../pages/Loading";
 
-const businessInfo = {
-    name: "Công ty TNHH ABC",
-    acronym: "CTTNHHABC",
-    nameEn: "ABC Company",
-    address: "123 Đường ABC, Quận 1, TP.HCM",
-    phone: "0987654321",
-    email: "abc@gmail.com",
-    website: "",
-    fax: "",
-    charteredCapital: 1000000000,
-    typeOfOrganization: "Công ty TNHH",
-    legalRepresentative: "Nguyễn Văn A",
-    employeeCount: 100,
-    establishmentDate: "01/01/2010",
-};
+const getBusinessById = async (code: string) => {
+    const response = await businessService.getBusinessById(code);
+    return response;
+}
 
-const employeeInfo = [
-    {
-        id: 1,
-        name: "Nguyễn Văn A",
-        position: "Giám đốc",
-        identity: "123123123123",
-        joinDate: "01/01/2010",
-        phone: "0987654321",
-    },
-    {
-        id: 2,
-        name: "Trần Thị B",
-        position: "Trưởng phòng",
-        identity: "123123123123",
-        joinDate: "15/03/2012",
-        phone: "0987654321",
-    },
-    {
-        id: 3,
-        name: "Lê Văn C",
-        position: "Nhân viên",
-        identity: "123123123123",
-        joinDate: "10/07/2015",
-        phone: "0987654321",
-    },
 
-];
+interface EmployeeInfo {
+    id: number;
+    name: string;
+    position: string;
+    identity: string;
+    joinDate: string;
+    phone: string;
+}
 
 function InforBusinessPopup(props: InforBusinessPopupProps) {
     const [isCopied, setIsCopied] = useState(-1);
+    const [infoBusiness, setInfoBusiness] = useState({});
+    const [employeeInfo, setEmployeeInfo] = useState<EmployeeInfo[]>([]);
+    const { isLoading, data } = useQuery({
+        queryKey: ["InfoBusiness", props.code],
+        queryFn: () => getBusinessById(props.code),
+        enabled: !!props.code
+    })
     
     const handleClose = () => {
         props.onClose();
@@ -83,13 +64,22 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
         }
     };
 
+    useEffect(() => {
+        if (data) {
+            setInfoBusiness(data);
+            setEmployeeInfo(data?.employee);   
+        }
+    }, [data]);
+
     if (!props.isOpen) return null;
+
+    if (isLoading) return <Loading />
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 transition-opacity duration-300 p-4">
             <div className="bg-white rounded-lg shadow-lg w-full max-w-[1200px] h-[90vh] relative transform transition-all animate-zoom-in duration-300 overflow-hidden">
                 <div className="p-4 sm:p-6 md:p-8 h-full overflow-y-auto">
-                    <div className="flex justify-between items-center border-b pb-2 sm:pb-4 mb-4 sm:mb-6">
+                    <div className="flex justify-between items-center border-b pb-2 sm:pb-3 mb-4 sm:mb-3">
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
                             Thông tin chi tiết
                         </h2>
@@ -99,20 +89,22 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                     </div>
                     <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
                         <div className="w-full lg:w-2/5">
-                            {Object.entries(businessInfo).map(
+                            {Object.entries(infoBusiness)
+                            .filter(([key]) => key !== "employee" && key !== "status" && key !== "number_of_employees")
+                            .map(
                                 ([key, value]) => (
                                     <div
                                         key={key}
                                         className="flex items-center justify-between py-2 border-b border-gray-200"
                                     >
-                                        <span className="text-xs sm:text-sm font-semibold text-gray-700">
-                                            {key === "lastYearRevenue"
-                                                ? "Doanh thu năm trước"
-                                                : key === "name"
+                                        <span className="text-xs sm:min-w-[70px] sm:text-sm font-semibold text-gray-700">
+                                            {key === "code"
+                                                ? "Mã số doanh nghiệp"
+                                                : key === "name_vietnamese"
                                                 ? "Tên doanh nghiệp"
-                                                : key === "acronym"
+                                                : key === "name_acronym"
                                                 ? "Tên viết tắt"
-                                                : key === "nameEn"
+                                                : key === "name_english"
                                                 ? "Tên tiếng Anh"
                                                 : key === "address"
                                                 ? "Địa chỉ"
@@ -124,15 +116,15 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                                 ? "Website"
                                                 : key === "fax"
                                                 ? "Fax"
-                                                : key === "charteredCapital"
+                                                : key === "chartered_capital"
                                                 ? "Vốn điều lệ"
-                                                : key === "typeOfOrganization"
+                                                : key === "type_of_organization"
                                                 ? "Loại hình doanh nghiệp"
-                                                : key === "legalRepresentative"
+                                                : key === "legal_representative"
                                                 ? "Người đại diện pháp luật"
-                                                : key === "employeeCount"
-                                                ? "Số nhân viên"
-                                                : key === "establishmentDate"
+                                                : key === "owner"
+                                                ? "Chủ sở hữu"
+                                                : key === "created_at"
                                                 ? "Ngày thành lập"
                                                 : `${
                                                       key
@@ -144,12 +136,17 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                         </span>
                                         <span className="text-xs sm:text-sm text-gray-600">
                                             {value ? (
-                                                key === "charteredCapital" ? (
+                                                key === "chartered_capital" ? (
                                                     `${formatVND(
                                                         Number(value),
                                                     ).toLocaleString()} VNĐ`
+                                                ) 
+                                                : key === "address" ? (
+                                                    <span className="text-right w-full block">{value as string}</span>
+                                                ) : key === "created_at" ? (
+                                                    formatDate(value.toString())
                                                 ) : (
-                                                    value
+                                                    value as React.ReactNode
                                                 )
                                             ) : (
                                                 <FaMinus className="text-gray-400" />
@@ -158,6 +155,7 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                     </div>
                                 ),
                             )}
+                            
                         </div>
                         <div className="w-full lg:w-3/5 mt-4 lg:mt-0">
                             <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-4 text-gray-700">
@@ -187,7 +185,7 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {employeeInfo.map(
+                                                {employeeInfo?.map(
                                                     (employee, index) => (
                                                         <tr
                                                             key={index}

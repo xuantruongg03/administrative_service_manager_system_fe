@@ -16,8 +16,13 @@ const exportBusinessToExcel = async () => {
     return response;
 };
 
-const deleteBusiness = async (businessIds: string[]) => {
-    const response = await axiosClient.delete('/businesses', { data: businessIds });
+const deleteBusiness = async (codes: string[]) => {
+    const response = await axiosClient.delete('/businesses', { data: codes });
+    return response;
+}
+
+const getBusinessById = async (code: string) => {
+    const response = await axiosClient.get(`/businesses/${code}`);
     return response;
 }
 
@@ -25,7 +30,8 @@ const businessService = {
     getBusiness,
     addBusinessByExcel,
     exportBusinessToExcel,
-    deleteBusiness
+    deleteBusiness,
+    getBusinessById
 }
 
 export default businessService;

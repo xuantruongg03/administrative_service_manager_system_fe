@@ -429,7 +429,7 @@ export default function Business() {
             <InforBusinessPopup
                 isOpen={isPopupOpen}
                 onClose={() => setIsPopupOpen(false)}
-                id={idBusiness}
+                code={idBusiness}
             />
             <YNModel
                 isOpen={isYNModelOpen}
