@@ -8,6 +8,7 @@ import {
     InforBusinessPopupProps,
     SidebarMobileProps,
     AddEmployeeModalProps,
+    MapData,
 } from "./props";
 import { BusinessDataApi } from "./api";
 
@@ -21,5 +22,6 @@ export type {
     InforBusinessPopupProps,
     SidebarMobileProps,
     AddEmployeeModalProps,
-    BusinessDataApi
+    BusinessDataApi,
+    MapData,
 };

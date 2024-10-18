@@ -41,13 +41,14 @@ interface MapData {
     number_of_problem: number;
     lng: number;
     lat: number;
-    id: number;
+    code: string;
+    license_status: string[];
 }
 
 interface MapRenderProps {
     data: MapData[];
     className?: string;
-    hoveredItemId: number | null;
+    hoveredItemId?: string | null;
 }
 
 interface PreviewFileProps {
@@ -99,4 +100,5 @@ export type {
     InforBusinessPopupProps,
     SidebarMobileProps,
     AddEmployeeModalProps,
+    MapData,
 };

@@ -57,6 +57,7 @@ export default function Business() {
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setKeyword(e.target.value);
+        setPage(CONSTANTS.PAGE_DEFAULT);
     };
 
     const {

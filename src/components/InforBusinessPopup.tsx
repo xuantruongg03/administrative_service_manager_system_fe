@@ -66,8 +66,8 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
 
     useEffect(() => {
         if (data) {
-            setInfoBusiness(data);
-            setEmployeeInfo(data?.employee);   
+            setInfoBusiness(data.data);
+            setEmployeeInfo(data.data.employee);   
         }
     }, [data]);
 
