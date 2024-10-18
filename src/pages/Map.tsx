@@ -1,13 +1,12 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { useDispatch } from "react-redux";
 import LoadingMini from "../components/LoadingMini";
 import MapRenderLeaflet from "../components/MapRenderLeaflet";
-import { MapData } from "../interfaces";
 import businessService from "../services/business";
 import { CONSTANTS } from "../utils/constants";
 import Loading from "./Loading";
-import { useDispatch } from "react-redux";
 
 const getListBusinessReq = async (params: { page: number; limit: number }) => {
     const res = await businessService.getBusinessMap(params);
@@ -33,7 +32,6 @@ interface BusinessMap {
 }
 
 function Map() {
-    const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
     const [listBusiness, setListBusiness] = useState<BusinessMap[]>([]);
     const [isLastPage, setIsLastPage] = useState(false);
     const dispatch = useDispatch()
