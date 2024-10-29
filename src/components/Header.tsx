@@ -13,7 +13,7 @@ function Header() {
     const [showSidebar, setShowSidebar] = useState(false);
 
     return (
-        <header className="flex items-center justify-between w-full h-20 z-50 fixed border-b bg-white border-gray-200 shadow-sm">
+        <header className="flex items-center justify-between w-full h-20 z-9999 fixed border-b bg-white border-gray-200 shadow-sm">
             <div className="w-full justify-between px-5 items-center flex relative">
                 <div className="flex items-center md:ml-12">
                     <button

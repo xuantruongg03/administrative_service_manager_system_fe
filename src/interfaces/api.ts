@@ -19,6 +19,21 @@ interface BusinessDataApi {
     website: string;
 }
 
+interface Person {
+    citizen_id: string;
+    name: string;
+    birth_date: string;
+    gender: string;
+    nationality: string;
+    religion: string;
+    type_of_certificate: string;
+    issued_by: string;
+    issued_date: string;
+    hometown: string;
+    current_address: string;
+    created_at: string;
+};
+
 interface BusinessDataApiRequest {
     code: string;
     name_vietnamese: string;
@@ -31,10 +46,11 @@ interface BusinessDataApiRequest {
     website: string;
     chartered_capital: string;
     type_of_organization: string;
-    owner_id: string;
-    legal_representative: string;
+    owner: Person;
+    legal_representative: Person;
     created_at: string;
     status: string;
+    number_of_employees: number;
 }
 
 export type { BusinessDataApi, BusinessDataApiRequest };

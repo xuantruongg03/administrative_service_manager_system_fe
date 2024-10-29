@@ -52,6 +52,11 @@ export default {
                 "zoom-out": "zoom-out 0.3s ease-out forwards",
                 "fade-in": "fade-in 0.5s ease-out forwards",
             },
+            zIndex: {
+                9999: "9999",
+                10000: "10000",
+                10001: "10001",
+            }
         },
     },
     plugins: [],

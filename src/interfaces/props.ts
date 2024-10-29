@@ -87,6 +87,10 @@ interface AddEmployeeModalProps {
     onHide: () => void;
 }
 
+interface EmployeeModalProps {
+    show: boolean;
+    onHide: () => void;
+}
 
 export type {
     PaginationProps,
@@ -101,4 +105,5 @@ export type {
     SidebarMobileProps,
     AddEmployeeModalProps,
     MapData,
+    EmployeeModalProps,
 };

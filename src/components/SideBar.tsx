@@ -46,7 +46,7 @@ function Sidebar() {
 
     return (
         <>
-            <div className="flex h-full z-50 fixed">
+            <div className="flex h-full z-10000 fixed">
                 <div className="flex flex-col items-center w-16 h-full overflow-hidden bg-medhealth-dialog-blue-200 rounded py-3 z-50">
                     <div className="flex items-center justify-center">
                         <div
