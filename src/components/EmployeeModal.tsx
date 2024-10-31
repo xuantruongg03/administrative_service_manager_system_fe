@@ -1,21 +1,21 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { FiPlus, FiUpload } from "react-icons/fi";
 import { MdOutlineContentCopy } from "react-icons/md";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import useCreateEmployeeByExcel from "../hooks/useCreateEmployeeByExcel";
+import useDeleteEmployee from "../hooks/useDeleteEmployee";
 import { EmployeeModalProps } from "../interfaces";
 import { EmployeeDataApi } from "../interfaces/api";
 import employeesService from "../services/employees";
+import { CONSTANTS } from "../utils/constants";
 import { formatDate } from "../utils/format";
 import AddEmployeeModal from "./AddEmployeeModal";
+import EditEmployeeModal from "./EditEmployeeModal";
 import LoadingMini from "./LoadingMini";
 import Pagination from "./Pagination";
-import { CONSTANTS } from "../utils/constants";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import useDeleteEmployee from "../hooks/useDeleteEmployee";
-import EditEmployeeModal from "./EditEmployeeModal";
-import { useDispatch } from "react-redux";
 
 const getEmployeesReq = async (
     businessCode: string,
@@ -27,7 +27,6 @@ const getEmployeesReq = async (
         page,
         limit,
     });
-    console.log(response);
     return response;
 };
 

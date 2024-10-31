@@ -91,7 +91,6 @@ interface AddEmployeeModalProps {
 interface EmployeeModalProps {
     show: boolean;
     onHide: () => void;
-    citizen_id: string;
     businessCode: string;
 }
 
