@@ -53,4 +53,14 @@ interface BusinessDataApiRequest {
     number_of_employees: number;
 }
 
-export type { BusinessDataApi, BusinessDataApiRequest };
+interface EmployeeDataApi {
+    citizen_id: string;
+    name: string;
+    position: string;
+    phone: string;
+    start_date: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi };

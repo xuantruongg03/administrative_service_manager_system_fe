@@ -55,14 +55,6 @@ function EditBusiness() {
         setShowEmployeeModal(true);
     };
 
-    // const handleUploadEmployee = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const file = e.target.files?.[0];
-    //     if (file) {
-    //         await createEmployees({ file, businessCode: code as string });
-    //         queryClient.invalidateQueries({ queryKey: ["getBusinessById", code] });
-    //     }
-    // };
-
     if (isLoadingBusiness || isLoadingTypeOfOrganization) return <Loading />;
 
     return (
@@ -488,7 +480,7 @@ function EditBusiness() {
                                         <input
                                             type="radio"
                                             id="status_active"
-                                            className="size-7 hover:cursor-pointer"
+                                            className="size-6 hover:cursor-pointer"
                                             value="active"
                                             defaultChecked={dataBusiness?.data?.status === "active"}
                                             {...register("status")}
@@ -499,7 +491,7 @@ function EditBusiness() {
                                         <input
                                             type="radio"
                                             id="status_inactive"
-                                            className="size-7 hover:cursor-pointer"
+                                            className="size-6 hover:cursor-pointer"
                                             value="inactive"
                                             defaultChecked={dataBusiness?.data?.status !== "active"}
                                             {...register("status")}
@@ -524,6 +516,7 @@ function EditBusiness() {
             <EmployeeModal
                 show={showEmployeeModal}
                 onHide={() => setShowEmployeeModal(false)}
+                businessCode={code as string}
             />
         </>
     );

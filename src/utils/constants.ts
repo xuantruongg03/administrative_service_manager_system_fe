@@ -16,6 +16,7 @@ const CONSTANTS = {
     LIMIT_BUSINESS: 7,
     INIT_POST: 0,
     DATE_DEFAULT: new Date().toISOString().split("T")[0],
+    DATE_DEFAULT_FORMAT: "DD/MM/YYYY",
     PAGE_DEFAULT: 1,
 };
 

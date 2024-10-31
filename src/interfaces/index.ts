@@ -1,29 +1,20 @@
 import Action from "./action";
-import {
-    PaginationProps,
-    FilterProps,
-    TypographyProps,
-    ShareProps,
-    FileUploadButtonProps,
-    InforBusinessPopupProps,
-    SidebarMobileProps,
-    AddEmployeeModalProps,
-    MapData,
-    EmployeeModalProps,
-} from "./props";
 import { BusinessDataApi } from "./api";
+import {
+    AddEmployeeModalProps,
+    EmployeeModalProps,
+    FileUploadButtonProps,
+    FilterProps,
+    InforBusinessPopupProps,
+    MapData,
+    PaginationProps,
+    ShareProps,
+    SidebarMobileProps,
+    TypographyProps,
+} from "./props";
 
 export type {
-    Action,
-    PaginationProps,
-    FilterProps,
-    TypographyProps,
-    ShareProps,
-    FileUploadButtonProps,
-    InforBusinessPopupProps,
-    SidebarMobileProps,
-    AddEmployeeModalProps,
-    BusinessDataApi,
-    MapData,
-    EmployeeModalProps,
+    Action, AddEmployeeModalProps,
+    BusinessDataApi, EmployeeModalProps, FileUploadButtonProps, FilterProps, InforBusinessPopupProps, MapData, PaginationProps, ShareProps, SidebarMobileProps, TypographyProps
 };
+

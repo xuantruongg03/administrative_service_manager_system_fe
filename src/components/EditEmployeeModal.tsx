@@ -2,14 +2,18 @@ import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import useCreateEmployee from "../hooks/useCreateEmployee";
-import { AddEmployeeModalProps } from "../interfaces";
+import useUpdateEmployee from "../hooks/useUpdateEmployee";
+import { EmployeeModalProps } from "../interfaces";
+import RootState from "../interfaces/rootState";
 import { CONSTANTS } from "../utils/constants";
 import { REGEX } from "../utils/regex";
 
-function AddEmployeeModal(props: AddEmployeeModalProps) {
+function EditEmployeeModal(props: EmployeeModalProps) {
     const { show, onHide, businessCode } = props;
+    const { citizen_id, name, position, phone, start_date } = useSelector((state: RootState) => state.editEmployee);
+    
     const {
         register,
         handleSubmit,
@@ -18,14 +22,14 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
     } = useForm();
     const queryClient = useQueryClient();
 
-    const { createEmployee, isPending } = useCreateEmployee();
+    const { updateEmployee, isPending } = useUpdateEmployee();
 
     const onSubmit = handleSubmit(async (data) => {
         const formattedData = {
             start_date: dayjs(data.start_date).format(
                 CONSTANTS.DATE_DEFAULT_FORMAT,
             ),
-            citizen_id: data.citizen_id,
+            citizen_id: citizen_id,
             name: data.name,
             position: data.position,
             phone: data.phone,
@@ -33,10 +37,10 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
             updated_at: new Date().toISOString(),
         };
         try {
-            await createEmployee({ data: formattedData, businessCode });
+            await updateEmployee({ data: formattedData, citizen_id, businessCode });
             queryClient.invalidateQueries({ queryKey: ["employees"] });
             onHide();
-            toast.success("Thêm nhân viên thành công");
+            toast.success("Cập nhật nhân viên thành công");
         } catch (error) {
             console.log(error);
         }
@@ -52,7 +56,7 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
                 <div className="fixed inset-0 z-10001 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white rounded-lg p-8 max-w-md w-full relative animate-zoom-in">
                         <h2 className="text-2xl font-bold mb-4">
-                            Thêm nhân viên mới
+                            Chỉnh sửa nhân viên
                         </h2>
                         <form className="" onSubmit={onSubmit}>
                             <div className="mb-4">
@@ -65,26 +69,15 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
                                 <input
                                     type="text"
                                     id="citizen_id"
-                                    className={`w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
-                                        errors.citizen_id
-                                            ? "border-red-500"
-                                            : "border-gray-300"
-                                    }`}
-                                    {...register("citizen_id", {
-                                        required:
-                                            "Vui lòng nhập căn cước công dân",
-                                        pattern: {
-                                            value: REGEX.ID_CARD,
-                                            message: "CCCD phải có 12 chữ số",
-                                        },
-                                    })}
-                                    placeholder="Nhập căn cước công dân"
+                                    className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm cursor-not-allowed bg-gray-100"
+                                    disabled
+                                    defaultValue={citizen_id}
                                 />
-                                {errors.citizen_id && (
+                                {/* {errors.citizen_id && (
                                     <p className="mt-1 text-xs text-red-600 font-semibold">
                                         {errors.citizen_id.message?.toString()}
                                     </p>
-                                )}
+                                )} */}
                             </div>
                             <div className="mb-4">
                                 <label
@@ -110,6 +103,7 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
                                         },
                                     })}
                                     placeholder="Nhập tên nhân viên"
+                                    defaultValue={name}
                                 />
                                 {errors.name && (
                                     <p className="mt-1 text-xs text-red-600 font-semibold">
@@ -141,6 +135,7 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
                                         },
                                     })}
                                     placeholder="Nhập vị trí"
+                                    defaultValue={position}
                                 />
                                 {errors.position && (
                                     <p className="mt-1 text-xs text-red-600 font-semibold">
@@ -172,6 +167,7 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
                                         },
                                     })}
                                     placeholder="Nhập số điện thoại"
+                                    defaultValue={phone}
                                 />
                                 {errors.phone && (
                                     <p className="mt-1 text-xs text-red-600 font-semibold">
@@ -198,7 +194,7 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
                                         required: "Vui lòng nhập ngày bắt đầu",
                                     })}
                                     placeholder="Nhập ngày bắt đầu"
-                                    defaultValue={CONSTANTS.DATE_DEFAULT}
+                                    defaultValue={dayjs(start_date).format('YYYY-MM-DD')}
                                 />
                                 {errors.start_date && (
                                     <p className="mt-1 text-xs text-red-600 font-semibold">
@@ -224,8 +220,8 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
                                     }`}
                                 >
                                     {isPending
-                                        ? "Đang tạo..."
-                                        : "Thêm nhân viên"}
+                                        ? "Đang cập nhật..."
+                                        : "Cập nhật"}
                                 </button>
                             </div>
                         </form>
@@ -236,4 +232,4 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
     );
 }
 
-export default AddEmployeeModal;
+export default EditEmployeeModal;
