@@ -20,6 +20,7 @@ interface BusinessDataApi {
 }
 
 interface Person {
+    id: string;
     citizen_id: string;
     name: string;
     birth_date: string;
@@ -35,6 +36,7 @@ interface Person {
 };
 
 interface BusinessDataApiRequest {
+    id: string;
     code: string;
     name_vietnamese: string;
     name_english: string;
@@ -63,4 +65,11 @@ interface EmployeeDataApi {
     updated_at: string;
 }
 
-export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi };
+interface LicenseDataApi {
+    id: string;
+    status: string;
+    type: string;
+    name: string;
+}
+
+export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi, LicenseDataApi };

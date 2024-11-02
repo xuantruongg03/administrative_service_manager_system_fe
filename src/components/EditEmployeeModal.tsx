@@ -11,7 +11,7 @@ import { CONSTANTS } from "../utils/constants";
 import { REGEX } from "../utils/regex";
 
 function EditEmployeeModal(props: EmployeeModalProps) {
-    const { show, onHide, businessCode } = props;
+    const { show, onHide, businessId } = props;
     const { citizen_id, name, position, phone, start_date } = useSelector((state: RootState) => state.editEmployee);
     
     const {
@@ -37,7 +37,7 @@ function EditEmployeeModal(props: EmployeeModalProps) {
             updated_at: new Date().toISOString(),
         };
         try {
-            await updateEmployee({ data: formattedData, citizen_id, businessCode });
+            await updateEmployee({ data: formattedData, citizen_id, businessId });
             queryClient.invalidateQueries({ queryKey: ["employees"] });
             onHide();
             toast.success("Cập nhật nhân viên thành công");

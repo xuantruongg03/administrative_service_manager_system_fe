@@ -8,21 +8,21 @@ import { FaEdit, FaEye, FaFileUpload } from "react-icons/fa";
 import { FaCircleInfo, FaFileArrowDown } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import InforBusinessPopup from "../components/InforBusinessPopup";
 import LoadingMini from "../components/LoadingMini";
 import Pagination from "../components/Pagination";
+import YNModel from "../components/YNModel";
 import useCreateBusinessByExcel from "../hooks/useCreateBusinessByExcel";
+import useDebounce from "../hooks/useDebounce";
+import useDeleteBusiness from "../hooks/useDeleteBusiness";
+import useExportBusinessToExcel from "../hooks/useExportBusinessToExcel";
 import { BusinessDataApi } from "../interfaces";
 import businessService from "../services/business";
 import FileUploadButton from "../ui/FileUploadButton";
 import { CONSTANTS } from "../utils/constants";
 import { formatDate } from "../utils/format";
 import Loading from "./Loading";
-import useExportBusinessToExcel from "../hooks/useExportBusinessToExcel";
-import useDebounce from "../hooks/useDebounce";
-import useDeleteBusiness from "../hooks/useDeleteBusiness";
-import YNModel from "../components/YNModel";
-import { toast } from "react-toastify";
 
 const getBusiness = async (params: {
     page: number;
@@ -46,7 +46,7 @@ export default function Business() {
     const queryClient = useQueryClient();
 
     const { data, isLoading } = useQuery({
-        queryKey: ["business", page, debouncedKeyword],
+        queryKey: ["businesses", page, debouncedKeyword],
         queryFn: () =>
             getBusiness({
                 page,
@@ -78,7 +78,7 @@ export default function Business() {
 
     const handleFileSelect = async (file: File) => {
         await createBusinessByExcelMutation({ file });
-        queryClient.invalidateQueries({ queryKey: ["business"] });
+        queryClient.invalidateQueries({ queryKey: ["businesses"] });
     };
 
     const handleViewBusiness = (data: string) => {
@@ -114,7 +114,7 @@ export default function Business() {
 
     const handleDeleteBusinessConfirm = async () => {
         await deleteBusinessMutation(selectedBusiness);
-        queryClient.invalidateQueries({ queryKey: ["business"] });
+        queryClient.invalidateQueries({ queryKey: ["businesses"] });
         setSelectedBusiness([]);
         setIsYNModelOpen(false);
     };
@@ -124,7 +124,7 @@ export default function Business() {
         if (!data?.isLastPage) {
             const nextPage = page + 1;
             queryClient.prefetchQuery({
-                queryKey: ["business", nextPage, debouncedKeyword],
+                queryKey: ["businesses", nextPage, debouncedKeyword],
                 queryFn: () =>
                     getBusiness({
                         page: nextPage,
@@ -137,7 +137,7 @@ export default function Business() {
     }, [data, queryClient, page, debouncedKeyword]);
 
     return (
-        <div className="card bg-white">
+        <div className="card bg-white h-full flex flex-col">
             <div className="flex flex-col space-y-4 mb-4">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                     <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-0">
@@ -229,8 +229,8 @@ export default function Business() {
             {isLoading ? (
                 <Loading />
             ) : (
-                <>
-                    <div className="overflow-x-auto custom-scrollbar">
+                <div className="flex-1 flex flex-col min-h-0">
+                    <div className="flex-1 overflow-x-auto custom-scrollbar">
                         <TreeTable
                             value={nodes as TreeNode[]}
                             tableStyle={{ minWidth: "50rem" }}
@@ -405,7 +405,7 @@ export default function Business() {
                                             to={
                                                 CONSTANTS.PATH
                                                     .EDIT_BUSINESS_PATH +
-                                                rowData.code
+                                                rowData.id
                                             }
                                             className="text-blue-500 "
                                         >
@@ -416,17 +416,19 @@ export default function Business() {
                             ></Column>
                         </TreeTable>
                     </div>
-                </>
+                    <div className="mb-4 mt-auto">
+                        <Pagination
+                            currentPage={page}
+                            totalPage={data?.totalPages || 1}
+                            recordsPerPage={CONSTANTS.LIMIT_BUSINESS}
+                            totalRecords={data?.totalRecords}
+                            onNextPage={() => setPage(page + 1)}
+                            onPrevPage={() => setPage(page - 1)}
+                            isLast={data?.isLastPage}
+                        />
+                    </div>
+                </div>
             )}
-            <Pagination
-                currentPage={page}
-                totalPage={data?.totalPages || 1}
-                recordsPerPage={CONSTANTS.LIMIT_BUSINESS}
-                totalRecords={data?.totalRecords}
-                onNextPage={() => setPage(page + 1)}
-                onPrevPage={() => setPage(page - 1)}
-                isLast={data?.isLastPage}
-            />
             <InforBusinessPopup
                 isOpen={isPopupOpen}
                 onClose={() => setIsPopupOpen(false)}

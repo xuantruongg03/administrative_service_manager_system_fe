@@ -85,13 +85,13 @@ interface SidebarMobileProps {
 interface AddEmployeeModalProps {
     show: boolean;
     onHide: () => void;
-    businessCode: string;
+    businessId: string;
 }
 
 interface EmployeeModalProps {
     show: boolean;
     onHide: () => void;
-    businessCode: string;
+    businessId: string;
 }
 
 export type {

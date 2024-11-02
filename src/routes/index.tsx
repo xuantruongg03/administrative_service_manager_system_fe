@@ -49,7 +49,7 @@ const routes = createBrowserRouter([
                 ),
             },
             {
-                path: CONSTANTS.PATH.EDIT_BUSINESS_PATH + ":code",
+                path: CONSTANTS.PATH.EDIT_BUSINESS_PATH + ":id",
                 element: (
                     <LazyLayout>
                         <EditBusiness />

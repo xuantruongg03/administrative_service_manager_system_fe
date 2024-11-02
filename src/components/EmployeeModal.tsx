@@ -18,12 +18,12 @@ import LoadingMini from "./LoadingMini";
 import Pagination from "./Pagination";
 
 const getEmployeesReq = async (
-    businessCode: string,
+    businessId: string,
     page: number,
     limit: number,
 ) => {
     const response = await employeesService.getEmployees({
-        businessCode,
+        businessId,
         page,
         limit,
     });
@@ -35,14 +35,14 @@ function EmployeeModal(props: EmployeeModalProps) {
     const [isShowModalEditEmployee, setIsShowModalEditEmployee] = useState(false);
     const [page, setPage] = useState(CONSTANTS.PAGE_DEFAULT);
     const fileUploadRef = useRef<HTMLInputElement>(null);
-    const { show, onHide, businessCode } = props;
+    const { show, onHide, businessId } = props;
     const queryClient = useQueryClient();
     const dispatch = useDispatch();
 
     const { data, isPending } = useQuery({
-        queryKey: ["employees", businessCode, page],
+        queryKey: ["employees", businessId, page],
         queryFn: () =>
-            getEmployeesReq(businessCode, page, CONSTANTS.LIMIT_BUSINESS),
+            getEmployeesReq(businessId, page, CONSTANTS.LIMIT_BUSINESS),
         enabled: show,
     });
 
@@ -58,16 +58,17 @@ function EmployeeModal(props: EmployeeModalProps) {
         if (!data?.data?.isLastPage) {
             const nextPage = page + 1;
             queryClient.prefetchQuery({
-                queryKey: ["employees", businessCode, nextPage],
+                queryKey: ["employees", businessId, nextPage],
                 queryFn: () =>
                     getEmployeesReq(
-                        businessCode,
+                        businessId,
                         nextPage,
                         CONSTANTS.LIMIT_BUSINESS,
                     ),
             });
         }
-    }, [data, queryClient, page, businessCode]);
+    }, [data, queryClient, page, businessId]);
+    
     //Functions
     const handleShowModalAddEmployee = () => {
         setIsShowModalAddEmployee(true);
@@ -78,7 +79,7 @@ function EmployeeModal(props: EmployeeModalProps) {
     ) => {
         const file = event.target.files?.[0];
         if (file) {
-            await createEmployees({ file, businessCode });
+            await createEmployees({ file, businessId });
             queryClient.invalidateQueries({ queryKey: ["employees"] });
             toast.success("Thêm nhân viên thành công");
         }
@@ -364,12 +365,12 @@ function EmployeeModal(props: EmployeeModalProps) {
                     <AddEmployeeModal
                         show={isShowModalAddEmployee}
                         onHide={() => setIsShowModalAddEmployee(false)}
-                        businessCode={businessCode}
+                        businessId={businessId}
                     />
                     <EditEmployeeModal
                         show={isShowModalEditEmployee}
                         onHide={() => setIsShowModalEditEmployee(false)}
-                        businessCode={businessCode}
+                        businessId={businessId}
                     />
                 </div>
             )}

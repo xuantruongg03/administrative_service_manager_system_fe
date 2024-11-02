@@ -9,7 +9,7 @@ import { CONSTANTS } from "../utils/constants";
 import { REGEX } from "../utils/regex";
 
 function AddEmployeeModal(props: AddEmployeeModalProps) {
-    const { show, onHide, businessCode } = props;
+    const { show, onHide, businessId } = props;
     const {
         register,
         handleSubmit,
@@ -33,7 +33,7 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
             updated_at: new Date().toISOString(),
         };
         try {
-            await createEmployee({ data: formattedData, businessCode });
+            await createEmployee({ data: formattedData, businessId });
             queryClient.invalidateQueries({ queryKey: ["employees"] });
             onHide();
             toast.success("Thêm nhân viên thành công");

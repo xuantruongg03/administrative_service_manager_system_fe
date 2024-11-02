@@ -4,33 +4,42 @@ import { FaCircleInfo } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
 import { MdFileDownload, MdMoreVert, MdRemoveRedEye } from "react-icons/md";
 import PreviewFile from "../components/PreviewFile";
+import businessLicenseService from "../services/businessLicense";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "./Loading";
 
-const data = [
-    {
-        id: 1,
-        name: "tai_lieu_1.pdf",
-        file: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        created_at: "2024-01-01",
-        updated_at: "2024-01-01",
-        type: "pdf",
-        size: "100KB",
-        status: "active",
-        company: "Công ty 1",
-        address: "Địa chỉ 1",
-    },
-    {
-        id: 2,
-        name: "tai_lieu_2.jpeg",
-        file: "https://jcpmediaroom.com/wp-content/uploads/2021/10/giay-phep-kinh-doanh.jpeg",
-        created_at: "2024-01-01",
-        updated_at: "2024-01-01",
-        type: "image",
-        size: "100KB",
-        status: "active",
-        company: "Công ty 2",
-        address: "Địa chỉ 2",
-    },
-];
+const getBusinessLicenseReq = async () => {
+    const response = await businessLicenseService.getAllBusinessLicense();
+    console.log("🚀 ~ getBusinessLicenseReq ~ response:", response)
+    return response;
+}
+
+// const data = [
+//     {
+//         id: 1,
+//         name: "tai_lieu_1.pdf",
+//         file: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+//         created_at: "2024-01-01",
+//         updated_at: "2024-01-01",
+//         type: "pdf",
+//         size: "100KB",
+//         status: "active",
+//         company: "Công ty 1",
+//         address: "Địa chỉ 1",
+//     },
+//     {
+//         id: 2,
+//         name: "tai_lieu_2.jpeg",
+//         file: "https://jcpmediaroom.com/wp-content/uploads/2021/10/giay-phep-kinh-doanh.jpeg",
+//         created_at: "2024-01-01",
+//         updated_at: "2024-01-01",
+//         type: "image",
+//         size: "100KB",
+//         status: "active",
+//         company: "Công ty 2",
+//         address: "Địa chỉ 2",
+//     },
+// ];
 
 function Documents() {
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
@@ -41,6 +50,12 @@ function Documents() {
     } | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
+
+    //Queries
+    const { data, isLoading } = useQuery({
+        queryKey: ["businessLicense"],
+        queryFn: () => getBusinessLicenseReq(),
+    });
 
     const toggleMenu = (id: number) => {
         setOpenMenuId(openMenuId === id ? null : id);
@@ -103,6 +118,8 @@ function Documents() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    if (isLoading) return <Loading />
 
     return (
         <div className="container mx-auto px-4">

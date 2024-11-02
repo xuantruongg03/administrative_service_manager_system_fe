@@ -13,7 +13,6 @@ const addBusinessByExcel = async (params: { file: File }) => {
 
 const exportBusinessToExcel = async () => {
     const response = await downloadFile(import.meta.env.VITE_API_URL + '/businesses/export-excel', 'businesses.xlsx');
-    // const response = await downloadFile('/businesses/export-excel', 'businesses.xlsx');
     return response;
 };
 
@@ -22,13 +21,13 @@ const deleteBusiness = async (codes: string[]) => {
     return response;
 }
 
-const getBusinessById = async (code: string) => {
-    const response = await axiosClient.get(`/businesses/${code}`);
+const getBusinessById = async (id: string) => {
+    const response = await axiosClient.get(`/businesses/${id}`);
     return response;
 }
 
-const updateBusiness = async (params: {businessCode: string, data: BusinessDataApiRequest}) => {
-    const response = await axiosClient.patch(`/businesses/${params.businessCode}`, params.data);
+const updateBusiness = async (params: {id: string, data: BusinessDataApiRequest}) => {
+    const response = await axiosClient.patch(`/businesses/${params.id}`, params.data);
     return response;
 }
 
@@ -50,7 +49,7 @@ const businessService = {
     getBusinessById,
     updateBusiness,
     getBusinessMap,
-    getMapMarker
+    getMapMarker,
 }
 
 export default businessService;
