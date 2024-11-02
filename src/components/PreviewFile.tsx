@@ -50,7 +50,7 @@ function PreviewFile(props: PreviewFileProps) {
             );
         } else {
             return (
-                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10001">
                     <div className="relative w-[90vw] h-[90vh] flex items-center justify-center">
                         {props.type === "pdf" ? (
                             <Document file={props.file}>
@@ -79,7 +79,7 @@ function PreviewFile(props: PreviewFileProps) {
         <>
             {renderPreview()}
             {showFullImage && props.typePreview === "mini" && (
-                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10001">
                     <div className="relative w-[90vw] h-[90vh] flex items-center justify-center">
                         {props.type === "pdf" ? (
                             <Document file={props.file}>

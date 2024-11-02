@@ -7,7 +7,7 @@ import { CONSTANTS } from "../utils/constants";
 const Help = lazy(() => import("../pages/Help"));
 const App = lazy(() => import("../App"));
 const Business = lazy(() => import("../pages/Business"));
-const Documents = lazy(() => import("../pages/Documents"));
+const BusinessLicense = lazy(() => import("../pages/BusinessLicense"));
 const Map = lazy(() => import("../pages/Map"));
 const EditBusiness = lazy(() => import("../pages/EditBusiness"));
 
@@ -33,10 +33,10 @@ const routes = createBrowserRouter([
                 ),
             },
             {
-                path: CONSTANTS.PATH.ATTACHMENTS_DOCUMENTS_PATH,
+                path: CONSTANTS.PATH.BUSINESS_LICENSE_PATH,
                 element: (
                     <LazyLayout>
-                        <Documents />
+                        <BusinessLicense />
                     </LazyLayout>
                 ),
             },

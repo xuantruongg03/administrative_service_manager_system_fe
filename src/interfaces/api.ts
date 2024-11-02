@@ -72,4 +72,16 @@ interface LicenseDataApi {
     name: string;
 }
 
-export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi, LicenseDataApi };
+interface BusinessLicenseDataApi {
+    id: string;
+    status: string;
+    type: string;
+    name: string;
+    file: string;
+    size: number;
+    company: string;
+    address: string;
+    updated_at: string;
+}
+
+export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi, LicenseDataApi, BusinessLicenseDataApi };

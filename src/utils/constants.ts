@@ -3,7 +3,7 @@ const CONSTANTS = {
         ROOT_PATH: "/",
         NOT_FOUND: "*",
         LOGIN_PATH: "/login",
-        ATTACHMENTS_DOCUMENTS_PATH: "/attachments-documents",
+        BUSINESS_LICENSE_PATH: "/business-license",
         MAP_PATH: "/map",
         DOCS_PATH: "/docs",
         CONTACT_PATH: "/contact",   
@@ -14,10 +14,16 @@ const CONSTANTS = {
     NAME_TOKEN: "token",
     STATUS_LOGIN: "status-login",
     LIMIT_BUSINESS: 7,
+    LIMIT_BUSINESS_LICENSE: 10,
     INIT_POST: 0,
     DATE_DEFAULT: new Date().toISOString().split("T")[0],
     DATE_DEFAULT_FORMAT: "DD/MM/YYYY",
     PAGE_DEFAULT: 1,
+    LICENSE_TYPE: {
+        BUSINESS: 'Giấy phép kinh doanh',
+        SECURITY: 'Giấy phép ANTT',
+        FIRE: 'Giấy phép PCCC',
+    },
 };
 
 export { CONSTANTS };

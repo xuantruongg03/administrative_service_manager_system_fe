@@ -8,4 +8,9 @@ const formatDate = (date: string) => {
     return formatted;
 }
 
-export { formatVND, formatDate };
+const formatSizeFile = (size: number) => {
+    const formatted = size.toLocaleString('vi-VN');
+    return formatted;
+}
+
+export { formatVND, formatDate, formatSizeFile };

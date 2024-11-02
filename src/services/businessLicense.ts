@@ -20,8 +20,8 @@ const removeLicense = async (params: { licenseId: string }) => {
     return response;
 }
 
-const getAllBusinessLicense = async () => {
-    const response = await axiosClient.get(`/bussiness-licenses`);
+const getAllBusinessLicense = async (params: { page: number, limit: number }) => {
+    const response = await axiosClient.get(`/bussiness-licenses?page=${params.page}&limit=${params.limit}`);
     return response;
 }
 
