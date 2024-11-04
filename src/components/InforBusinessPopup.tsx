@@ -1,48 +1,54 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { FaCheck, FaMinus, FaRegCopy } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
 import { InforBusinessPopupProps } from "../interfaces";
-import { formatDate, formatVND } from "../utils/format";
-import { useEffect, useState } from "react";
-import businessService from "../services/business";
-import { useQuery } from "@tanstack/react-query";
+import { BusinessDataApiRequest, EmployeeInfo } from "../interfaces/api";
 import Loading from "../pages/Loading";
+import businessService from "../services/business";
+import employeesService from "../services/employees";
+import { CONSTANTS } from "../utils/constants";
+import { formatDate, formatVND } from "../utils/format";
+import Pagination from "./Pagination";
 
-const getBusinessById = async (code: string) => {
-    const response = await businessService.getBusinessById(code);
+const getBusinessById = async (id: string) => {
+    const response = await businessService.getBusinessById(id);
     return response;
 }
 
-
-interface EmployeeInfo {
-    id: number;
-    name: string;
-    position: string;
-    identity: string;
-    joinDate: string;
-    phone: string;
+const getEmployeesByBusinessId = async (businessId: string, page: number, limit: number) => {
+    const response = await employeesService.getEmployees({ businessId, page, limit });
+    return response;
 }
 
 function InforBusinessPopup(props: InforBusinessPopupProps) {
-    const [isCopied, setIsCopied] = useState(-1);
-    const [infoBusiness, setInfoBusiness] = useState({});
-    const [employeeInfo, setEmployeeInfo] = useState<EmployeeInfo[]>([]);
+    const [isCopied, setIsCopied] = useState("");
+    const [infoBusiness, setInfoBusiness] = useState<BusinessDataApiRequest>();
+    const [page, setPage] = useState(CONSTANTS.PAGE_DEFAULT);
+    const queryClient = useQueryClient();
     const { isLoading, data } = useQuery({
-        queryKey: ["InfoBusiness", props.code],
-        queryFn: () => getBusinessById(props.code),
-        enabled: !!props.code
+        queryKey: ["InfoBusiness", props.id],
+        queryFn: () => getBusinessById(props.id),
+        enabled: !!props.id
+    })
+
+    const { data: employeesData } = useQuery({
+        queryKey: ["employees", props.id, page],
+        queryFn: () => getEmployeesByBusinessId(props.id, page, CONSTANTS.LIMIT_EMPLOYEES),
+        enabled: !!props.id
     })
     
     const handleClose = () => {
         props.onClose();
     };
 
-    const handleCopyIdentity = (identity: string, id: number) => {
+    const handleCopyIdentity = (identity: string, id: string) => {
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(identity)
                 .then(() => {
                     setIsCopied(id);
                     setTimeout(() => {
-                        setIsCopied(-1);
+                        setIsCopied("");
                     }, 3000);
                 })
         } else {
@@ -55,7 +61,7 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                 document.execCommand('copy');
                 setIsCopied(id);
                 setTimeout(() => {
-                    setIsCopied(-1);
+                    setIsCopied("");
                 }, 3000);
             } catch (err) {
                 console.error('Fallback: Oops, unable to copy', err);
@@ -67,16 +73,27 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
     useEffect(() => {
         if (data) {
             setInfoBusiness(data.data);
-            setEmployeeInfo(data.data.employee);   
         }
     }, [data]);
+
+    // Prefetch next page
+    useEffect(() => {
+        if (!employeesData?.data?.isLastPage) {
+            const nextPage = page + 1;
+            queryClient.prefetchQuery({
+                queryKey: ["employees", props.id, nextPage],
+                queryFn: () =>
+                    getEmployeesByBusinessId(props.id, nextPage, CONSTANTS.LIMIT_EMPLOYEES),
+            });
+        }
+    }, [employeesData, queryClient, page, props.id]);
 
     if (!props.isOpen) return null;
 
     if (isLoading) return <Loading />
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 transition-opacity duration-300 p-4">
+        <div className="fixed inset-0 flex items-center justify-center z-10001 bg-black bg-opacity-50 transition-opacity duration-300 p-4">
             <div className="bg-white rounded-lg shadow-lg w-full max-w-[1200px] h-[90vh] relative transform transition-all animate-zoom-in duration-300 overflow-hidden">
                 <div className="p-4 sm:p-6 md:p-8 h-full overflow-y-auto">
                     <div className="flex justify-between items-center border-b pb-2 sm:pb-3 mb-4 sm:mb-3">
@@ -89,8 +106,8 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                     </div>
                     <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
                         <div className="w-full lg:w-2/5">
-                            {Object.entries(infoBusiness)
-                            .filter(([key]) => key !== "employee" && key !== "status" && key !== "number_of_employees")
+                            {infoBusiness && Object.entries(infoBusiness)
+                            .filter(([key]) => key !== "employee" && key !== "status" && key !== "number_of_employees" && key !== "id")
                             .map(
                                 ([key, value]) => (
                                     <div
@@ -124,6 +141,8 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                                 ? "Người đại diện pháp luật"
                                                 : key === "owner"
                                                 ? "Chủ sở hữu"
+                                                : key === "licenses"
+                                                ? "Giấy phép"
                                                 : key === "created_at"
                                                 ? "Ngày thành lập"
                                                 : `${
@@ -142,11 +161,19 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                                     ).toLocaleString()} VNĐ`
                                                 ) 
                                                 : key === "address" ? (
-                                                    <span className="text-right w-full block">{value as string}</span>
+                                                    <span className="text-right w-full block">{String(value)}</span>
                                                 ) : key === "created_at" ? (
                                                     formatDate(value.toString())
+                                                ) : key === "legal_representative" || key === "owner" ? (
+                                                    <span className="text-right w-full block">{value.name}</span>
+                                                ) : key === "licenses" ? (
+                                                    <span className="text-right w-full block">
+                                                        {Array.isArray(value) && value.map((license: {name: string}) => license.name.split("-")[1]).join(", ")}
+                                                    </span>
+                                                ) : typeof value === 'object' ? (
+                                                    JSON.stringify(value)
                                                 ) : (
-                                                    value as React.ReactNode
+                                                    <span className="text-right w-full block">{String(value)}</span>
                                                 )
                                             ) : (
                                                 <FaMinus className="text-gray-400" />
@@ -162,7 +189,7 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                 Danh sách nhân viên
                             </h3>
                             <div className="overflow-x-auto bg-gray-50 rounded-lg shadow">
-                                <div className="max-h-[300px] sm:max-h-[400px] lg:max-h-[460px] overflow-y-auto custom-scrollbar">
+                                <div className="max-h-[400px] sm:max-h-[500px] overflow-y-auto custom-scrollbar">
                                     <div className="overflow-x-auto">
                                         <table className="w-full border-collapse min-w-[600px]">
                                             <thead className="sticky top-0 bg-gray-200">
@@ -185,45 +212,72 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {employeeInfo?.map(
-                                                    (employee, index) => (
-                                                        <tr
-                                                            key={index}
-                                                            className={
-                                                                index % 2 === 0
-                                                                    ? "bg-white"
-                                                                    : "bg-gray-100"
-                                                            }
-                                                        >
-                                                            <td className="border-b border-gray-200 p-2 text-xs sm:text-sm text-gray-600 whitespace-nowrap">
-                                                                {employee.name}
-                                                            </td>
-                                                            <td className="border-b border-gray-200 p-2 text-xs sm:text-sm text-gray-600 whitespace-nowrap">
-                                                                {employee.position}
-                                                            </td>
-                                                            <td className="border-b border-gray-200 p-2 text-xs sm:text-sm text-gray-600 whitespace-nowrap flex items-center">
-                                                                {employee.identity}
-                                                                <button
-                                                                    className="ml-2 text-gray-400 hover:text-gray-600"
-                                                                    onClick={() => handleCopyIdentity(employee.identity, employee.id)}
-                                                                >
-                                                                {isCopied === employee.id ? <FaCheck className="text-green-500" /> : <FaRegCopy />}
-                                                                </button>
-                                                            </td>
-                                                            <td className="border-b border-gray-200 p-2 text-xs sm:text-sm text-gray-600 whitespace-nowrap">
-                                                                {employee.joinDate}
-                                                            </td>
-                                                            <td className="border-b border-gray-200 p-2 text-xs sm:text-sm text-gray-600 whitespace-nowrap">
-                                                                {employee.phone}
-                                                            </td>
-                                                        </tr>
-                                                    ),
+                                                {employeesData?.data?.data?.length ? (
+                                                    <>
+                                                    {employeesData.data.data.map(
+                                                        (employee: EmployeeInfo, index: number) => (
+                                                            <tr
+                                                                key={index}
+                                                                className={`${
+                                                                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                                                                } hover:bg-gray-100 transition-colors duration-200`}
+                                                            >
+                                                                <td className="border-b border-gray-200 p-3 text-sm text-gray-700 font-medium">
+                                                                    {employee.name}
+                                                                </td>
+                                                                <td className="border-b border-gray-200 p-3 text-sm text-gray-600">
+                                                                    {employee.position}
+                                                                </td>
+                                                                <td className="border-b border-gray-200 p-3 text-sm text-gray-600">
+                                                                    <div className="flex items-center space-x-2">
+                                                                        <span>{employee.citizen_id}</span>
+                                                                        <button
+                                                                            className={`p-1.5 rounded-full transition-colors duration-200 ${
+                                                                                isCopied === employee.id 
+                                                                                ? "bg-green-100 text-green-600" 
+                                                                                : "hover:bg-gray-200 text-gray-400 hover:text-gray-600"
+                                                                            }`}
+                                                                            onClick={() => handleCopyIdentity(employee.citizen_id, employee.id)}
+                                                                            title={isCopied === employee.id ? "Đã sao chép" : "Sao chép"}
+                                                                        >
+                                                                            {isCopied === employee.id 
+                                                                                ? <FaCheck className="w-3.5 h-3.5" />
+                                                                                : <FaRegCopy className="w-3.5 h-3.5" />
+                                                                            }
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="border-b border-gray-200 p-3 text-sm text-gray-600">
+                                                                    {formatDate(employee.start_date)}
+                                                                </td>
+                                                                <td className="border-b border-gray-200 p-3 text-sm text-gray-600">
+                                                                    {employee.phone}
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    )}
+                                                    </>
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={5} className="text-center py-4 text-gray-500">
+                                                            Không có nhân viên nào
+                                                        </td>
+                                                    </tr>
                                                 )}
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
+                            <Pagination
+                                totalPage={employeesData?.data?.totalPages}
+                                currentPage={page}
+                                onNextPage={() => setPage(page + 1)}
+                                onPrevPage={() => setPage(page - 1)}
+                                isLast={employeesData?.data?.isLastPage}
+                                totalRecords={employeesData?.data?.totalRecords}
+                                recordsPerPage={CONSTANTS.LIMIT_EMPLOYEES}
+                            />
                         </div>
                     </div>
                 </div>

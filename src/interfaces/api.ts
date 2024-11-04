@@ -84,4 +84,14 @@ interface BusinessLicenseDataApi {
     updated_at: string;
 }
 
-export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi, LicenseDataApi, BusinessLicenseDataApi };
+interface EmployeeInfo {
+    id: string;
+    name: string;
+    citizen_id: string;
+    position: string;
+    start_date: string;
+    phone: string;
+    updated_at: string;
+}
+
+export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi, LicenseDataApi, BusinessLicenseDataApi, EmployeeInfo };

@@ -20,8 +20,18 @@ const removeLicense = async (params: { licenseId: string }) => {
     return response;
 }
 
-const getAllBusinessLicense = async (params: { page: number, limit: number }) => {
-    const response = await axiosClient.get(`/bussiness-licenses?page=${params.page}&limit=${params.limit}`);
+const getAllBusinessLicense = async (params: { page: number, limit: number, keyword: string }) => {
+    const response = await axiosClient.get(`/bussiness-licenses?page=${params.page}&limit=${params.limit}&keyword=${params.keyword}`);
+    return response;
+}
+
+const updateBusinessLicense = async (params: { file: File, id: string }) => {
+    const response = await uploadFile(params.file, `/bussiness-licenses/${params.id}`, "PATCH");
+    return response;
+}
+
+const downloadBusinessLicense = async (params: { filename: string }) => {
+    const response = await axiosClient.get(`/uploads/${params.filename}`);
     return response;
 }
 
@@ -30,7 +40,9 @@ const businessLicenseService = {
     uploadSecurityLicense,
     uploadFirePreventionLicense,
     removeLicense,
-    getAllBusinessLicense
+    getAllBusinessLicense,
+    updateBusinessLicense,
+    downloadBusinessLicense
 }
 
 export default businessLicenseService;

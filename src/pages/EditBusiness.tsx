@@ -1205,7 +1205,7 @@ function EditBusiness() {
                                         type="file"
                                         id="business_license"
                                         className="hidden"
-                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                        accept={CONSTANTS.ACCEPT_FILE}
                                         onChange={handleUploadBusinessLicense}
                                     />
                                     {fileBusinessLicense ||

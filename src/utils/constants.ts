@@ -14,6 +14,7 @@ const CONSTANTS = {
     NAME_TOKEN: "token",
     STATUS_LOGIN: "status-login",
     LIMIT_BUSINESS: 7,
+    LIMIT_EMPLOYEES: 7,
     LIMIT_BUSINESS_LICENSE: 10,
     INIT_POST: 0,
     DATE_DEFAULT: new Date().toISOString().split("T")[0],
@@ -24,6 +25,7 @@ const CONSTANTS = {
         SECURITY: 'Giấy phép ANTT',
         FIRE: 'Giấy phép PCCC',
     },
+    ACCEPT_FILE: ".pdf,.doc,.docx,.jpg,.jpeg,.png",
 };
 
 export { CONSTANTS };

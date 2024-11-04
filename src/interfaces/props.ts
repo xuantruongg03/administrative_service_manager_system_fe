@@ -74,7 +74,7 @@ interface FileUploadButtonProps {
 interface InforBusinessPopupProps {
     isOpen: boolean;
     onClose: () => void;
-    code: string;
+    id: string;
 }
 
 interface SidebarMobileProps {

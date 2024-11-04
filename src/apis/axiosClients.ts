@@ -31,12 +31,15 @@ const hanldeError = (e: any) => {
     throw e;
 };
 
-export const uploadFile = async (file: File, url: string) => {
+export const uploadFile = async (file: File, url: string, method: string = "POST") => {
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-        const response = await axiosClient.post(url, formData, {
+        const response = await axiosClient({
+            method: method,
+            url: url,
+            data: formData,
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

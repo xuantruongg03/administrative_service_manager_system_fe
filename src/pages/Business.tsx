@@ -396,7 +396,7 @@ export default function Business() {
                                         <button
                                             className="text-blue-500 "
                                             onClick={() =>
-                                                handleViewBusiness(rowData.code)
+                                                handleViewBusiness(rowData.id)
                                             }
                                         >
                                             <FaEye className="text-gray-600 size-4 hover:text-blue-600" />
@@ -432,7 +432,7 @@ export default function Business() {
             <InforBusinessPopup
                 isOpen={isPopupOpen}
                 onClose={() => setIsPopupOpen(false)}
-                code={idBusiness}
+                id={idBusiness}
             />
             <YNModel
                 isOpen={isYNModelOpen}
