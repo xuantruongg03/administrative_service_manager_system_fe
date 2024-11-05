@@ -31,13 +31,14 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
         queryFn: () => getBusinessById(props.id),
         enabled: !!props.id
     })
-
+    
     const { data: employeesData } = useQuery({
         queryKey: ["employees", props.id, page],
         queryFn: () => getEmployeesByBusinessId(props.id, page, CONSTANTS.LIMIT_EMPLOYEES),
-        enabled: !!props.id
+        enabled: props.isOpen && !!props.id,
+        retry: false
     })
-    
+
     const handleClose = () => {
         props.onClose();
     };
@@ -78,15 +79,15 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
 
     // Prefetch next page
     useEffect(() => {
-        if (!employeesData?.data?.isLastPage) {
+        if (props.isOpen && !employeesData?.data?.isLastPage) {
             const nextPage = page + 1;
             queryClient.prefetchQuery({
                 queryKey: ["employees", props.id, nextPage],
-                queryFn: () =>
-                    getEmployeesByBusinessId(props.id, nextPage, CONSTANTS.LIMIT_EMPLOYEES),
+                queryFn: () => getEmployeesByBusinessId(props.id, nextPage, CONSTANTS.LIMIT_EMPLOYEES),
+                staleTime: 5 * 60 * 1000
             });
         }
-    }, [employeesData, queryClient, page, props.id]);
+    }, [employeesData, queryClient, page, props.id, props.isOpen]);
 
     if (!props.isOpen) return null;
 

@@ -345,7 +345,7 @@ export default function Business() {
                             <Column
                                 field="number_of_employees"
                                 header="Quy mô (người)"
-                                headerClassName="px-4 py-2 md:px-6 w-[140px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                                 bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div

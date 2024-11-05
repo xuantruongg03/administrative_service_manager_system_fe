@@ -15,8 +15,8 @@ const uploadFirePreventionLicense = async (params: { file: File, id: string }) =
     return response;
 }
 
-const removeLicense = async (params: { licenseId: string }) => {
-    const response = await axiosClient.delete(`/bussiness-licenses/${params.licenseId}`);
+const removeLicenses = async (params: { id: string }) => {
+    const response = await axiosClient.delete(`/bussiness-licenses/${params.id}`);
     return response;
 }
 
@@ -35,14 +35,20 @@ const downloadBusinessLicense = async (params: { filename: string }) => {
     return response;
 }
 
+const deleteMultipleBusinessLicense = async (params: { licenseIds: string[] }) => {
+    const response = await axiosClient.delete(`/bussiness-licenses/multiple`, { data: { licenseIds: params.licenseIds } });
+    return response;
+}
+
 const businessLicenseService = {
     uploadBusinessLicense,
     uploadSecurityLicense,
     uploadFirePreventionLicense,
-    removeLicense,
+    removeLicenses,
     getAllBusinessLicense,
     updateBusinessLicense,
-    downloadBusinessLicense
+    downloadBusinessLicense,
+    deleteMultipleBusinessLicense
 }
 
 export default businessLicenseService;

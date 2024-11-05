@@ -28,7 +28,7 @@ const bar = [
     },
     {
         id: 4,
-        path: CONSTANTS.PATH.ATTACHMENTS_DOCUMENTS_PATH,
+        path: CONSTANTS.PATH.BUSINESS_LICENSE_PATH,
         title: "Tài liệu",
         icon: <IoDocumentText className="size-5 my-5" />,
     },

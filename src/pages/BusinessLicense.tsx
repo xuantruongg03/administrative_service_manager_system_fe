@@ -6,15 +6,18 @@ import { FaCircleInfo } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
 import { MdFileDownload, MdMoreVert, MdRemoveRedEye } from "react-icons/md";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { toast } from "react-toastify";
+import LoadingMini from "../components/LoadingMini";
 import PreviewFile from "../components/PreviewFile";
+import YNModel from "../components/YNModel";
+import useDebounce from "../hooks/useDebounce";
+import useDeleteMultipleBusinessLicense from "../hooks/useDeleteMultipleBusinessLicense";
+import useRemoveLicense from "../hooks/useRemoveLicense";
+import useUpdateBusinessLicense from "../hooks/useUpdateBusinessLicense";
 import { BusinessLicenseDataApi } from "../interfaces/api";
 import businessLicenseService from "../services/businessLicense";
 import { CONSTANTS } from "../utils/constants";
 import Loading from "./Loading";
-import useRemoveLicense from "../hooks/useRemoveLicense";
-import { toast } from "react-toastify";
-import useUpdateBusinessLicense from "../hooks/useUpdateBusinessLicense";
-import useDebounce from "../hooks/useDebounce";
 
 const getBusinessLicenseReq = async (params: {
     page: number;
@@ -25,12 +28,14 @@ const getBusinessLicenseReq = async (params: {
     return response;
 };
 
-function Documents() {
+function BusinessLicense() {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [layoutType, setLayoutType] = useState<"grid" | "list">("list");
     const [data, setData] = useState<BusinessLicenseDataApi[]>([]);
     const [isLastPage, setIsLastPage] = useState<boolean>(false);
     const [tempFileId, setTempFileId] = useState<string>("");
+    const [openYNModel, setOpenYNModel] = useState<boolean>(false);
+    const [openYNModelDeleteMultiple, setOpenYNModelDeleteMultiple] = useState<boolean>(false);
     const [keyword, setKeyword] = useState<string>("");
     const [previewFile, setPreviewFile] = useState<{
         file: string;
@@ -41,6 +46,7 @@ function Documents() {
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const queryClient = useQueryClient();
     const debouncedKeyword = useDebounce(keyword, 1000);
+    const [selectedItemId, setSelectedItemId] = useState<string>("");
 
     //Queries
     const {
@@ -80,11 +86,16 @@ function Documents() {
     };
 
     const handleDelete = (id: string) => {
-        removeLicense({ licenseId: id }).then(() => {
-            toast.success("Xóa tài liệu thành công");
-            setOpenMenuId(null);
-            queryClient.invalidateQueries({ queryKey: ["businessLicense"] });
-        });
+        setSelectedItemId(id);
+        setOpenYNModel(true);
+    };
+
+    const handleDeleteMultiple = () => {
+        if (selectedItems.length === 0) {
+            toast.error("Vui lòng chọn tài liệu để xóa");
+            return;
+        }
+        setOpenYNModelDeleteMultiple(true);
     };
 
     const handleDownload = (id: string) => {
@@ -120,8 +131,20 @@ function Documents() {
         setKeyword(e.target.value);
     };
 
-    const handleDeleteMultiple = () => {
-        console.log("Delete multiple clicked");
+    const handleDeleteConfirm = () => {
+        removeLicense({ id: selectedItemId }).then(() => {
+            toast.success("Xóa tài liệu thành công");
+            setOpenYNModel(false);
+            queryClient.invalidateQueries({ queryKey: ["businessLicense"] });
+        });
+    };
+
+    const handleDeleteMultipleConfirm = () => {
+        deleteMultipleBusinessLicense({ licenseIds: selectedItems }).then(() => {
+            toast.success("Xóa tài liệu thành công");
+            setOpenYNModelDeleteMultiple(false);
+            queryClient.invalidateQueries({ queryKey: ["businessLicense"] });
+        });
     };
 
     const handleUpdate = (id: string) => {
@@ -153,6 +176,8 @@ function Documents() {
         useRemoveLicense();
     const { updateBusinessLicense, isPending: isPendingUpdateLicense } =
         useUpdateBusinessLicense();
+    const { deleteMultipleBusinessLicense, isPending: isPendingDeleteMultipleLicense } =
+        useDeleteMultipleBusinessLicense();
 
     useEffect(() => {
         if (dataBusinessLicense) {
@@ -220,10 +245,12 @@ function Documents() {
                 <div className="hidden md:block h-8 w-px bg-gray-300"></div>
                 <div className="flex flex-row items-center gap-4 justify-between w-full">
                     <div className="flex items-center gap-4">
-                        <BsTrash3Fill
+                        {isPendingDeleteMultipleLicense ? <LoadingMini />: (
+                            <BsTrash3Fill
                             className="cursor-pointer hover:text-red-500 transition-colors duration-200"
-                            onClick={handleDeleteMultiple}
-                        />
+                                onClick={handleDeleteMultiple}
+                            />
+                        )}
                         <FaCircleInfo className="cursor-pointer hover:text-blue-500 transition-colors duration-200" />
                         <IoMdMore className="cursor-pointer size-6 hover:text-gray-700 transition-colors duration-200" />
                     </div>
@@ -549,8 +576,27 @@ function Documents() {
                     </div>
                 </div>
             )}
+            <YNModel
+                isOpen={openYNModel}
+                onClose={() => setOpenYNModel(false)}
+                onConfirm={handleDeleteConfirm}
+                label="Xóa tài liệu"
+                description="Bạn có chắc chắn muốn xóa tài liệu này không?"
+                yesLabel="Xóa"
+                noLabel="Hủy"
+            />
+
+            <YNModel
+                isOpen={openYNModelDeleteMultiple}
+                onClose={() => setOpenYNModelDeleteMultiple(false)}
+                onConfirm={handleDeleteMultipleConfirm}
+                label="Xóa tài liệu"
+                description="Bạn có chắc chắn muốn xóa tài liệu này không?"
+                yesLabel="Xóa"
+                noLabel="Hủy"
+            />
         </div>
     );
 }
 
-export default Documents;
+export default BusinessLicense;
