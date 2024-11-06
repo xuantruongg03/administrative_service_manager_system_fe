@@ -10,11 +10,13 @@ import Loading from "./Loading";
 
 const getListBusinessReq = async (params: { page: number; limit: number }) => {
     const res = await businessService.getBusinessMap(params);
+    console.log("🚀 ~ getListBusinessReq ~ res:", res)
     return res.data;
 };
 
 const getMapMarker = async () => {
     const res = await businessService.getMapMarker();
+    console.log("🚀 ~ getMapMarker ~ res:", res)
     return res;
 };
 
@@ -74,10 +76,10 @@ function Map() {
     }
 
     return (
-        <div className="container mx-auto px-4">
+        <div className=" px-4 w-full">
             <h1 className="text-2xl font-bold mb-4">Bản đồ</h1>
             <div className="flex flex-col lg:flex-row gap-3">
-                <div className="w-full lg:w-2/3 h-[550px]">
+                <div className="w-full lg:w-2/3 h-[500px] xl:h-[550px] 3xl:h-[700px]">
                     <MapRenderLeaflet
                         data={markerMemo}
                     />

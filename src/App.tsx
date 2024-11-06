@@ -1,51 +1,28 @@
-import { useState } from 'react';
-import { Chart } from 'primereact/chart';
+import { useQuery } from '@tanstack/react-query';
 import { Card } from 'primereact/card';
+import { Chart } from 'primereact/chart';
 import { Dropdown } from 'primereact/dropdown';
-// Fake data
+import { useState } from 'react';
+import statisticService from './services/statistic';
+
+const statisticReq = async (params: { timeRange: string, value: string }) => {
+    const response = await statisticService.getStatistic(params);
+    return response;
+}
+
+const valueOptions = [
+    { label: 'month', value: `${new Date().getMonth() + 1}/${new Date().getFullYear()}`, labelDisplay: 'Ngày' },
+    { label: 'quarter', value: `${Math.ceil((new Date().getMonth() + 1) / 3)}/${new Date().getFullYear()}`, labelDisplay: 'Quý' },
+    { label: 'year', value: `${new Date().getFullYear()}`, labelDisplay: 'Tháng' },
+]
 
 function App() {
-    const stats = {
-        totalBusinesses: 1234,
-        totalDocuments: 5678,
-        newBusinesses: 56,
-        businessTypeData: {
-            labels: ['TNHH', 'Cổ phần', 'Tư nhân', 'Khác'],
-            datasets: [{
-                data: [300, 200, 100, 50],
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
-            }]
-        },
-        businessTrendData: {
-            labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
-            datasets: [{
-                label: 'Doanh nghiệp mới',
-                data: [12, 19, 3, 5, 2, 3],
-                borderColor: '#36A2EB'
-            }]
-        },
-        geographicData: [
-            { lat: 10.762622, lng: 106.660172, name: "TP.HCM", count: 500 },
-            { lat: 21.028511, lng: 105.804817, name: "Hà Nội", count: 300 },
-            { lat: 16.054407, lng: 108.202164, name: "Đà Nẵng", count: 150 }
-        ],
-        documentTypeData: {
-            labels: ['PDF', 'Hình ảnh', 'Word', 'Excel', 'Khác'],
-            datasets: [{
-                label: 'Số lượng',
-                data: [300, 200, 100, 50, 25],
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-            }]
-        },
-        complianceData: {
-            labels: ['Đầy đủ', 'Thiếu', 'Quá hạn'],
-            datasets: [{
-                data: [700, 200, 100],
-                backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384']
-            }]
-        }
-    };
     const [timeRange, setTimeRange] = useState('month');
+
+    const { data: statisticData } = useQuery({
+        queryKey: ['statistic', timeRange],
+        queryFn: () => statisticReq({ timeRange, value: valueOptions.find(option => option.label === timeRange)?.value || 'month' })
+    })
     
     return (
         <div className="">
@@ -53,11 +30,11 @@ function App() {
                 <h1 className="text-2xl font-bold mb-4 md:mb-0">Thống kê</h1>
                 <Dropdown 
                     value={timeRange} 
-                    options={[
-                        {label: 'Tháng này', value: 'month'},
-                        {label: 'Quý này', value: 'quarter'},
-                        {label: 'Năm nay', value: 'year'}
-                    ]} 
+                        options={[
+                            {label: 'Tháng này', value: 'month'},
+                            {label: 'Quý này', value: 'quarter'},
+                            {label: 'Năm nay', value: 'year'}
+                        ]} 
                     onChange={(e) => setTimeRange(e.value)} 
                     placeholder="Chọn khoảng thời gian"
                     className="w-full md:w-56"
@@ -67,37 +44,100 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card className='p-1'>
                     <div className="text-sm font-medium text-gray-500 mb-2">Tổng số doanh nghiệp</div>
-                    <div className="text-3xl font-bold">{stats.totalBusinesses}</div>
+                    <div className="text-3xl font-bold">{statisticData?.total_businesses}</div>
                 </Card>
                 <Card className='p-1'>
                     <div className="text-sm font-medium text-gray-500 mb-2">Tổng số tài liệu</div>
-                    <div className="text-3xl font-bold">{stats.totalDocuments}</div>
+                    <div className="text-3xl font-bold">{statisticData?.total_business_licenses}</div>
                 </Card>
                 <Card className='p-1'>
                     <div className="text-sm font-medium text-gray-500 mb-2">Doanh nghiệp mới trong kỳ</div>
-                    <div className="text-3xl font-bold">{stats.newBusinesses}</div>
+                    <div className="text-3xl font-bold">{statisticData?.new_businesses}</div>
                 </Card>
                 <Card className='p-1'>
-                    <div className="text-sm font-medium text-gray-500 mb-2">Doanh nghiệp vi phạm</div>
-                    <div className="text-3xl font-bold">{stats.totalBusinesses}</div>
+                    <div className="text-sm font-medium text-gray-500 mb-2">Doanh nghiệp thiếu giấy phép</div>
+                    <div className="text-3xl font-bold">{statisticData?.violated_businesses}</div>
                 </Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-                <Card title="Doanh nghiệp theo loại hình" className="p-4">
-                    <Chart type="pie" data={stats.businessTypeData} style={{ height: '300px' }} />
+                <Card title="Doanh nghiệp theo loại hình" className="p-4 flex flex-col">
+                    <Chart 
+                        type="pie" 
+                        data={statisticData?.business_type_statistics} 
+                        className="w-full h-[300px]"
+                        options={{
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    align: 'center',
+                                    labels: {
+                                        boxWidth: 15,
+                                        boxHeight: 15,
+                                        padding: 10,
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
+                                }
+                            },
+                            layout: {
+                                padding: {
+                                    left: 20,
+                                    right: 15
+                                }
+                            },
+                            aspectRatio: 1
+                        }}
+                    />
                 </Card>
                 <Card title="Xu hướng đăng ký doanh nghiệp" className="p-4">
-                    <Chart type="line" data={stats.businessTrendData} style={{ height: '300px' }} />
+                    <Chart 
+                        type="line" 
+                        data={statisticData?.business_trend} 
+                        options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: valueOptions.find(option => option.label === timeRange)?.labelDisplay
+                                    },
+                                    grid: {
+                                        display: true,
+                                        drawBorder: true
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Số lượng doanh nghiệp'
+                                    },
+                                    beginAtZero: true
+                                }
+                            },
+                            layout: {
+                                padding: {
+                                    left: 20,
+                                    right: 20,
+                                    top: 20,
+                                    bottom: 20
+                                }
+                            }
+                        }}
+                        style={{ height: '400px', maxWidth: '100%' }} 
+                    />
                 </Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
                 <Card title="Tài liệu theo loại" className="p-4">
-                    <Chart type="bar" data={stats.documentTypeData} style={{ height: '300px' }} />
+                    <Chart type="bar" data={statisticData?.business_license_type_statistics} style={{ height: '300px' }} />
                 </Card>
-                <Card title="Trạng thái tuân thủ" className="p-4">
-                    <Chart type="doughnut" data={stats.complianceData} style={{ height: '300px' }} />
+                <Card title="Trạng thái doanh nghiệp" className="p-4">
+                    <Chart type="doughnut" data={statisticData?.business_license_status_statistics} style={{ height: '300px' }} />
                 </Card>
             </div>
         </div>

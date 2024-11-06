@@ -129,8 +129,6 @@ function calculateOffset(index: number): [number, number] {
 function MultipleMarkers(props: { data: MapData[] }) {
     const memoizedData = useMemo(() => props.data, [props.data]);
     const coordinateMap = new Map<string, number>();
-    console.log("render");
-    
 
     return (
         <>
