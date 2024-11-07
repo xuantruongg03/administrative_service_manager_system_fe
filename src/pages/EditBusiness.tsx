@@ -19,6 +19,7 @@ import typeOfOrganizationService from "../services/typeOfOrganization";
 import Loading from "./Loading";
 import { REGEX } from "../utils/regex";
 import { CONSTANTS } from "../utils/constants";
+import { Dropdown } from "primereact/dropdown";
 
 const getBusinessByIdReq = async (id: string) => {
     const response = await businessService.getBusinessById(id);
@@ -35,6 +36,7 @@ function EditBusiness() {
         register,
         handleSubmit,
         formState: { errors },
+        setValue,
     } = useForm<BusinessDataApiRequest>();
     const [showEmployeeModal, setShowEmployeeModal] = useState(false);
     const [fileBusinessLicense, setFileBusinessLicense] = useState<File | null>(
@@ -55,6 +57,7 @@ function EditBusiness() {
         string | null
     >(null);
     const { id } = useParams();
+    const [selectedType, setSelectedType] = useState("");
 
     const { isLoading: isLoadingBusiness, data: dataBusiness } = useQuery({
         queryKey: ["getBusinessById", id],
@@ -115,7 +118,7 @@ function EditBusiness() {
     };
 
     const handleRemoveLicense = (licenseId: string, type: string) => {
-        removeLicense({ licenseId }).then(() => {
+        removeLicense({ id: licenseId }).then(() => {
             toast.success("Xóa giấy tờ thành công");
         });
         if (type === "Business License") {
@@ -190,7 +193,8 @@ function EditBusiness() {
                 )?.name,
             );
         }
-    }, [dataBusiness?.data?.licenses]);
+        setSelectedType(dataBusiness?.data?.type_of_organization);
+    }, [dataBusiness?.data?.licenses, dataBusiness?.data?.type_of_organization]);
 
     if (isLoadingBusiness || isLoadingTypeOfOrganization) return <Loading />;
 
@@ -1082,38 +1086,25 @@ function EditBusiness() {
                                 >
                                     Loại hình doanh nghiệp *
                                 </label>
-                                <select
-                                    id="type_of_organization"
-                                    className={`w-full p-4 border rounded-md ${
-                                        errors.type_of_organization
-                                            ? "border-red-500"
-                                            : ""
-                                    }`}
-                                    defaultValue={
-                                        dataBusiness?.data?.type_of_organization
-                                    }
-                                    {...register("type_of_organization", {
-                                        required:
-                                            "Loại hình doanh nghiệp là bắt buộc",
-                                    })}
-                                >
-                                    <option value="">
-                                        Chọn loại hình doanh nghiệp
-                                    </option>
-                                    {dataTypeOfOrganization?.data.map(
+                                <Dropdown
+                                    value={selectedType}
+                                    options={dataTypeOfOrganization?.data.map(
                                         (type: {
                                             name: string;
                                             id: string;
-                                        }) => (
-                                            <option
-                                                key={type.id}
-                                                value={type.id}
-                                            >
-                                                {type.name}
-                                            </option>
-                                        ),
+                                        }) => ({
+                                            label: type.name,
+                                            value: type.id,
+                                        }),
                                     )}
-                                </select>
+                                    placeholder="Loại hình doanh nghiệp"
+                                    className="w-full md:w-full"
+                                    panelClassName="max-w-[30rem] md:max-w-[35rem] overflow-x-auto"
+                                    onChange={(e) => {
+                                        setSelectedType(e.value);
+                                        setValue("type_of_organization", e.value);
+                                    }}
+                                />
                                 {errors.type_of_organization && (
                                     <p className="text-red-500 text-sm mt-1">
                                         {errors.type_of_organization.message}

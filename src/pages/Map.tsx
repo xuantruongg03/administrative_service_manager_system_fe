@@ -126,7 +126,7 @@ function Map() {
                                                             : "bg-red-100 text-red-800"
                                                     }`}
                                                 >
-                                                    {item.status}
+                                                    {item.status === "active" ? "Đang hoạt động" : "Không hoạt động"}
                                                 </span>
                                             </p>
                                             {item.license_status.length > 0 && (
