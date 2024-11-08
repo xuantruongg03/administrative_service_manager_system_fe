@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useDispatch } from "react-redux";
 import LoadingMini from "../components/LoadingMini";
@@ -10,13 +10,11 @@ import Loading from "./Loading";
 
 const getListBusinessReq = async (params: { page: number; limit: number }) => {
     const res = await businessService.getBusinessMap(params);
-    console.log("🚀 ~ getListBusinessReq ~ res:", res)
     return res.data;
 };
 
 const getMapMarker = async () => {
     const res = await businessService.getMapMarker();
-    console.log("🚀 ~ getMapMarker ~ res:", res)
     return res;
 };
 
@@ -71,6 +69,14 @@ function Map() {
         }
     }, [data]);
 
+    const handleMouseEnter = useCallback((code: string) => {
+        dispatch({ type: 'SET_HOVERMAP', payload: code });
+      }, [dispatch]);
+      
+      const handleMouseLeave = useCallback(() => {
+        dispatch({ type: 'RESET_HOVERMAP' });
+      }, [dispatch]);
+
     if (isLoading || isLoadingMapMarker) {
         return <Loading />;
     }
@@ -101,12 +107,8 @@ function Map() {
                                 {listBusiness.map((item) => (
                                     <li
                                         key={item.code}
-                                        onMouseEnter={() =>
-                                            dispatch({ type: 'SET_HOVERMAP', payload: item.code })
-                                        }
-                                        onMouseLeave={() =>
-                                            dispatch({ type: 'RESET_HOVERMAP' })
-                                        }
+                                        onMouseEnter={() => handleMouseEnter(item.code)}
+                                        onMouseLeave={handleMouseLeave}
                                         className="border p-4 rounded-lg cursor-default shadow-md transition-all duration-300 hover:shadow-xl hover:border-blue-400 h-auto mb-2"
                                     >
                                         <h3 className="font-bold text-lg mb-3 text-gray-800 line-clamp-2">

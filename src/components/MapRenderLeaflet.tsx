@@ -54,23 +54,15 @@ function MarkerWithSmoothTransition({
     );
 
     useEffect(() => {
-        const animateSize = () => {
-            if (currentSize !== targetSize) {
-                const newSize =
-                    currentSize + (targetSize > currentSize ? 1 : -1);
-                setCurrentSize(newSize);
-                if (markerRef.current) {
-                    const newIcon = createCustomIcon(
-                        item.number_of_problem,
-                        newSize,
-                    );
-                    markerRef.current.setIcon(newIcon);
-                }
-                requestAnimationFrame(animateSize);
-            }
-        };
-        animateSize();
-    }, [isHovered, currentSize, targetSize, item.number_of_problem]);
+        if (currentSize !== targetSize) {
+          const animationFrame = requestAnimationFrame(() => {
+            const newSize = currentSize + (targetSize > currentSize ? 2 : -2); // Tăng step size
+            setCurrentSize(newSize);
+          });
+          return () => cancelAnimationFrame(animationFrame);
+        }
+      }, [currentSize, targetSize]);
+      
     return (
         <Marker
             ref={markerRef}
@@ -120,15 +112,23 @@ function MarkerWithSmoothTransition({
     );
 }
 
-function calculateOffset(index: number): [number, number] {
-    const angle = (index % 150) * (Math.PI / 4); // 8 positions around the original point
-    const distance = 0.00005; // Adjust this value to change the spread of markers
-    return [Math.cos(angle) * distance, Math.sin(angle) * distance];
-}
-
 function MultipleMarkers(props: { data: MapData[] }) {
     const memoizedData = useMemo(() => props.data, [props.data]);
     const coordinateMap = new Map<string, number>();
+
+    const calculateOffset = useMemo(() => {
+        const offsetMap = new Map<number, [number, number]>();
+        return (index: number): [number, number] => {
+          if (offsetMap.has(index)) {
+            return offsetMap.get(index)!;
+          }
+          const angle = (index % 150) * (Math.PI / 4);
+          const distance = 0.00005;
+          const offset: [number, number] = [Math.cos(angle) * distance, Math.sin(angle) * distance];
+          offsetMap.set(index, offset);
+          return offset;
+        };
+      }, []);
 
     return (
         <>
@@ -148,6 +148,7 @@ function MultipleMarkers(props: { data: MapData[] }) {
         </>
     );
 }
+
 function MapRenderLeaflet(props: MapRenderProps) {
     const { data } = props;
     return (
