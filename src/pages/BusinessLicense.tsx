@@ -304,7 +304,7 @@ function BusinessLicense() {
                                 key={item.id}
                                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
                             >
-                                <div className="flex items-center justify-center h-36 md:h-48">
+                                <div className="flex items-center justify-center border border-gray-200 h-36 md:h-48">
                                     <PreviewFile
                                         typePreview="mini"
                                         file={import.meta.env.VITE_API_URL + "/uploads/" + item.file}

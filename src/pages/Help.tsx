@@ -15,7 +15,7 @@ function Help() {
     },
     {
       id: 2,
-      problem: "Không thể xem bản đồ",
+      problem: "Không thể xem bản đồ", 
       solution: "Đảm bảo rằng bạn đã cho phép trình duyệt truy cập vị trí của bạn. Nếu vẫn gặp vấn đề, hãy thử làm mới trang hoặc xóa bộ nhớ cache."
     },
     {
@@ -26,13 +26,16 @@ function Help() {
   ]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Trợ giúp</h1>
-      <div className="space-y-6">
+    <div className="w-full px-4 py-6">
+      <h1 className="text-2xl font-bold mb-4">Trợ giúp</h1>
+      <div className="grid gap-4">
         {issues.map((issue) => (
-          <div key={issue.id} className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-2">{issue.problem}</h2>
-            <p className="text-gray-600">{issue.solution}</p>
+          <div 
+            key={issue.id} 
+            className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+          >
+            <h2 className="text-lg font-semibold mb-2 text-gray-800">{issue.problem}</h2>
+            <p className="text-gray-600 text-sm leading-relaxed">{issue.solution}</p>
           </div>
         ))}
       </div>
