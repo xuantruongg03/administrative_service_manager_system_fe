@@ -5,7 +5,8 @@ import { CONSTANTS } from "../utils/constants";
 import common from "../utils/errors";
 
 const axiosClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    // baseURL: import.meta.env.VITE_API_URL,
+    baseURL: `http://${window.location.hostname}:6789/api/v1`,
     headers: {
         "content-type": "application/json",
     },

@@ -19,7 +19,8 @@ function Share(props: ShareProps) {
             try {
                 const response = await fetch(
                     `${
-                        import.meta.env.VITE_SERVER_GET_LOCAL_IP_URL
+                        // import.meta.env.VITE_SERVER_GET_LOCAL_IP_URL
+                        `http://${window.location.hostname}:3000`
                     }/api/local-ip`,
                 );
                 const data = await response.json();
