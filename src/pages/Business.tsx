@@ -4,9 +4,15 @@ import { TreeNode } from "primereact/treenode";
 import { TreeTable } from "primereact/treetable";
 import { useEffect, useState } from "react";
 import { BsTrash3Fill } from "react-icons/bs";
-import { FaEdit, FaEye, FaFileUpload } from "react-icons/fa";
+import {
+    FaEdit,
+    FaEye,
+    FaFileUpload
+} from "react-icons/fa";
 import { FaCircleInfo, FaFileArrowDown } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
+import { MdOutlineBusinessCenter } from "react-icons/md";
+import { PiFireExtinguisherDuotone, PiSecurityCamera } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import InforBusinessPopup from "../components/InforBusinessPopup";
@@ -317,7 +323,7 @@ export default function Business() {
                             <Column
                                 field="address"
                                 header="Địa chỉ"
-                                headerClassName="px-4 py-2 md:px-6 md:py-3 text-left w-[300px] text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                headerClassName="px-4 py-2 md:px-6 md:py-3 text-left w-[280px] text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                                 bodyClassName="px-4 py-2 md:px-6 md:py-4 text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div
@@ -343,26 +349,10 @@ export default function Business() {
                                 )}
                             ></Column>
                             <Column
-                                field="number_of_employees"
-                                header="Quy mô (người)"
-                                headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
-                                body={(rowData) => (
-                                    <div
-                                        className="text-center overflow-hidden text-ellipsis whitespace-nowrap"
-                                        title={rowData.number_of_employees}
-                                    >
-                                        {rowData.number_of_employees > 0
-                                            ? rowData.number_of_employees
-                                            : "Chưa cập nhật"}
-                                    </div>
-                                )}
-                            ></Column>
-                            <Column
                                 field="status"
                                 header="Trạng thái"
-                                headerClassName="px-4 py-2 md:px-6 w-[150px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 w-[150px] md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 w-[140px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 w-[140px] md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div
                                         className={`flex items-center overflow-hidden text-ellipsis whitespace-nowra px-0 ${
@@ -387,10 +377,29 @@ export default function Business() {
                                 )}
                             ></Column>
                             <Column
-                                field="action"
-                                header="Hành động"
+                                field="licenses"
+                                header="Giấy phép"
                                 headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
                                 bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                body={(rowData) => (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <MdOutlineBusinessCenter title="Giấy phép kinh doanh" className={`size-4 ${rowData.licenses?.includes("Giấy phép kinh doanh") ? "text-sky-600" : "text-gray-600"}`} />
+                                        <PiSecurityCamera title="Giấy phép ANTT" className={`size-4 ${rowData.licenses?.includes("Giấy phép ANTT") ? "text-green-600" : "text-gray-600"}`} />
+                                        <PiFireExtinguisherDuotone title="Giấy phép PCCC" className={`size-4 ${rowData.licenses?.includes("Giấy phép PCCC") ? "text-red-600" : "text-gray-600"}`} />
+                                        {(() => {
+                                            const licenses = rowData.licenses;
+                                            if (licenses.length > 3) {
+                                                return <>...</>;
+                                            }
+                                        })()}
+                                    </div>
+                                )}
+                            ></Column>
+                            <Column
+                                field="action"
+                                header="Hành động"
+                                headerClassName="px-4 py-2 md:px-6 w-[100px] md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 w-[100px] md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div className="flex items-center justify-center gap-3">
                                         <button
