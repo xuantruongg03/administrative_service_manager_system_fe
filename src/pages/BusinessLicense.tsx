@@ -375,15 +375,17 @@ function BusinessLicense() {
                                     <p className="text-xs text-gray-500 truncate mb-1 md:mb-2" title={item.address}>
                                         {item.address}
                                     </p>
-                                    <div className="flex justify-between items-center">
-                                        <p className="text-xs text-gray-500">
+                                    <div className="bg-gray-50">
+                                        <p className="text-xs text-gray-500 mb-1">
                                             {dayjs(item.updated_at).format(
                                                 CONSTANTS.DATE_DEFAULT_FORMAT,
                                             )}
                                         </p>
-                                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                                            {item.type}
-                                        </span>
+                                        <div className="flex justify-end mt-3">
+                                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                                {item.type}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

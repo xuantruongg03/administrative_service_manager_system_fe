@@ -14,6 +14,13 @@ const iconDefault = L.icon({
     popupAnchor: [0, -35],
 });
 
+const iconHeadquater = L.icon({
+    iconUrl: "src/assets/map_headquater.png",
+    iconSize: [25, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -30],
+});
+
 function createCustomIcon(numberProblems: number, size: number) {
     const color = numberProblems >= 3 ? "#FF4136" : numberProblems >= 1 ? "#FF851B" : "#2ECC40";
     const iconSize = size;
@@ -165,18 +172,40 @@ function MultipleMarkers(props: { data: MapData[] }) {
 
 function MapRenderLeaflet(props: MapRenderProps) {
     const { data } = props;
+    const [center, setCenter] = useState<[number, number]>([13.756459, 109.212256]);
+    const [canGetLocation, setCanGetLocation] = useState(false);
+
+    useEffect(() => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setCenter([position.coords.latitude, position.coords.longitude]);
+                    setCanGetLocation(true);
+                },
+                (error) => {
+                    console.log("Error getting location:", error);
+                }
+            );
+        }
+    }, []);
+
     return (
         <div className="w-full h-full">
             <MapContainer
-                center={[13.756459, 109.212256]}
-                zoom={17}
+                center={center}
+                zoom={16}
                 scrollWheelZoom={true}
             >
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[13.756459, 109.212256]} icon={iconDefault}>
+                {canGetLocation && (
+                    <Marker position={center} icon={iconDefault}>
+                        <Popup>Vị trí hiện tại</Popup>
+                    </Marker>
+                )}
+                <Marker position={[13.757004, 109.212351]} icon={iconHeadquater}>
                     <Popup>Trụ sở</Popup>
                 </Marker>
                 <MultipleMarkers data={data} />

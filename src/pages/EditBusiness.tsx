@@ -1292,7 +1292,7 @@ function EditBusiness() {
                                     onRemoveLicense={handleRemoveLicense}
                                     dataBusiness={dataBusiness}
                                     acceptFile={CONSTANTS.ACCEPT_FILE}
-                                    type="Giấy ph��p kinh doanh"
+                                    type="Giấy phép kinh doanh"
                                     isUpload={isPendingUploadLicenses}
                                     ref={businessLicenseInputRef}
                                     isRemove={isPendingRemoveLicense}

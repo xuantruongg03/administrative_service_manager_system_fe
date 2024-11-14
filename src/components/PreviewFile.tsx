@@ -65,7 +65,7 @@ function PreviewFile(props: PreviewFileProps) {
                         {getPreviewContent()}
                     </div>
                     {isHovered && (
-                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center backdrop-blur-sm">
+                        <div className="absolute inset-0 rounded-lg bg-black bg-opacity-40 flex items-center justify-center backdrop-blur-sm">
                             <button
                                 className="bg-white text-black px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-all duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:scale-105 flex items-center"
                                 onClick={handleViewClick}
