@@ -66,6 +66,11 @@ interface EmployeeDataApi {
 }
 
 interface LicenseDataApi {
+    type: string;
+    licenses: LicenseOfType[];
+}
+
+interface LicenseOfType {
     id: string;
     status: string;
     type: string;
@@ -94,4 +99,18 @@ interface EmployeeInfo {
     updated_at: string;
 }
 
-export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi, LicenseDataApi, BusinessLicenseDataApi, EmployeeInfo };
+interface BusinessMap {
+    code: string;
+    name_vietnamese: string;
+    address: string;
+    type_of_organization: string;
+    latitude: number;
+    longitude: number;
+    status: string;
+    created_at: Date;
+    number_of_employees: number;
+    license_status: string[];
+}
+
+
+export type { BusinessDataApi, BusinessDataApiRequest, EmployeeDataApi, LicenseDataApi, BusinessLicenseDataApi, EmployeeInfo, BusinessMap, LicenseOfType };

@@ -1,5 +1,5 @@
 import Action from "./action";
-import { BusinessDataApi } from "./api";
+import { BusinessDataApi, BusinessMap } from "./api";
 import {
     AddEmployeeModalProps,
     EmployeeModalProps,
@@ -15,6 +15,6 @@ import {
 
 export type {
     Action, AddEmployeeModalProps,
-    BusinessDataApi, EmployeeModalProps, FileUploadButtonProps, FilterProps, InforBusinessPopupProps, MapData, PaginationProps, ShareProps, SidebarMobileProps, TypographyProps
+    BusinessDataApi, BusinessMap, EmployeeModalProps, FileUploadButtonProps, FilterProps, InforBusinessPopupProps, MapData, PaginationProps, ShareProps, SidebarMobileProps, TypographyProps
 };
 

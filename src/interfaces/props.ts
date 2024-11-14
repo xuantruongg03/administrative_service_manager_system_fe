@@ -35,6 +35,7 @@ interface TemplatePopupMapProps {
 }
 
 interface MapData {
+    id: string;
     name: string;
     address: string;
     status: string;
@@ -94,6 +95,12 @@ interface EmployeeModalProps {
     businessId: string;
 }
 
+interface AddLicenseModalProps {
+    show: boolean;
+    onHide: () => void;
+    businessId: string;
+}
+
 export type {
     PaginationProps,
     FilterProps,
@@ -108,4 +115,5 @@ export type {
     AddEmployeeModalProps,
     MapData,
     EmployeeModalProps,
+    AddLicenseModalProps,
 };

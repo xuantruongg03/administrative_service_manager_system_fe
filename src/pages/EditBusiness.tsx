@@ -1,25 +1,29 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FaEye } from "react-icons/fa";
-import { FiUpload } from "react-icons/fi";
+import { FaEye, FaPlus } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import AddLicenseModal from "../components/AddLicenseModal";
+import BoxLicenses from "../components/BoxLicenses";
 import EmployeeModal from "../components/EmployeeModal";
 import LoadingMini from "../components/LoadingMini";
 import useRemoveLicense from "../hooks/useRemoveLicense";
 import useUpdateBusiness from "../hooks/useUpdateBusiness";
-import useUploadBusinessLicense from "../hooks/useUploadBusinessLicense";
-import useUploadFirePreventionLicense from "../hooks/useUploadFirePreventionLicense";
-import useUploadSecurityLicense from "../hooks/useUploadSecurityLicense";
-import { BusinessDataApiRequest, LicenseDataApi } from "../interfaces/api";
+import useUploadLicenses from "../hooks/useUploadLicenses";
+import {
+    BusinessDataApiRequest,
+    LicenseDataApi,
+    LicenseOfType,
+} from "../interfaces/api";
 import businessService from "../services/business";
+import licenseTypeService from "../services/licenseType";
 import typeOfOrganizationService from "../services/typeOfOrganization";
-import Loading from "./Loading";
-import { REGEX } from "../utils/regex";
 import { CONSTANTS } from "../utils/constants";
-import { Dropdown } from "primereact/dropdown";
+import { REGEX } from "../utils/regex";
+import Loading from "./Loading";
 
 const getBusinessByIdReq = async (id: string) => {
     const response = await businessService.getBusinessById(id);
@@ -31,6 +35,11 @@ const getTypeOfOrganizationReq = async () => {
     return response;
 };
 
+const getLicenseTypeReq = async () => {
+    const response = await licenseTypeService.getLicenseType();
+    return response;
+};
+
 function EditBusiness() {
     const {
         register,
@@ -39,101 +48,41 @@ function EditBusiness() {
         setValue,
     } = useForm<BusinessDataApiRequest>();
     const [showEmployeeModal, setShowEmployeeModal] = useState(false);
-    const [fileBusinessLicense, setFileBusinessLicense] = useState<File | null>(
-        null,
+    const [showAddLicenseModal, setShowAddLicenseModal] = useState(false);
+    const [nameFireLicense, setNameFireLicense] = useState<string[]>([]);
+    const [nameBusinessLicense, setNameBusinessLicense] = useState<string[]>(
+        [],
     );
-    const [fileFirePreventionLicense, setFileFirePreventionLicense] =
-        useState<File | null>(null);
-    const [fileSecurityLicense, setFileSecurityLicense] = useState<File | null>(
-        null,
+    const [nameSecurityLicense, setNameSecurityLicense] = useState<string[]>(
+        [],
     );
-    const [nameFirePreventionLicense, setNameFirePreventionLicense] = useState<
-        string | null
-    >(null);
-    const [nameBusinessLicense, setNameBusinessLicense] = useState<
-        string | null
-    >(null);
-    const [nameSecurityLicense, setNameSecurityLicense] = useState<
-        string | null
-    >(null);
+    const [otherLicenses, setOtherLicenses] = useState<
+        {
+            name: string[];
+            type: string;
+        }[]
+    >([]);
     const { id } = useParams();
     const [selectedType, setSelectedType] = useState("");
+    const businessLicenseInputRef = useRef<HTMLInputElement>(null);
+    const fireLicenseInputRef = useRef<HTMLInputElement>(null);
+    const securityLicenseInputRef = useRef<HTMLInputElement>(null);
+    const otherLicenseRefs = useRef<{ [key: string]: HTMLInputElement | null }>(
+        {},
+    );
+    const queryClient = useQueryClient();
 
     const { isLoading: isLoadingBusiness, data: dataBusiness } = useQuery({
         queryKey: ["getBusinessById", id],
         queryFn: () => getBusinessByIdReq(id as string),
     });
 
-    //Hooks
-    const { updateBusiness, isPending: isPendingUpdateBusiness } =
-        useUpdateBusiness();
-    const { uploadBusinessLicense, isPending: isPendingUploadBusinessLicense } =
-        useUploadBusinessLicense();
-    const {
-        uploadFirePreventionLicense,
-        isPending: isPendingUploadFirePreventionLicense,
-    } = useUploadFirePreventionLicense();
-    const { uploadSecurityLicense, isPending: isPendingUploadSecurityLicense } =
-        useUploadSecurityLicense();
-    const { removeLicense, isPending: isPendingRemoveLicense } =
-        useRemoveLicense();
-
-    //Functions
-    const handleUploadBusinessLicense = (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setFileBusinessLicense(file);
-            uploadBusinessLicense({ file, id: id as string }).then(() => {
-                toast.success("Tải lên giấy đăng ký kinh doanh thành công");
-            });
-        }
-    };
-
-    const handleUploadFirePreventionLicense = (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setFileFirePreventionLicense(file);
-            uploadFirePreventionLicense({ file, id: id as string }).then(() => {
-                toast.success("Tải lên giấy phép PCCC thành công");
-            });
-        }
-    };
-
-    const handleUploadSecurityLicense = (
-        event: React.ChangeEvent<HTMLInputElement>,
-    ) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setFileSecurityLicense(file);
-            uploadSecurityLicense({ file, id: id as string }).then(() => {
-                toast.success(
-                    "Tải lên giấy chứng nhận đủ điều kiện về ANTT thành công",
-                );
-            });
-        }
-    };
-
-    const handleRemoveLicense = (licenseId: string, type: string) => {
-        removeLicense({ id: licenseId }).then(() => {
-            toast.success("Xóa giấy tờ thành công");
-        });
-        if (type === "Business License") {
-            setFileBusinessLicense(null);
-            setNameBusinessLicense(null);
-        }
-        if (type === "Fire Prevention License") {
-            setFileFirePreventionLicense(null);
-            setNameFirePreventionLicense(null);
-        }
-        if (type === "Security License") {
-            setFileSecurityLicense(null);
-            setNameSecurityLicense(null);
-        }
-    };
+    const { isLoading: isLoadingLicenseType, data: dataLicenseType } = useQuery(
+        {
+            queryKey: ["getLicenseType"],
+            queryFn: () => getLicenseTypeReq(),
+        },
+    );
 
     const {
         isLoading: isLoadingTypeOfOrganization,
@@ -142,6 +91,92 @@ function EditBusiness() {
         queryKey: ["getTypeOfOrganization"],
         queryFn: () => getTypeOfOrganizationReq(),
     });
+
+    //Hooks
+    const { updateBusiness, isPending: isPendingUpdateBusiness } =
+        useUpdateBusiness();
+    const { uploadLicenses, isPending: isPendingUploadLicenses } =
+        useUploadLicenses();
+    const { removeLicense, isPending: isPendingRemoveLicense } =
+        useRemoveLicense();
+
+    //Functions
+    const handleUploadLicense = (
+        event: React.ChangeEvent<HTMLInputElement>,
+        type: string,
+    ) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const licenseTypeId = dataLicenseType?.data.find(
+                (licenseType: { id: string; name: string }) =>
+                    licenseType.name === type,
+            )?.id;
+
+            if (!licenseTypeId) {
+                toast.error("Không tìm thấy loại giấy phép");
+                return;
+            }
+            uploadLicenses({
+                file,
+                id: id as string,
+                type: licenseTypeId,
+            }).then(() => {
+                if (type === "Giấy phép kinh doanh") {
+                    toast.success("Tải lên giấy phép kinh doanh thành công");
+                    setNameBusinessLicense([...nameBusinessLicense, file.name]);
+                } else if (type === "Giấy phép PCCC") {
+                    toast.success("Tải lên giấy phép PCCC thành công");
+                    setNameFireLicense([...nameFireLicense, file.name]);
+                } else if (type === "Giấy phép ANTT") {
+                    toast.success("Tải lên giấy phép ANTT thành công");
+                    setNameSecurityLicense([...nameSecurityLicense, file.name]);
+                } else {
+                    toast.success("Tải lên giấy tờ thành công");
+                }
+                queryClient.invalidateQueries({
+                    queryKey: ["getBusinessById", id],
+                });
+                // Reset input file
+                if (type === "Giấy phép kinh doanh") {
+                    businessLicenseInputRef.current!.value = "";
+                } else if (type === "Giấy phép PCCC") {
+                    fireLicenseInputRef.current!.value = "";
+                } else if (type === "Giấy phép ANTT") {
+                    securityLicenseInputRef.current!.value = "";
+                }
+            });
+        }
+    };
+
+    const handleRemoveLicense = (
+        licenseId: string,
+        type: string,
+        licenseName: string,
+    ) => {
+        removeLicense({ id: licenseId }).then(() => {
+            toast.success("Xóa giấy tờ thành công");
+            if (type === "Giấy phép kinh doanh") {
+                setNameBusinessLicense(
+                    nameBusinessLicense.filter((name) => name !== licenseName),
+                );
+            } else if (type === "Giấy phép PCCC") {
+                setNameFireLicense(
+                    nameFireLicense.filter((name) => name !== licenseName),
+                );
+            } else if (type === "Giấy phép ANTT") {
+                setNameSecurityLicense(
+                    nameSecurityLicense.filter((name) => name !== licenseName),
+                );
+            } else {
+                setOtherLicenses(
+                    otherLicenses.map(license => ({
+                        ...license,
+                        name: license.name.filter(name => name !== licenseName)
+                    }))
+                );
+            }
+        });
+    };
 
     const onSubmit = handleSubmit((data) => {
         updateBusiness({ id: id as string, data }).then(() => {
@@ -153,50 +188,93 @@ function EditBusiness() {
         setShowEmployeeModal(true);
     };
 
-    useEffect(() => {
-        if (
-            dataBusiness?.data?.licenses?.find(
-                (license: LicenseDataApi) =>
-                    license.type === CONSTANTS.LICENSE_TYPE.FIRE,
-            )
-        ) {
-            setNameFirePreventionLicense(
-                dataBusiness?.data?.licenses?.find(
-                    (license: LicenseDataApi) =>
-                        license.type === CONSTANTS.LICENSE_TYPE.FIRE,
-                )?.name,
-            );
+    const handleChooseLicense = (type: string) => {
+        if (type === "Giấy phép kinh doanh") {
+            businessLicenseInputRef.current?.click();
+        } else if (type === "Giấy phép PCCC") {
+            fireLicenseInputRef.current?.click();
+        } else if (type === "Giấy phép ANTT") {
+            securityLicenseInputRef.current?.click();
+        } else {
+            const ref = otherLicenseRefs.current[type];
+            if (ref) {
+                ref.click();
+            }
         }
-        if (
-            dataBusiness?.data?.licenses?.find(
-                (license: LicenseDataApi) =>
-                    license.type === CONSTANTS.LICENSE_TYPE.BUSINESS,
-            )
-        ) {
-            setNameBusinessLicense(
-                dataBusiness?.data?.licenses?.find(
-                    (license: LicenseDataApi) =>
-                        license.type === CONSTANTS.LICENSE_TYPE.BUSINESS,
-                )?.name,
-            );
-        }
-        if (
-            dataBusiness?.data?.licenses?.find(
-                (license: LicenseDataApi) =>
-                    license.type === CONSTANTS.LICENSE_TYPE.SECURITY,
-            )
-        ) {
-            setNameSecurityLicense(
-                dataBusiness?.data?.licenses?.find(
-                    (license: LicenseDataApi) =>
-                        license.type === CONSTANTS.LICENSE_TYPE.SECURITY,
-                )?.name,
-            );
-        }
-        setSelectedType(dataBusiness?.data?.type_of_organization);
-    }, [dataBusiness?.data?.licenses, dataBusiness?.data?.type_of_organization]);
+    };
 
-    if (isLoadingBusiness || isLoadingTypeOfOrganization) return <Loading />;
+    const businessLicenseNames = useMemo(() => {
+        const l = dataBusiness?.data?.licenses?.find(
+            (license: LicenseDataApi) =>
+                license.type === CONSTANTS.LICENSE_TYPE.BUSINESS,
+        );
+        if (l) {
+            return l.licenses.map((license: LicenseOfType) => license.name);
+        }
+        return [];
+    }, [dataBusiness?.data?.licenses]);
+
+    const fireLicenseNames = useMemo(() => {
+        const l = dataBusiness?.data?.licenses?.find(
+            (license: LicenseDataApi) =>
+                license.type === CONSTANTS.LICENSE_TYPE.FIRE,
+        );
+        if (l) {
+            return l.licenses.map((license: LicenseOfType) => license.name);
+        }
+        return [];
+    }, [dataBusiness?.data?.licenses]);
+
+    const securityLicenseNames = useMemo(() => {
+        const l = dataBusiness?.data?.licenses?.find(
+            (license: LicenseDataApi) =>
+                license.type === CONSTANTS.LICENSE_TYPE.SECURITY,
+        );
+        if (l) {
+            return l.licenses.map((license: LicenseOfType) => license.name);
+        }
+        return [];
+    }, [dataBusiness?.data?.licenses]);
+
+    const otherLicenseTypes = useMemo(() => {
+        const l = dataBusiness?.data?.licenses?.filter(
+            (license: LicenseDataApi) =>
+                license.type !== CONSTANTS.LICENSE_TYPE.BUSINESS &&
+                license.type !== CONSTANTS.LICENSE_TYPE.FIRE &&
+                license.type !== CONSTANTS.LICENSE_TYPE.SECURITY,
+        );
+        if (l) {
+            return l.map((license: LicenseDataApi) => ({
+                name: license.licenses.map(
+                    (license: LicenseOfType) => license.name,
+                ),
+                type: license.type,
+            }));
+        }
+        return [];
+    }, [dataBusiness?.data?.licenses]);
+
+    useEffect(() => {
+        setNameBusinessLicense(businessLicenseNames);
+        setNameFireLicense(fireLicenseNames);
+        setNameSecurityLicense(securityLicenseNames);
+        setOtherLicenses(otherLicenseTypes);
+        setSelectedType(dataBusiness?.data?.type_of_organization);
+    }, [
+        dataBusiness?.data?.licenses,
+        dataBusiness?.data?.type_of_organization,
+        businessLicenseNames,
+        fireLicenseNames,
+        securityLicenseNames,
+        otherLicenseTypes,
+    ]);
+
+    if (
+        isLoadingBusiness ||
+        isLoadingTypeOfOrganization ||
+        isLoadingLicenseType
+    )
+        return <Loading />;
 
     return (
         <>
@@ -913,7 +991,7 @@ function EditBusiness() {
                                     htmlFor="chartered_capital"
                                     className="block text-sm font-medium text-gray-700 mb-1"
                                 >
-                                    Vốn điều lệ *
+                                    Vốn điều l *
                                 </label>
                                 <InputText
                                     type="number"
@@ -927,7 +1005,7 @@ function EditBusiness() {
                                         dataBusiness?.data?.chartered_capital
                                     }
                                     {...register("chartered_capital", {
-                                        required: "Vốn điều lệ là bắt buộc",
+                                        required: "Vốn điu lệ là bắt buộc",
                                         min: {
                                             value: 0,
                                             message: "Vốn điều lệ không thể âm",
@@ -1102,7 +1180,10 @@ function EditBusiness() {
                                     panelClassName="max-w-[30rem] md:max-w-[35rem] overflow-x-auto"
                                     onChange={(e) => {
                                         setSelectedType(e.value);
-                                        setValue("type_of_organization", e.value);
+                                        setValue(
+                                            "type_of_organization",
+                                            e.value,
+                                        );
                                     }}
                                 />
                                 {errors.type_of_organization && (
@@ -1137,7 +1218,7 @@ function EditBusiness() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="md:col-span-2 col-span-1">
+                            <div className="col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Trạng thái hoạt động *
                                 </label>
@@ -1188,226 +1269,168 @@ function EditBusiness() {
 
                             {/* Business Certificate Section */}
                             <div className="md:col-span-1 col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Giấy đăng kí kinh doanh
-                                </label>
-                                <div className="flex items-center gap-4">
-                                    <input
-                                        type="file"
-                                        id="business_license"
-                                        className="hidden"
-                                        accept={CONSTANTS.ACCEPT_FILE}
-                                        onChange={handleUploadBusinessLicense}
-                                    />
-                                    {fileBusinessLicense ||
-                                    nameBusinessLicense ? (
-                                        <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md w-full">
-                                            <span
-                                                className="text-sm truncate hover:text-clip"
-                                                title={
-                                                    fileBusinessLicense?.name ||
-                                                    nameBusinessLicense ||
-                                                    ""
-                                                }
-                                            >
-                                                {fileBusinessLicense?.name ||
-                                                    nameBusinessLicense}
-                                            </span>
-                                            <div className="flex items-center flex-shrink-0">
-                                                {isPendingRemoveLicense ? (
-                                                    <LoadingMini />
-                                                ) : (
-                                                    <button
-                                                        type="button"
-                                                        className="text-red-500 hover:text-red-700"
-                                                        onClick={() => {
-                                                            setFileBusinessLicense(
-                                                                null,
-                                                            );
-                                                            handleRemoveLicense(
-                                                                dataBusiness?.data?.licenses?.find(
-                                                                    (
-                                                                        license: LicenseDataApi,
-                                                                    ) =>
-                                                                        license.type ===
-                                                                        "Business License",
-                                                                )?.id,
-                                                                "Business License",
-                                                            );
-                                                        }}
-                                                    >
-                                                        ×
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <label
-                                            htmlFor="business_license"
-                                            className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer w-full"
-                                        >
-                                            {isPendingUploadBusinessLicense ? (
-                                                <LoadingMini />
-                                            ) : (
-                                                <>
-                                                    <FiUpload className="size-4 flex-shrink-0" />
-                                                    <span className="text-sm">
-                                                        Tải lên giấy đăng kí
-                                                        kinh doanh
-                                                    </span>
-                                                </>
-                                            )}
-                                        </label>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="md:col-span-1 col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Giấy phép PCCC
-                                </label>
-                                <div className="flex items-center gap-4">
-                                    <input
-                                        type="file"
-                                        id="fire_prevention_license"
-                                        className="hidden"
-                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                        onChange={
-                                            handleUploadFirePreventionLicense
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="text-sm font-medium text-gray-700">
+                                        Giấy đăng kí kinh doanh{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <button
+                                        type="button"
+                                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
+                                        onClick={() =>
+                                            handleChooseLicense(
+                                                "Giấy phép kinh doanh",
+                                            )
                                         }
-                                    />
-                                    {fileFirePreventionLicense ||
-                                    nameFirePreventionLicense ? (
-                                        <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md w-full">
-                                            <span
-                                                className="text-sm truncate hover:text-clip"
-                                                title={
-                                                    fileFirePreventionLicense?.name ||
-                                                    nameFirePreventionLicense ||
-                                                    ""
-                                                }
-                                            >
-                                                {fileFirePreventionLicense?.name ||
-                                                    nameFirePreventionLicense}
-                                            </span>
-                                            <div className="flex items-center flex-shrink-0">
-                                                {isPendingRemoveLicense ? (
-                                                    <LoadingMini />
-                                                ) : (
-                                                    <button
-                                                        type="button"
-                                                        className="text-red-500 hover:text-red-700"
-                                                        onClick={() => {
-                                                            setFileFirePreventionLicense(
-                                                                null,
-                                                            );
-                                                            handleRemoveLicense(
-                                                                dataBusiness?.data?.licenses?.find(
-                                                                    (
-                                                                        license: LicenseDataApi,
-                                                                    ) =>
-                                                                        license.type ===
-                                                                        "Fire Prevention License",
-                                                                )?.id,
-                                                                "Fire Prevention License",
-                                                            );
-                                                        }}
-                                                    >
-                                                        ×
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <label
-                                            htmlFor="fire_prevention_license"
-                                            className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer w-full"
-                                        >
-                                            {isPendingUploadFirePreventionLicense ? (
-                                                <LoadingMini />
-                                            ) : (
-                                                <>
-                                                    <FiUpload className="size-4 flex-shrink-0" />
-                                                    <span className="text-sm">
-                                                        Tải lên giấy phép PCCC
-                                                    </span>
-                                                </>
-                                            )}
-                                        </label>
-                                    )}
+                                    >
+                                        <FaPlus className="size-3" />
+                                    </button>
                                 </div>
+                                <BoxLicenses
+                                    nameBusinessLicense={nameBusinessLicense}
+                                    onUploadLicense={handleUploadLicense}
+                                    onRemoveLicense={handleRemoveLicense}
+                                    dataBusiness={dataBusiness}
+                                    acceptFile={CONSTANTS.ACCEPT_FILE}
+                                    type="Giấy ph��p kinh doanh"
+                                    isUpload={isPendingUploadLicenses}
+                                    ref={businessLicenseInputRef}
+                                    isRemove={isPendingRemoveLicense}
+                                />
                             </div>
                             <div className="md:col-span-1 col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Giấy chứng nhận đủ đk về ANTT
-                                </label>
-                                <div className="flex items-center gap-4">
-                                    <input
-                                        type="file"
-                                        id="security_license"
-                                        className="hidden"
-                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                        onChange={handleUploadSecurityLicense}
-                                    />
-                                    {fileSecurityLicense ||
-                                    nameSecurityLicense ? (
-                                        <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md w-full">
-                                            <span
-                                                className="text-sm truncate hover:text-clip"
-                                                title={
-                                                    fileSecurityLicense?.name ||
-                                                    nameSecurityLicense ||
-                                                    ""
-                                                }
-                                            >
-                                                {fileSecurityLicense?.name ||
-                                                    nameSecurityLicense}
-                                            </span>
-                                            <div className="flex items-center flex-shrink-0">
-                                                {isPendingRemoveLicense ? (
-                                                    <LoadingMini />
-                                                ) : (
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Giấy phép PCCC{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <button
+                                        type="button"
+                                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
+                                        onClick={() =>
+                                            handleChooseLicense(
+                                                "Giấy phép PCCC",
+                                            )
+                                        }
+                                    >
+                                        <FaPlus className="size-3" />
+                                    </button>
+                                </div>
+                                <BoxLicenses
+                                    nameBusinessLicense={nameFireLicense}
+                                    onUploadLicense={handleUploadLicense}
+                                    onRemoveLicense={handleRemoveLicense}
+                                    dataBusiness={dataBusiness}
+                                    acceptFile={CONSTANTS.ACCEPT_FILE}
+                                    type="Giấy phép PCCC"
+                                    isUpload={isPendingUploadLicenses}
+                                    isRemove={isPendingRemoveLicense}
+                                    ref={fireLicenseInputRef}
+                                />
+                            </div>
+                            <div className="md:col-span-1 col-span-2">
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Giấy chứng nhận đủ đk về ANTT{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <button
+                                        type="button"
+                                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
+                                        onClick={() =>
+                                            handleChooseLicense(
+                                                "Giấy phép ANTT",
+                                            )
+                                        }
+                                    >
+                                        <FaPlus className="size-3" />
+                                    </button>
+                                </div>
+                                <BoxLicenses
+                                    nameBusinessLicense={nameSecurityLicense}
+                                    onUploadLicense={handleUploadLicense}
+                                    onRemoveLicense={handleRemoveLicense}
+                                    dataBusiness={dataBusiness}
+                                    acceptFile={CONSTANTS.ACCEPT_FILE}
+                                    type="Giấy phép ANTT"
+                                    isUpload={isPendingUploadLicenses}
+                                    isRemove={isPendingRemoveLicense}
+                                    ref={securityLicenseInputRef}
+                                />
+                            </div>
+                            {otherLicenses?.length > 0 && (
+                                <>
+                                    {otherLicenses.map((license, index) => (
+                                        <Fragment key={index}>
+                                            <div className="md:col-span-1 col-span-2">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        {license.type}
+                                                    </label>
                                                     <button
                                                         type="button"
-                                                        className="text-red-500 hover:text-red-700"
-                                                        onClick={() => {
-                                                            setFileSecurityLicense(
-                                                                null,
-                                                            );
-                                                            handleRemoveLicense(
-                                                                dataBusiness?.data?.licenses?.find(
-                                                                    (
-                                                                        license: LicenseDataApi,
-                                                                    ) =>
-                                                                        license.type ===
-                                                                        "Security License",
-                                                                )?.id,
-                                                                "Security License",
-                                                            );
-                                                        }}
+                                                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
+                                                        onClick={() =>
+                                                            handleChooseLicense(
+                                                                license.type,
+                                                            )
+                                                        }
                                                     >
-                                                        ×
+                                                        <FaPlus className="size-3" />
                                                     </button>
-                                                )}
+                                                </div>
+                                                <BoxLicenses
+                                                    nameBusinessLicense={
+                                                        license.name
+                                                    }
+                                                    onUploadLicense={
+                                                        handleUploadLicense
+                                                    }
+                                                    onRemoveLicense={
+                                                        handleRemoveLicense
+                                                    }
+                                                    dataBusiness={dataBusiness}
+                                                    acceptFile={
+                                                        CONSTANTS.ACCEPT_FILE
+                                                    }
+                                                    type={license.type}
+                                                    isUpload={
+                                                        isPendingUploadLicenses
+                                                    }
+                                                    isRemove={
+                                                        isPendingRemoveLicense
+                                                    }
+                                                    ref={(el) => {
+                                                        otherLicenseRefs.current[
+                                                            license.type
+                                                        ] = el;
+                                                    }}
+                                                />
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <label
-                                            htmlFor="security_license"
-                                            className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer w-full"
-                                        >
-                                            {isPendingUploadSecurityLicense ? (
-                                                <LoadingMini />
-                                            ) : (
-                                                <>
-                                                    <FiUpload className="size-4 flex-shrink-0" />
-                                                    <span className="text-sm">
-                                                        Tải lên giấy chứng nhận
-                                                        đủ đk về ANTT
-                                                    </span>
-                                                </>
-                                            )}
-                                        </label>
-                                    )}
+                                        </Fragment>
+                                    ))}
+                                </>
+                            )}
+                            <div className="md:col-span-1 col-span-2">
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Giấy phép khác
+                                    </label>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowAddLicenseModal(true)
+                                        }
+                                        className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                                    >
+                                        <FaPlus className="size-4" />
+                                        <span className="text-sm">
+                                            Thêm giấy phép khác
+                                        </span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1435,6 +1458,11 @@ function EditBusiness() {
             <EmployeeModal
                 show={showEmployeeModal}
                 onHide={() => setShowEmployeeModal(false)}
+                businessId={id as string}
+            />
+            <AddLicenseModal
+                show={showAddLicenseModal}
+                onHide={() => setShowAddLicenseModal(false)}
                 businessId={id as string}
             />
         </>

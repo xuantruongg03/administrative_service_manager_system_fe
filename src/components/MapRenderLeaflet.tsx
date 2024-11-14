@@ -4,6 +4,8 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { useSelector } from "react-redux";
 import { MapData, MapRenderProps } from "../interfaces/props";
 import RootState from "../interfaces/rootState";
+import { Link } from "react-router-dom";
+import { BiSolidEditAlt } from "react-icons/bi";
 
 const iconDefault = L.icon({
     iconUrl: "src/assets/map_default.png",
@@ -13,7 +15,7 @@ const iconDefault = L.icon({
 });
 
 function createCustomIcon(numberProblems: number, size: number) {
-    const color = numberProblems > 0 ? "#FF4136" : "#2ECC40";
+    const color = numberProblems >= 3 ? "#FF4136" : numberProblems >= 1 ? "#FF851B" : "#2ECC40";
     const iconSize = size;
 
     const svgIcon = `
@@ -55,14 +57,15 @@ function MarkerWithSmoothTransition({
 
     useEffect(() => {
         if (currentSize !== targetSize) {
-          const animationFrame = requestAnimationFrame(() => {
-            const newSize = currentSize + (targetSize > currentSize ? 2 : -2); // Tăng step size
-            setCurrentSize(newSize);
-          });
-          return () => cancelAnimationFrame(animationFrame);
+            const animationFrame = requestAnimationFrame(() => {
+                const newSize =
+                    currentSize + (targetSize > currentSize ? 2 : -2); // Tăng step size
+                setCurrentSize(newSize);
+            });
+            return () => cancelAnimationFrame(animationFrame);
         }
-      }, [currentSize, targetSize]);
-      
+    }, [currentSize, targetSize]);
+
     return (
         <Marker
             ref={markerRef}
@@ -72,9 +75,17 @@ function MarkerWithSmoothTransition({
             ]}
             icon={icon}
         >
-            <Popup>
+            <Popup closeButton={false}>
                 <div className="text-black rounded-lg">
-                    <h3 className="font-bold text-lg">{item.name}</h3>
+                    <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-lg">{item.name}</h3>
+                        <Link
+                            to={`/business/edit/${item.id}`}
+                            className="flex items-center gap-2"
+                        >
+                            <BiSolidEditAlt className="size-5" />
+                        </Link>
+                    </div>
                     <p className="text-sm">{item.address}</p>
                     <p
                         className={`text-sm ${
@@ -119,16 +130,19 @@ function MultipleMarkers(props: { data: MapData[] }) {
     const calculateOffset = useMemo(() => {
         const offsetMap = new Map<number, [number, number]>();
         return (index: number): [number, number] => {
-          if (offsetMap.has(index)) {
-            return offsetMap.get(index)!;
-          }
-          const angle = (index % 150) * (Math.PI / 4);
-          const distance = 0.00005;
-          const offset: [number, number] = [Math.cos(angle) * distance, Math.sin(angle) * distance];
-          offsetMap.set(index, offset);
-          return offset;
+            if (offsetMap.has(index)) {
+                return offsetMap.get(index)!;
+            }
+            const angle = (index % 150) * (Math.PI / 4);
+            const distance = 0.00005;
+            const offset: [number, number] = [
+                Math.cos(angle) * distance,
+                Math.sin(angle) * distance,
+            ];
+            offsetMap.set(index, offset);
+            return offset;
         };
-      }, []);
+    }, []);
 
     return (
         <>

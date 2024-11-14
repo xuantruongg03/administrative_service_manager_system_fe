@@ -4,6 +4,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { useDispatch } from "react-redux";
 import LoadingMini from "../components/LoadingMini";
 import MapRenderLeaflet from "../components/MapRenderLeaflet";
+import { BusinessMap } from "../interfaces";
 import businessService from "../services/business";
 import { CONSTANTS } from "../utils/constants";
 import Loading from "./Loading";
@@ -17,19 +18,6 @@ const getMapMarker = async () => {
     const res = await businessService.getMapMarker();
     return res;
 };
-
-interface BusinessMap {
-    code: string;
-    name_vietnamese: string;
-    address: string;
-    type_of_organization: string;
-    latitude: number;
-    longitude: number;
-    status: string;
-    created_at: Date;
-    number_of_employees: number;
-    license_status: string[];
-}
 
 function Map() {
     const [listBusiness, setListBusiness] = useState<BusinessMap[]>([]);
@@ -83,7 +71,25 @@ function Map() {
 
     return (
         <div className=" px-4 w-full">
-            <h1 className="text-2xl font-bold mb-4">Bản đồ</h1>
+            <div className="flex items-center mb-4">
+                <h1 className="text-2xl font-bold">Bản đồ</h1>
+                <div className="flex items-center gap-2 ml-8">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#2ECC40]"></div>
+                            <span className="text-sm text-gray-600">Đầy đủ giấy phép</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#FF851B]"></div>
+                            <span className="text-sm text-gray-600">Thiếu 1 - 2 giấy phép</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#FF4136]"></div>
+                            <span className="text-sm text-gray-600">Thiếu 3 giấy phép bắt buộc</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div className="flex flex-col lg:flex-row gap-3">
                 <div className="w-full lg:w-2/3 h-[500px] xl:h-[550px] 3xl:h-[700px]">
                     <MapRenderLeaflet
@@ -103,6 +109,21 @@ function Map() {
                             <h2 className="text-xl font-bold mb-2">
                                 Danh sách doanh nghiệp
                             </h2>
+                            <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <select className="form-select rounded-lg text-sm focus:outline-none">
+                                        <option value="">Trạng thái hoạt động</option>
+                                        <option value="active">Đang hoạt động</option>
+                                        <option value="inactive">Không hoạt động</option>
+                                    </select>
+                                    <select className="form-select rounded-lg text-sm focus:outline-none">
+                                        <option value="">Số giấy phép còn thiếu</option>
+                                        <option value="0">Đầy đủ giấy phép</option>
+                                        <option value="1-2">Thiếu 1-2 giấy phép</option>
+                                        <option value="3">Thiếu 3 giấy phép</option>
+                                    </select>
+                                </div>
+                            </div>
                             <ul className="space-y-2">
                                 {listBusiness.map((item) => (
                                     <li
