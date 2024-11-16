@@ -1,11 +1,11 @@
 import L from "leaflet";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { BiSolidEditAlt } from "react-icons/bi";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { MapData, MapRenderProps } from "../interfaces/props";
 import RootState from "../interfaces/rootState";
-import { Link } from "react-router-dom";
-import { BiSolidEditAlt } from "react-icons/bi";
 
 const iconDefault = L.icon({
     iconUrl: "src/assets/map_default.png",
@@ -132,40 +132,40 @@ function MarkerWithSmoothTransition({
 
 function MultipleMarkers(props: { data: MapData[] }) {
     const memoizedData = useMemo(() => props.data, [props.data]);
-    const coordinateMap = new Map<string, number>();
-
-    const calculateOffset = useMemo(() => {
-        const offsetMap = new Map<number, [number, number]>();
-        return (index: number): [number, number] => {
-            if (offsetMap.has(index)) {
-                return offsetMap.get(index)!;
+    const coordinateGroups = useMemo(() => {
+        const groups = new Map<string, MapData[]>();
+        memoizedData.forEach(item => {
+            const key = `${item.lat},${item.lng}`;
+            if (!groups.has(key)) {
+                groups.set(key, []);
             }
-            const angle = (index % 150) * (Math.PI / 4);
-            const distance = 0.00005;
-            const offset: [number, number] = [
-                Math.cos(angle) * distance,
-                Math.sin(angle) * distance,
-            ];
-            offsetMap.set(index, offset);
-            return offset;
-        };
-    }, []);
+            groups.get(key)!.push(item);
+        });
+        return groups;
+    }, [memoizedData]);
+
+    const calculateOffset = (index: number, total: number): [number, number] => {
+        if (total === 1) return [0, 0];
+        
+        const angle = (index * (2 * Math.PI)) / total;
+        const radius = 0.00015;
+        return [
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius
+        ];
+    };
 
     return (
         <>
-            {memoizedData.map((item) => {
-                const key = `${item.lat},${item.lng}`;
-                const count = coordinateMap.get(key) || 0;
-                coordinateMap.set(key, count + 1);
-
-                return (
+            {Array.from(coordinateGroups.entries()).map(([, items]) => (
+                items.map((item, index) => (
                     <MarkerWithSmoothTransition
                         key={item.code}
                         item={item}
-                        offset={calculateOffset(count)}
+                        offset={calculateOffset(index, items.length)}
                     />
-                );
-            })}
+                ))
+            ))}
         </>
     );
 }

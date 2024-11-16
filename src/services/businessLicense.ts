@@ -5,21 +5,6 @@ const uploadLicenses = async (params: { file: File, id: string, type: string }) 
     return response;
 }
 
-// const uploadBusinessLicense = async (params: { file: File, id: string }) => {
-//     const response = await uploadFile(params.file, `/bussiness-licenses/business-license/${params.id}/upload`);
-//     return response;
-// }
-
-// const uploadSecurityLicense = async (params: { file: File, id: string }) => {
-//     const response = await uploadFile(params.file, `/bussiness-licenses/security-license/${params.id}/upload`);
-//     return response;
-// }
-
-// const uploadFirePreventionLicense = async (params: { file: File, id: string }) => {
-//     const response = await uploadFile(params.file, `/bussiness-licenses/fire-prevention-license/${params.id}/upload`);
-//     return response;
-// }
-
 const removeLicenses = async (params: { id: string }) => {
     const response = await axiosClient.delete(`/bussiness-licenses/${params.id}`);
     return response;
