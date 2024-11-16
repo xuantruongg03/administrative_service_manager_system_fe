@@ -26,6 +26,9 @@ const CONSTANTS = {
         FIRE: 'Giấy phép PCCC',
     },
     ACCEPT_FILE: ".pdf,.doc,.docx,.jpg,.jpeg,.png",
+    DATE_NOW: new Date(),
+    DATE_YESTERDAY: new Date(new Date().setDate(new Date().getDate() - 1)),
+    DATE_FORMAT: "YYYY/MM/DD",
 };
 
 export { CONSTANTS };

@@ -207,8 +207,6 @@ function BusinessLicense() {
         setOpenMenuId(openMenuId === id ? null : id);
     };
 
-    if (isLoading) return <Loading />;
-
     return (
         <div className="container px-4 w-full">
             <div className="flex items-center justify-between mb-4">
@@ -291,6 +289,7 @@ function BusinessLicense() {
                     </div>
                 </div>
             </div>
+            {isLoading ? <Loading /> : (
             <InfiniteScroll
                 next={fetchNextPage}
                 hasMore={!isLastPage}
@@ -564,8 +563,9 @@ function BusinessLicense() {
                             </tbody>
                         </table>
                     </div>
-                )}
-            </InfiniteScroll>
+                    )}
+                </InfiniteScroll>
+            )}
             {previewFile && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10001 p-4">
                     <div className="p-4 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
