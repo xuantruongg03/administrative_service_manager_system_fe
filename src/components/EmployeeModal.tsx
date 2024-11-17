@@ -79,9 +79,15 @@ function EmployeeModal(props: EmployeeModalProps) {
     ) => {
         const file = event.target.files?.[0];
         if (file) {
-            await createEmployees({ file, businessId });
-            queryClient.invalidateQueries({ queryKey: ["employees"] });
-            toast.success("Thêm nhân viên thành công");
+            await createEmployees({ file, businessId }).then(() => {
+                queryClient.removeQueries({ 
+                    queryKey: ["getBusinessById"],
+                    exact: false
+                });
+                queryClient.invalidateQueries({ queryKey: ["employees"] });
+                queryClient.invalidateQueries({ queryKey: ["getBusinessById"] });
+                toast.success("Thêm nhân viên thành công");
+            });
         }
     };
 
@@ -95,9 +101,17 @@ function EmployeeModal(props: EmployeeModalProps) {
     };
 
     const handleDeleteEmployee = async (id: string) => {
-        await mutateAsyncDeleteEmployee(id);
-        queryClient.invalidateQueries({ queryKey: ["employees"] });
-        toast.success("Xóa nhân viên thành công");
+        await mutateAsyncDeleteEmployee(id).then(() => {
+            queryClient.removeQueries({ 
+                queryKey: ["getBusinessById"],
+                exact: false,
+            });
+            queryClient.invalidateQueries({ queryKey: ["employees"] });
+            queryClient.invalidateQueries({
+                queryKey: ["getBusinessById", businessId],
+            });
+            toast.success("Xóa nhân viên thành công");
+        });
     };
 
     const handleShowModalEditEmployee = (employee: EmployeeDataApi) => {
@@ -140,7 +154,7 @@ function EmployeeModal(props: EmployeeModalProps) {
                                                 <LoadingMini />
                                             ) : (
                                                 <>
-                                                    <FiUpload className="size-5" />
+                                                    <FiUpload className="size-4" />
                                                     <span className="hidden md:inline text-sm">
                                                         Tải lên danh sách
                                                     </span>

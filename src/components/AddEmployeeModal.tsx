@@ -35,6 +35,7 @@ function AddEmployeeModal(props: AddEmployeeModalProps) {
         try {
             await createEmployee({ data: formattedData, businessId });
             queryClient.invalidateQueries({ queryKey: ["employees"] });
+            queryClient.invalidateQueries({ queryKey: ["getBusinessById", businessId] });
             onHide();
             toast.success("Thêm nhân viên thành công");
         } catch (error) {

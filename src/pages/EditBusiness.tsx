@@ -64,7 +64,10 @@ function EditBusiness() {
     >([]);
     const { id } = useParams();
     const [selectedType, setSelectedType] = useState("");
-    const [selectedGenderLegalRepresentative, setSelectedGenderLegalRepresentative] = useState("");
+    const [
+        selectedGenderLegalRepresentative,
+        setSelectedGenderLegalRepresentative,
+    ] = useState("");
     const [selectedGenderOwner, setSelectedGenderOwner] = useState("");
     const businessLicenseInputRef = useRef<HTMLInputElement>(null);
     const fireLicenseInputRef = useRef<HTMLInputElement>(null);
@@ -171,10 +174,12 @@ function EditBusiness() {
                 );
             } else {
                 setOtherLicenses(
-                    otherLicenses.map(license => ({
+                    otherLicenses.map((license) => ({
                         ...license,
-                        name: license.name.filter(name => name !== licenseName)
-                    }))
+                        name: license.name.filter(
+                            (name) => name !== licenseName,
+                        ),
+                    })),
                 );
             }
         });
@@ -262,10 +267,18 @@ function EditBusiness() {
         setNameSecurityLicense(securityLicenseNames);
         setOtherLicenses(otherLicenseTypes);
         setSelectedType(dataBusiness?.data?.type_of_organization);
-        setSelectedGenderLegalRepresentative(dataBusiness?.data?.legal_representative.gender);
+        setSelectedGenderLegalRepresentative(
+            dataBusiness?.data?.legal_representative.gender,
+        );
         setSelectedGenderOwner(dataBusiness?.data?.owner.gender);
-        setValue("type_of_organization", dataBusiness?.data?.type_of_organization);
-        setValue("legal_representative.gender", dataBusiness?.data?.legal_representative.gender);
+        setValue(
+            "type_of_organization",
+            dataBusiness?.data?.type_of_organization,
+        );
+        setValue(
+            "legal_representative.gender",
+            dataBusiness?.data?.legal_representative.gender,
+        );
         setValue("owner.gender", dataBusiness?.data?.owner.gender);
     }, [
         dataBusiness?.data?.licenses,
@@ -464,15 +477,24 @@ function EditBusiness() {
                                                     value: "Nữ",
                                                 },
                                             ]}
-                                            className={`w-full md:w-full ${errors.legal_representative?.gender ? "border-red-500" : ""}`}
-                                            value={selectedGenderLegalRepresentative}
+                                            className={`w-full md:w-full ${
+                                                errors.legal_representative
+                                                    ?.gender
+                                                    ? "border-red-500"
+                                                    : ""
+                                            }`}
+                                            value={
+                                                selectedGenderLegalRepresentative
+                                            }
                                             {...register(
                                                 "legal_representative.gender",
                                                 {
                                                     required:
                                                         "Giới tính là bắt buộc",
                                                     onChange: (e) => {
-                                                        setSelectedGenderLegalRepresentative(e.value);
+                                                        setSelectedGenderLegalRepresentative(
+                                                            e.value,
+                                                        );
                                                         setValue(
                                                             "legal_representative.gender",
                                                             e.value,
@@ -776,22 +798,25 @@ function EditBusiness() {
                                                     value: "Nữ",
                                                 },
                                             ]}
-                                            className={`w-full md:w-full ${errors.owner?.gender ? "border-red-500" : ""}`}
+                                            className={`w-full md:w-full ${
+                                                errors.owner?.gender
+                                                    ? "border-red-500"
+                                                    : ""
+                                            }`}
                                             value={selectedGenderOwner}
-                                            {...register(
-                                               "owner.gender",
-                                                {
-                                                    required:
-                                                        "Giới tính là bắt buộc",
-                                                    onChange: (e) => {
-                                                        setSelectedGenderOwner(e.value);
-                                                        setValue(
-                                                            "owner.gender",
-                                                            e.value,
-                                                        );
-                                                    },
+                                            {...register("owner.gender", {
+                                                required:
+                                                    "Giới tính là bắt buộc",
+                                                onChange: (e) => {
+                                                    setSelectedGenderOwner(
+                                                        e.value,
+                                                    );
+                                                    setValue(
+                                                        "owner.gender",
+                                                        e.value,
+                                                    );
                                                 },
-                                            )}
+                                            })}
                                         />
                                         {errors.owner?.gender && (
                                             <p className="text-red-500 text-sm mt-1">
@@ -1294,17 +1319,19 @@ function EditBusiness() {
                                         Giấy đăng kí kinh doanh{" "}
                                         <span className="text-red-500">*</span>
                                     </label>
-                                    <button
-                                        type="button"
-                                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
-                                        onClick={() =>
-                                            handleChooseLicense(
-                                                "Giấy phép kinh doanh",
-                                            )
-                                        }
-                                    >
-                                        <FaPlus className="size-3" />
-                                    </button>
+                                    {nameBusinessLicense?.length > 0 && (
+                                        <button
+                                            type="button"
+                                            className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
+                                            onClick={() =>
+                                                handleChooseLicense(
+                                                    "Giấy phép kinh doanh",
+                                                )
+                                            }
+                                        >
+                                            <FaPlus className="size-3" />
+                                        </button>
+                                    )}
                                 </div>
                                 <BoxLicenses
                                     nameBusinessLicense={nameBusinessLicense}
@@ -1324,17 +1351,19 @@ function EditBusiness() {
                                         Giấy phép PCCC{" "}
                                         <span className="text-red-500">*</span>
                                     </label>
-                                    <button
-                                        type="button"
-                                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
-                                        onClick={() =>
-                                            handleChooseLicense(
-                                                "Giấy phép PCCC",
-                                            )
-                                        }
-                                    >
-                                        <FaPlus className="size-3" />
-                                    </button>
+                                    {nameFireLicense?.length > 0 && (
+                                        <button
+                                            type="button"
+                                            className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
+                                            onClick={() =>
+                                                handleChooseLicense(
+                                                    "Giấy phép PCCC",
+                                                )
+                                            }
+                                        >
+                                            <FaPlus className="size-3" />
+                                        </button>
+                                    )}
                                 </div>
                                 <BoxLicenses
                                     nameBusinessLicense={nameFireLicense}
@@ -1354,17 +1383,19 @@ function EditBusiness() {
                                         Giấy chứng nhận đủ đk về ANTT{" "}
                                         <span className="text-red-500">*</span>
                                     </label>
-                                    <button
-                                        type="button"
-                                        className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
-                                        onClick={() =>
-                                            handleChooseLicense(
-                                                "Giấy phép ANTT",
-                                            )
-                                        }
-                                    >
-                                        <FaPlus className="size-3" />
-                                    </button>
+                                    {nameSecurityLicense?.length > 0 && (
+                                        <button
+                                            type="button"
+                                            className="w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded-full"
+                                            onClick={() =>
+                                                handleChooseLicense(
+                                                    "Giấy phép ANTT",
+                                                )
+                                            }
+                                        >
+                                            <FaPlus className="size-3" />
+                                        </button>
+                                    )}
                                 </div>
                                 <BoxLicenses
                                     nameBusinessLicense={nameSecurityLicense}

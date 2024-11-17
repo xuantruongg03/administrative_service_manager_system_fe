@@ -64,7 +64,7 @@ export default function SidebarMobile(props: SidebarMobileProps) {
                             <span className="text-sm">Tài liệu hướng dẫn</span>
                         </Link>
                         <Link
-                            to={CONSTANTS.PATH.ROOT_PATH}
+                            to={CONSTANTS.PATH.HELP_PATH}
                             className="flex items-center p-4 hover:bg-medhealth-blue hover:text-white transition-colors duration-300"
                             onClick={props.onClose}
                         >
