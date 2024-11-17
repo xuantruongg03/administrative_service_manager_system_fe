@@ -149,7 +149,7 @@ function Map() {
                 </div>
             </div>
             <div className="flex flex-col lg:flex-row gap-3">
-                <div className="w-full lg:w-2/3 h-[400px] sm:h-[500px] xl:h-[550px] 3xl:h-[700px]">
+                <div className="w-full lg:w-2/3 h-[400px] sm:h-[450px] xl:h-[500px] 2xl:h-[700px]">
                     <MapRenderLeaflet data={selectedStatus || selectedStreet ? filteredMarkers : markerMemo} />
                 </div>
                 <div className="w-full lg:w-1/3 mt-4 lg:mt-0">
@@ -203,7 +203,7 @@ function Map() {
                     <InfiniteScroll
                         dataLength={listBusiness.length}
                         next={fetchNextPage}
-                        hasMore={!isLastPage}
+                        hasMore={!isLastPage && !selectedStatus && !selectedStreet}
                         loader={<LoadingMini />}
                         height="calc(100vh - 300px)"
                         className="overflow-y-auto custom-scrollbar px-0 sm:px-4"

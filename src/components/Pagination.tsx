@@ -13,30 +13,34 @@ function Pagination(props: PaginationProps) {
     };
 
     return (
-        <div className="flex flex-col sm:flex-row items-center justify-between p-4 mt-4 bg-white shadow-sm rounded-lg">
-            <div className="flex items-center space-x-2 mb-4 sm:mb-0">
-                <span className="text-sm text-gray-700">
-                    Hiển thị{" "}
-                    <span className="font-medium">
-                        {Math.min(
-                            props.currentPage * props.recordsPerPage -
-                                props.recordsPerPage +
-                                1,
-                            props.totalRecords,
-                        )}
-                    </span>{" "}
-                    tới{" "}
-                    <span className="font-medium">
-                        {Math.min(
-                            props.currentPage * props.recordsPerPage,
-                            props.totalRecords,
-                        )}
-                    </span>{" "}
-                    trong số{" "}
-                    <span className="font-medium">{props.totalRecords}</span>{" "}
-                    kết quả
-                </span>
-            </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4  bg-white shadow-sm rounded-lg">
+            {props.totalRecords > props.recordsPerPage && (
+                <div className="flex items-center space-x-2 mb-4 sm:mb-0">
+                    <span className="text-sm text-gray-700">
+                        Hiển thị{" "}
+                        <span className="font-medium">
+                            {Math.min(
+                                props.currentPage * props.recordsPerPage -
+                                    props.recordsPerPage +
+                                    1,
+                                props.totalRecords,
+                            )}
+                        </span>{" "}
+                        tới{" "}
+                        <span className="font-medium">
+                            {Math.min(
+                                props.currentPage * props.recordsPerPage,
+                                props.totalRecords,
+                            )}
+                        </span>{" "}
+                        trong số{" "}
+                        <span className="font-medium">
+                            {props.totalRecords}
+                        </span>{" "}
+                        kết quả
+                    </span>
+                </div>
+            )}
             {props.totalRecords > props.recordsPerPage && (
                 <div className="flex items-center space-x-2">
                     <button

@@ -281,8 +281,8 @@ export default function Business() {
                             <Column
                                 field="code"
                                 header="Mã số DN"
-                                headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-2 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div
                                         className="overflow-hidden text-ellipsis whitespace-nowrap"
@@ -295,8 +295,8 @@ export default function Business() {
                             <Column
                                 field="created_at"
                                 header="Ngày ĐK"
-                                headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-2 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div
                                         className="overflow-hidden text-ellipsis whitespace-nowrap"
@@ -309,8 +309,8 @@ export default function Business() {
                             <Column
                                 field="name_vietnamese"
                                 header="Tên doanh nghiệp"
-                                headerClassName="px-4 py-2 md:px-6 md:py-3 text-left text-xs w-[250px] font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 md:py-2 text-left text-xs w-[220px] font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-2 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div
                                         className="overflow-hidden text-ellipsis whitespace-nowrap"
@@ -323,8 +323,8 @@ export default function Business() {
                             <Column
                                 field="address"
                                 header="Địa chỉ"
-                                headerClassName="px-4 py-2 md:px-6 md:py-3 text-left w-[280px] text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 md:px-6 md:py-4 text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 md:py-2 text-left w-[250px] text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-2 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div
                                         className="overflow-hidden text-ellipsis whitespace-nowrap"
@@ -337,8 +337,8 @@ export default function Business() {
                             <Column
                                 field="phone"
                                 header="Số điện thoại"
-                                headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-2 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div
                                         className="overflow-hidden text-ellipsis whitespace-nowrap"
@@ -351,8 +351,8 @@ export default function Business() {
                             <Column
                                 field="status"
                                 header="Trạng thái"
-                                headerClassName="px-4 py-2 md:px-6 w-[140px] md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 w-[140px] md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 w-[120px] md:py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 w-[120px] md:px-6 md:py-2 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div
                                         className={`flex items-center overflow-hidden text-ellipsis whitespace-nowra px-0 ${
@@ -379,8 +379,8 @@ export default function Business() {
                             <Column
                                 field="licenses"
                                 header="Giấy phép"
-                                headerClassName="px-4 py-2 md:px-6 w-[130px] md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 w-[110px] md:py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 md:px-6 md:py-2 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div className="flex items-center justify-center gap-2">
                                         <MdOutlineBusinessCenter title="Giấy phép kinh doanh" className={`size-4 ${rowData.licenses?.includes("Giấy phép kinh doanh") ? "text-sky-600" : "text-gray-600"}`} />
@@ -398,8 +398,8 @@ export default function Business() {
                             <Column
                                 field="action"
                                 header="Hành động"
-                                headerClassName="px-4 py-2 md:px-6 w-[100px] md:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                                bodyClassName="px-4 py-2 w-[100px] md:px-6 md:py-4 whitespace-nowrap text-sm text-gray-900"
+                                headerClassName="px-4 py-2 md:px-6 w-[100px] md:py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                                bodyClassName="px-4 py-2 w-[100px] md:px-6 md:py-2 whitespace-nowrap text-sm text-gray-900"
                                 body={(rowData) => (
                                     <div className="flex items-center justify-center gap-3">
                                         <button
@@ -425,8 +425,7 @@ export default function Business() {
                             ></Column>
                         </TreeTable>
                     </div>
-                    <div className="mb-4 mt-auto">
-                        <Pagination
+                    <Pagination
                             currentPage={page}
                             totalPage={data?.totalPages || 1}
                             recordsPerPage={CONSTANTS.LIMIT_BUSINESS}
@@ -435,7 +434,6 @@ export default function Business() {
                             onPrevPage={() => setPage(page - 1)}
                             isLast={data?.isLastPage}
                         />
-                    </div>
                 </div>
             )}
             <InforBusinessPopup

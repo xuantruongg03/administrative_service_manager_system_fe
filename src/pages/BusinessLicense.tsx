@@ -18,6 +18,7 @@ import { BusinessLicenseDataApi } from "../interfaces/api";
 import businessLicenseService from "../services/businessLicense";
 import { CONSTANTS } from "../utils/constants";
 import Loading from "./Loading";
+import Modal from "../components/Modal";
 
 const getBusinessLicenseReq = async (params: {
     page: number;
@@ -253,35 +254,35 @@ function BusinessLicense() {
                         <IoMdMore className="cursor-pointer size-6 hover:text-gray-700 transition-colors duration-200" />
                     </div>
                     <div className="flex items-center">
-                        <div className="flex items-center overflow-hidden rounded-full shadow-custom border border-gray-300 relative w-56">
+                        <div className="flex items-center overflow-hidden rounded-full shadow-custom border border-gray-300 z-50 relative w-40 sm:w-48 md:w-56">
                             <button
                                 className={`${
                                     layoutType === "list" &&
                                     "text-white transition-all duration-500 ease-in-out"
-                                } w-28 rounded-full py-1.5 text-sm h-full z-20 transition flex text-gray-500 items-center text-center justify-center hover:opacity-75`}
+                                }  w-20 sm:w-24 md:w-28 rounded-full py-1 sm:py-1.5 text-xs sm:text-sm h-full z-20 transition flex text-gray-500 items-center text-center justify-center hover:opacity-75`}
                                 onClick={() => handleLayoutType("list")}
                             >
-                                <BsListUl className="size-5" />
-                                <span className="ml-2">
+                                <BsListUl className="size-4 sm:size-5" />
+                                <span className="ml-1 sm:ml-2">
                                     List
                                 </span>
                             </button>
                             <button
-                                className={`absolute transition-all duration-500 ease-in-out w-28 bg-gradient-to-r shadow-sm h-8 rounded-full ${
+                                className={`absolute transition-all duration-500 ease-in-out w-20 sm:w-24 md:w-28 bg-gradient-to-r shadow-sm h-7 sm:h-8 rounded-full ${
                                     layoutType === "list"
                                         ? "left-0 from-medhealth-blue-search to-medhealth-blue"
-                                        : "left-28 from-medhealth-blue to-medhealth-blue-search"
+                                        : "left-[5rem] sm:left-24 md:left-28 from-medhealth-blue to-medhealth-blue-search"
                                 }`}
                             ></button>
                             <button
                                 className={`${
                                     layoutType === "grid" &&
                                     "text-white transition-all duration-500 ease-in-out"
-                                } w-28 rounded-full py-1.5 text-sm h-full z-20 transition flex text-gray-500 items-center text-center justify-center hover:opacity-75`}
+                                }  w-20 sm:w-24 md:w-28 rounded-full py-1 sm:py-1.5 text-xs sm:text-sm h-full z-20 transition flex text-gray-500 items-center text-center justify-center hover:opacity-75`}
                                 onClick={() => handleLayoutType("grid")}
                             >
-                                <BsFillGrid1X2Fill className="size-4" />
-                                <span className="ml-2">
+                                <BsFillGrid1X2Fill className="size-3 sm:size-4" />
+                                <span className="ml-1 sm:ml-2">
                                     Grid
                                 </span>
                             </button>
@@ -297,42 +298,39 @@ function BusinessLicense() {
                 dataLength={data?.length || 0}
             >
                 {layoutType === "grid" ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
                         {data?.map((item: BusinessLicenseDataApi) => (
                             <div
                                 key={item.id}
                                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
                             >
-                                <div className="flex items-center justify-center border border-gray-200 h-36 md:h-48">
+                                <div className="flex items-center justify-center border border-gray-200 h-32 sm:h-36 md:h-48">
                                     <PreviewFile
                                         typePreview="mini"
-                                        file={import.meta.env.VITE_API_URL + "/uploads/" + item.file}
+                                        file={`http://${window.location.hostname}:6789/api/v1/uploads/` + item.file}
                                         type={item.type}
                                     />
                                 </div>
-                                <div className="px-3 py-2 md:px-4 md:py-3 bg-gray-50">
-                                    <div className="flex justify-between items-center mb-2">
+                                <div className="px-2 py-2 sm:px-3 md:px-4 md:py-3 bg-gray-50">
+                                    <div className="flex justify-between items-center mb-1.5 sm:mb-2">
                                         <h3
                                             className="text-xs md:text-sm font-semibold text-gray-700 truncate"
                                             title={item.name}
                                         >
-                                            {item.name.length > 20
-                                                ? item.name.substring(0, 20) +
-                                                  "..."
-                                                : item.name}
+                                            {item.name}
                                         </h3>
-                                        <div className="relative" ref={menuRef}>
+                                        <div className="relative w-5" ref={menuRef}>
                                             <button
-                                                className="p-2 hover:bg-gray-100 rounded-full"
+                                                className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
                                                 onClick={(e) =>
                                                     handleMenuClick(e, item.id)
                                                 }
                                             >
-                                                <MdMoreVert className="h-5 w-5" />
+                                                <MdMoreVert className="h-4 w-4 sm:h-5 sm:w-5" />
                                             </button>
                                             {openMenuId === item.id && (
                                                 <div
-                                                    className="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-9999"
+                                                    className="absolute right-0 mt-2 w-28 sm:w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-9999"
                                                     onClick={(e) =>
                                                         e.stopPropagation()
                                                     }
@@ -347,12 +345,12 @@ function BusinessLicense() {
                                                                     item.id.toString(),
                                                                 )
                                                             }
-                                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                                            className="block px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                                         >
                                                             Tải xuống
                                                         </button>
                                                         <button
-                                                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                                            className="w-full text-left px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-red-600 hover:bg-gray-100"
                                                             onClick={(e) => {
                                                                 e.preventDefault();
                                                                 e.stopPropagation();
@@ -375,13 +373,13 @@ function BusinessLicense() {
                                         {item.address}
                                     </p>
                                     <div className="bg-gray-50">
-                                        <p className="text-xs text-gray-500 mb-1">
+                                        <p className="text-[10px] sm:text-xs text-gray-500 mb-1">
                                             {dayjs(item.updated_at).format(
                                                 CONSTANTS.DATE_DEFAULT_FORMAT,
                                             )}
                                         </p>
-                                        <div className="flex justify-end mt-3">
-                                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                        <div className="flex justify-end mt-2 sm:mt-3">
+                                            <span className="text-[10px] sm:text-xs px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-800 rounded-full">
                                                 {item.type}
                                             </span>
                                         </div>
@@ -462,7 +460,7 @@ function BusinessLicense() {
                                             </div>
                                         </td>
                                         <td className="py-2 px-3 md:py-3 md:px-6 text-center">
-                                            <div className="flex item-center justify-center space-x-2 md:space-x-3">
+                                            <div className="flex item-center justify-center space-x-1 md:space-x-3">
                                                 <button
                                                     className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
                                                     onClick={() =>
@@ -472,7 +470,7 @@ function BusinessLicense() {
                                                         )
                                                     }
                                                 >
-                                                    <MdRemoveRedEye />
+                                                    <MdRemoveRedEye className="size-4" />
                                                 </button>
                                                 <button
                                                     onClick={() =>
@@ -480,14 +478,14 @@ function BusinessLicense() {
                                                     }
                                                     className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
                                                 >
-                                                    <MdFileDownload />
+                                                    <MdFileDownload className="size-4" />
                                                 </button>
                                                 <div
                                                     className="relative"
                                                     ref={menuRef}
                                                 >
                                                     <button
-                                                        className="p-2 hover:bg-gray-100 rounded-full"
+                                                        className=" hover:bg-gray-100 rounded-full"
                                                         onClick={(e) =>
                                                             handleMenuClick(
                                                                 e,
@@ -495,11 +493,11 @@ function BusinessLicense() {
                                                             )
                                                         }
                                                     >
-                                                        <MdMoreVert className="h-5 w-5" />
+                                                        <MdMoreVert className="size-5" />
                                                     </button>
                                                     {openMenuId === item.id && (
                                                         <div
-                                                            className="fixed right-16 md:right-16 mt-2 min-w-36 bg-white rounded-md shadow-lg z-10000"
+                                                            className="fixed right-14 md:right-16 mt-2 min-w-36 bg-white rounded-md shadow-lg z-10000"
                                                             onClick={(e) =>
                                                                 e.stopPropagation()
                                                             }
@@ -567,16 +565,18 @@ function BusinessLicense() {
                 </InfiniteScroll>
             )}
             {previewFile && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10001 p-4">
-                    <div className="p-4 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
-                        <PreviewFile
-                            typePreview="full"
-                            file={import.meta.env.VITE_API_URL + "/uploads/" + previewFile.file}
-                            type={previewFile.type}
-                            closePreview={closePreview}
-                        />
+                <Modal>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999] p-4">
+                        <div className="p-4 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
+                            <PreviewFile
+                                typePreview="full"
+                                file={`http://${window.location.hostname}:6789/api/v1/uploads/` + previewFile.file}
+                                type={previewFile.type}
+                                closePreview={closePreview}
+                            />
+                        </div>
                     </div>
-                </div>
+                </Modal>
             )}
             <YNModel
                 isOpen={openYNModel}

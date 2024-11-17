@@ -64,6 +64,8 @@ function EditBusiness() {
     >([]);
     const { id } = useParams();
     const [selectedType, setSelectedType] = useState("");
+    const [selectedGenderLegalRepresentative, setSelectedGenderLegalRepresentative] = useState("");
+    const [selectedGenderOwner, setSelectedGenderOwner] = useState("");
     const businessLicenseInputRef = useRef<HTMLInputElement>(null);
     const fireLicenseInputRef = useRef<HTMLInputElement>(null);
     const securityLicenseInputRef = useRef<HTMLInputElement>(null);
@@ -260,6 +262,11 @@ function EditBusiness() {
         setNameSecurityLicense(securityLicenseNames);
         setOtherLicenses(otherLicenseTypes);
         setSelectedType(dataBusiness?.data?.type_of_organization);
+        setSelectedGenderLegalRepresentative(dataBusiness?.data?.legal_representative.gender);
+        setSelectedGenderOwner(dataBusiness?.data?.owner.gender);
+        setValue("type_of_organization", dataBusiness?.data?.type_of_organization);
+        setValue("legal_representative.gender", dataBusiness?.data?.legal_representative.gender);
+        setValue("owner.gender", dataBusiness?.data?.owner.gender);
     }, [
         dataBusiness?.data?.licenses,
         dataBusiness?.data?.type_of_organization,
@@ -267,6 +274,9 @@ function EditBusiness() {
         fireLicenseNames,
         securityLicenseNames,
         otherLicenseTypes,
+        dataBusiness?.data?.legal_representative.gender,
+        dataBusiness?.data?.owner.gender,
+        setValue,
     ]);
 
     if (
@@ -284,10 +294,10 @@ function EditBusiness() {
                     className="grid grid-cols-1 lg:grid-cols-2 gap-6"
                 >
                     {/* Legal Representative & Owner Information Section */}
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                        <div className="space-y-8">
+                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+                        <div className="space-y-6 md:space-y-8">
                             <div>
-                                <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2">
+                                <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-gray-800 border-b pb-2">
                                     Thông tin người đại diện pháp luật
                                 </h2>
                                 <input
@@ -298,7 +308,7 @@ function EditBusiness() {
                                             .id
                                     }
                                 />
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="col-span-1">
                                         <label
                                             htmlFor="legal_representative.citizen_id"
@@ -308,7 +318,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="legal_representative.citizen_id"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.legal_representative
                                                     ?.citizen_id
                                                     ? "border-red-500"
@@ -351,7 +361,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="legal_representative.name"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.legal_representative
                                                     ?.name
                                                     ? "border-red-500"
@@ -393,7 +403,7 @@ function EditBusiness() {
                                         <InputText
                                             id="legal_representative.birth_date"
                                             type="date"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.legal_representative
                                                     ?.birth_date
                                                     ? "border-red-500"
@@ -442,33 +452,35 @@ function EditBusiness() {
                                         >
                                             Giới tính *
                                         </label>
-                                        <select
+                                        <Dropdown
                                             id="legal_representative.gender"
-                                            className={`w-full p-3 border rounded-md ${
-                                                errors.legal_representative
-                                                    ?.gender
-                                                    ? "border-red-500"
-                                                    : ""
-                                            }`}
-                                            defaultValue={
-                                                dataBusiness?.data
-                                                    ?.legal_representative
-                                                    .gender
-                                            }
+                                            options={[
+                                                {
+                                                    label: "Nam",
+                                                    value: "Nam",
+                                                },
+                                                {
+                                                    label: "Nữ",
+                                                    value: "Nữ",
+                                                },
+                                            ]}
+                                            className={`w-full md:w-full ${errors.legal_representative?.gender ? "border-red-500" : ""}`}
+                                            value={selectedGenderLegalRepresentative}
                                             {...register(
                                                 "legal_representative.gender",
                                                 {
                                                     required:
                                                         "Giới tính là bắt buộc",
+                                                    onChange: (e) => {
+                                                        setSelectedGenderLegalRepresentative(e.value);
+                                                        setValue(
+                                                            "legal_representative.gender",
+                                                            e.value,
+                                                        );
+                                                    },
                                                 },
                                             )}
-                                        >
-                                            <option value="">
-                                                Chọn giới tính
-                                            </option>
-                                            <option value="Nam">Nam</option>
-                                            <option value="Nữ">Nữ</option>
-                                        </select>
+                                        />
                                         {errors.legal_representative
                                             ?.gender && (
                                             <p className="text-red-500 text-sm mt-1">
@@ -488,7 +500,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="legal_representative.nationality"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.legal_representative
                                                     ?.nationality
                                                     ? "border-red-500"
@@ -526,7 +538,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="legal_representative.religion"
-                                            className="w-full p-3 text-sm"
+                                            className="w-full p-2 md:p-3 text-sm"
                                             defaultValue={
                                                 dataBusiness?.data
                                                     ?.legal_representative
@@ -537,7 +549,7 @@ function EditBusiness() {
                                             )}
                                         />
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-1 md:col-span-2">
                                         <label
                                             htmlFor="legal_representative.hometown"
                                             className="block text-sm font-medium text-gray-700 mb-1"
@@ -546,7 +558,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="legal_representative.hometown"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.legal_representative
                                                     ?.hometown
                                                     ? "border-red-500"
@@ -575,7 +587,7 @@ function EditBusiness() {
                                             </p>
                                         )}
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-1 md:col-span-2">
                                         <label
                                             htmlFor="legal_representative.current_address"
                                             className="block text-sm font-medium text-gray-700 mb-1"
@@ -584,7 +596,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="legal_representative.current_address"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.legal_representative
                                                     ?.current_address
                                                     ? "border-red-500"
@@ -618,10 +630,10 @@ function EditBusiness() {
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                        <div className="space-y-8">
+                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+                        <div className="space-y-6 md:space-y-8">
                             <div>
-                                <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2">
+                                <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-gray-800 border-b pb-2">
                                     Thông tin chủ sở hữu
                                 </h2>
                                 <input
@@ -629,7 +641,7 @@ function EditBusiness() {
                                     {...register("owner.id")}
                                     value={dataBusiness?.data?.owner.id}
                                 />
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="col-span-1">
                                         <label
                                             htmlFor="owner.citizen_id"
@@ -639,7 +651,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="owner.citizen_id"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.owner?.citizen_id
                                                     ? "border-red-500"
                                                     : ""
@@ -675,7 +687,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="owner.name"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.owner?.name
                                                     ? "border-red-500"
                                                     : ""
@@ -709,7 +721,7 @@ function EditBusiness() {
                                         <InputText
                                             id="owner.birth_date"
                                             type="date"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.owner?.birth_date
                                                     ? "border-red-500"
                                                     : ""
@@ -752,27 +764,35 @@ function EditBusiness() {
                                         >
                                             Giới tính *
                                         </label>
-                                        <select
+                                        <Dropdown
                                             id="owner.gender"
-                                            className={`w-full p-3 border rounded-md ${
-                                                errors.owner?.gender
-                                                    ? "border-red-500"
-                                                    : ""
-                                            }`}
-                                            defaultValue={
-                                                dataBusiness?.data?.owner.gender
-                                            }
-                                            {...register("owner.gender", {
-                                                required:
-                                                    "Giới tính là bắt buộc",
-                                            })}
-                                        >
-                                            <option value="">
-                                                Chọn giới tính
-                                            </option>
-                                            <option value="Nam">Nam</option>
-                                            <option value="Nữ">Nữ</option>
-                                        </select>
+                                            options={[
+                                                {
+                                                    label: "Nam",
+                                                    value: "Nam",
+                                                },
+                                                {
+                                                    label: "Nữ",
+                                                    value: "Nữ",
+                                                },
+                                            ]}
+                                            className={`w-full md:w-full ${errors.owner?.gender ? "border-red-500" : ""}`}
+                                            value={selectedGenderOwner}
+                                            {...register(
+                                               "owner.gender",
+                                                {
+                                                    required:
+                                                        "Giới tính là bắt buộc",
+                                                    onChange: (e) => {
+                                                        setSelectedGenderOwner(e.value);
+                                                        setValue(
+                                                            "owner.gender",
+                                                            e.value,
+                                                        );
+                                                    },
+                                                },
+                                            )}
+                                        />
                                         {errors.owner?.gender && (
                                             <p className="text-red-500 text-sm mt-1">
                                                 {errors.owner.gender.message}
@@ -788,7 +808,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="owner.nationality"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.owner?.nationality
                                                     ? "border-red-500"
                                                     : ""
@@ -820,7 +840,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="owner.religion"
-                                            className="w-full p-3 text-sm"
+                                            className="w-full p-2 md:p-3 text-sm"
                                             defaultValue={
                                                 dataBusiness?.data?.owner
                                                     .religion
@@ -828,7 +848,7 @@ function EditBusiness() {
                                             {...register("owner.religion")}
                                         />
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-1 md:col-span-2">
                                         <label
                                             htmlFor="owner.hometown"
                                             className="block text-sm font-medium text-gray-700 mb-1"
@@ -837,7 +857,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="owner.hometown"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.owner?.hometown
                                                     ? "border-red-500"
                                                     : ""
@@ -857,7 +877,7 @@ function EditBusiness() {
                                             </p>
                                         )}
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-1 md:col-span-2">
                                         <label
                                             htmlFor="owner.current_address"
                                             className="block text-sm font-medium text-gray-700 mb-1"
@@ -866,7 +886,7 @@ function EditBusiness() {
                                         </label>
                                         <InputText
                                             id="owner.current_address"
-                                            className={`w-full p-3 text-sm ${
+                                            className={`w-full p-2 md:p-3 text-sm ${
                                                 errors.owner?.current_address
                                                     ? "border-red-500"
                                                     : ""
@@ -922,7 +942,7 @@ function EditBusiness() {
                                     {...register("code")}
                                 />
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="name_vietnamese"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -954,7 +974,7 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="name_english"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -970,7 +990,7 @@ function EditBusiness() {
                                     {...register("name_english")}
                                 />
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="name_acronym"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -986,12 +1006,12 @@ function EditBusiness() {
                                     {...register("name_acronym")}
                                 />
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="chartered_capital"
                                     className="block text-sm font-medium text-gray-700 mb-1"
                                 >
-                                    Vốn điều l *
+                                    Vốn điều lệ *
                                 </label>
                                 <InputText
                                     type="number"
@@ -1041,7 +1061,7 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="phone"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -1070,7 +1090,7 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="email"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -1097,7 +1117,7 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="website"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -1123,7 +1143,7 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="created_at"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -1157,7 +1177,7 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="type_of_organization"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -1192,7 +1212,7 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-1 col-span-1">
+                            <div className="md:col-span-1 col-span-2">
                                 <label
                                     htmlFor="number_of_employees"
                                     className="block text-sm font-medium text-gray-700 mb-1"
