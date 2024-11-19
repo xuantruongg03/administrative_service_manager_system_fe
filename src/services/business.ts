@@ -31,8 +31,8 @@ const updateBusiness = async (params: {id: string, data: BusinessDataApiRequest}
     return response;
 }
 
-const getBusinessMap = async (params: { page: number, limit: number }) => {
-    const response = await axiosClient.get(`/businesses/map?page=${params.page}&limit=${params.limit}`);
+const getBusinessMap = async (params: { page: number, limit: number, search: { street: string; type: string } }) => {
+    const response = await axiosClient.get(`/businesses/map?page=${params.page}&limit=${params.limit}&street=${params.search.street}&type=${params.search.type}`);
     return response;
 }
 

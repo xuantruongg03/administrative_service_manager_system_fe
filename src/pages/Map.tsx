@@ -9,7 +9,7 @@ import businessService from "../services/business";
 import { CONSTANTS } from "../utils/constants";
 import Loading from "./Loading";
 
-const getListBusinessReq = async (params: { page: number; limit: number }) => {
+const getListBusinessReq = async (params: { page: number; limit: number; search: { street: string; type: string } }) => {
     const res = await businessService.getBusinessMap(params);
     return res.data;
 };
@@ -19,21 +19,25 @@ const getMapMarker = async () => {
     return res;
 };
 
-function Map() {
+function Maps() {
     const [listBusiness, setListBusiness] = useState<BusinessMap[]>([]);
     const [isLastPage, setIsLastPage] = useState(false);
     const dispatch = useDispatch();
     const [selectedStreet, setSelectedStreet] = useState<string>("");
-    const [selectedStatus, setSelectedStatus] = useState<string>("");
+    const [selectedType, setSelectedType] = useState<string>("");
     const [filteredMarkers, setFilteredMarkers] = useState<BusinessMap[]>([]);
     const [filteredList, setFilteredList] = useState<BusinessMap[]>([]);
 
     const { data, isLoading, fetchNextPage } = useInfiniteQuery({
-        queryKey: ["business-map"],
+        queryKey: ["business-map", selectedStreet, selectedType],
         queryFn: ({ pageParam = 1 }) =>
             getListBusinessReq({
                 page: pageParam,
                 limit: CONSTANTS.LIMIT_BUSINESS,
+                search: {
+                    street: selectedStreet,
+                    type: selectedType,
+                },
             }),
         getNextPageParam: (lastPage) => {
             if (lastPage.isLastPage) {
@@ -63,6 +67,20 @@ function Map() {
         return Array.from(new Set(streets)).sort() as string[];
     }, [dataMapMarker]);
 
+    const uniqueTypes = useMemo(() => {
+        if (!dataMapMarker?.data) return [];
+        const typesMap: Map<string, { name: string; id: string }> = new Map();
+        dataMapMarker.data.forEach((item: { type_of_organization: string; id_type_of_organization: string }) => {
+            if (!typesMap.has(item.id_type_of_organization)) {
+                typesMap.set(item.id_type_of_organization, {
+                    name: item.type_of_organization,
+                    id: item.id_type_of_organization
+                });
+            }
+        });
+        return Array.from(typesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    }, [dataMapMarker]);
+
     useEffect(() => {
         if (data) {
             setListBusiness(data.pages.flatMap((page) => page.data));
@@ -75,11 +93,6 @@ function Map() {
         
         let filtered = [...listBusiness];
         let filteredMarker = [...markerMemo];
-
-        if (selectedStatus) {
-            filtered = filtered.filter(item => item.status === selectedStatus);
-            filteredMarker = filteredMarker.filter(item => item.status === selectedStatus);
-        }
 
         if (selectedStreet) {
             filtered = filtered.filter(item => {
@@ -94,9 +107,18 @@ function Map() {
             });
         }
 
+        if (selectedType) {
+            filtered = filtered.filter(item => item.type_of_organization === selectedType);
+            filteredMarker = filteredMarker.filter(item => item.id_type_of_organization === selectedType);
+        }
+
         setFilteredList(filtered);
         setFilteredMarkers(filteredMarker);
-    }, [listBusiness, markerMemo, selectedStatus, selectedStreet]);
+    }, [listBusiness, markerMemo, selectedStreet, selectedType]);
+
+    const handleChangeType = (type: string) => {
+        setSelectedType(type);
+    };
 
     const handleMouseEnter = useCallback(
         (code: string) => {
@@ -105,10 +127,6 @@ function Map() {
         [dispatch],
     );
 
-    const handleChangeStatus = (status: string) => {
-        setSelectedStatus(status);
-    };
-
     const handleChangeStreet = (street: string) => {
         setSelectedStreet(street);
     };
@@ -116,10 +134,6 @@ function Map() {
     const handleMouseLeave = useCallback(() => {
         dispatch({ type: "RESET_HOVERMAP" });
     }, [dispatch]);
-
-    if (isLoading || isLoadingMapMarker) {
-        return <Loading />;
-    }
 
     return (
         <div className="px-2 sm:px-4 w-full">
@@ -148,33 +162,33 @@ function Map() {
                     </div>
                 </div>
             </div>
+            {isLoading || isLoadingMapMarker ? <Loading /> : (
             <div className="flex flex-col lg:flex-row gap-3">
                 <div className="w-full lg:w-2/3 h-[400px] sm:h-[450px] xl:h-[500px] 2xl:h-[700px]">
-                    <MapRenderLeaflet data={selectedStatus || selectedStreet ? filteredMarkers : markerMemo} />
+                    <MapRenderLeaflet data={selectedType || selectedStreet ? filteredMarkers : markerMemo} />
                 </div>
                 <div className="w-full lg:w-1/3 mt-4 lg:mt-0">
                     <div className="lg:ml-4">
                         <h2 className="text-xl font-bold mb-2">
-                            Danh sách doanh nghiệp
+                            Danh sách loại doanh nghiệp
                         </h2>
                         <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <select
                                     className="form-select p-2 w-full rounded-lg text-sm focus:outline-none"
-                                    value={selectedStatus}
+                                    value={selectedType}
                                     onChange={(e) =>
-                                        handleChangeStatus(e.target.value)
+                                        handleChangeType(e.target.value)
                                     }
                                 >
                                     <option value="">
-                                        Trạng thái hoạt động
+                                        Tất cả loại
                                     </option>
-                                    <option value="active">
-                                        Đang hoạt động
-                                    </option>
-                                    <option value="inactive">
-                                        Không hoạt động
-                                    </option>
+                                    {uniqueTypes.map((type: { name: string, id: string }, index: number) => (
+                                        <option key={index} value={type.id}>
+                                            {type.name}
+                                        </option>
+                                    ))}
                                 </select>
                                 <select
                                     className="form-select p-2 w-full rounded-lg text-sm focus:outline-none"
@@ -203,14 +217,14 @@ function Map() {
                     <InfiniteScroll
                         dataLength={listBusiness.length}
                         next={fetchNextPage}
-                        hasMore={!isLastPage && !selectedStatus && !selectedStreet}
+                        hasMore={!isLastPage && !selectedType && !selectedStreet}
                         loader={<LoadingMini />}
                         height="calc(100vh - 300px)"
                         className="overflow-y-auto custom-scrollbar px-0 sm:px-4"
                     >
                         <div>
                             <ul className="space-y-2">
-                                {(selectedStatus || selectedStreet ? filteredList : listBusiness).map((item) => (
+                                {(selectedType || selectedStreet ? filteredList : listBusiness).map((item) => (
                                     <li
                                         key={item.code}
                                         onMouseEnter={() =>
@@ -256,8 +270,9 @@ function Map() {
                     </InfiniteScroll>
                 </div>
             </div>
+            )}
         </div>
     );
 }
 
-export default Map;
+export default Maps;

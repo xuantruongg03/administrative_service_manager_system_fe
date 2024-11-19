@@ -8,14 +8,14 @@ import { MapData, MapRenderProps } from "../interfaces/props";
 import RootState from "../interfaces/rootState";
 
 const iconDefault = L.icon({
-    iconUrl: "/assets/map_default.png",
+    iconUrl: "src/assets/map_default.png",
     iconSize: [35, 35],
     iconAnchor: [17.5, 17.5],
     popupAnchor: [0, -35],
 });
 
 const iconHeadquater = L.icon({
-    iconUrl: "/assets/map_headquater.png",
+    iconUrl: "src/assets/map_headquater.png",
     iconSize: [25, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -30],
