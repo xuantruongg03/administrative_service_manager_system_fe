@@ -36,7 +36,8 @@ function BusinessLicense() {
     const [isLastPage, setIsLastPage] = useState<boolean>(false);
     const [tempFileId, setTempFileId] = useState<string>("");
     const [openYNModel, setOpenYNModel] = useState<boolean>(false);
-    const [openYNModelDeleteMultiple, setOpenYNModelDeleteMultiple] = useState<boolean>(false);
+    const [openYNModelDeleteMultiple, setOpenYNModelDeleteMultiple] =
+        useState<boolean>(false);
     const [keyword, setKeyword] = useState<string>("");
     const [previewFile, setPreviewFile] = useState<{
         file: string;
@@ -48,6 +49,9 @@ function BusinessLicense() {
     const queryClient = useQueryClient();
     const debouncedKeyword = useDebounce(keyword, 1000);
     const [selectedItemId, setSelectedItemId] = useState<string>("");
+    const host =
+        import.meta.env.VITE_API_URL ||
+        `http://${window.location.hostname}:6789/api/v1`;
 
     //Queries
     const {
@@ -141,11 +145,15 @@ function BusinessLicense() {
     };
 
     const handleDeleteMultipleConfirm = () => {
-        deleteMultipleBusinessLicense({ licenseIds: selectedItems }).then(() => {
-            toast.success("Xóa tài liệu thành công");
-            setOpenYNModelDeleteMultiple(false);
-            queryClient.invalidateQueries({ queryKey: ["businessLicense"] });
-        });
+        deleteMultipleBusinessLicense({ licenseIds: selectedItems }).then(
+            () => {
+                toast.success("Xóa tài liệu thành công");
+                setOpenYNModelDeleteMultiple(false);
+                queryClient.invalidateQueries({
+                    queryKey: ["businessLicense"],
+                });
+            },
+        );
     };
 
     const handleUpdate = (id: string) => {
@@ -177,8 +185,10 @@ function BusinessLicense() {
         useRemoveLicense();
     const { updateBusinessLicense, isPending: isPendingUpdateLicense } =
         useUpdateBusinessLicense();
-    const { deleteMultipleBusinessLicense, isPending: isPendingDeleteMultipleLicense } =
-        useDeleteMultipleBusinessLicense();
+    const {
+        deleteMultipleBusinessLicense,
+        isPending: isPendingDeleteMultipleLicense,
+    } = useDeleteMultipleBusinessLicense();
 
     useEffect(() => {
         if (dataBusinessLicense) {
@@ -244,9 +254,11 @@ function BusinessLicense() {
                 <div className="hidden md:block h-8 w-px bg-gray-300"></div>
                 <div className="flex flex-row items-center gap-4 justify-between w-full">
                     <div className="flex items-center gap-4">
-                        {isPendingDeleteMultipleLicense ? <LoadingMini />: (
+                        {isPendingDeleteMultipleLicense ? (
+                            <LoadingMini />
+                        ) : (
                             <BsTrash3Fill
-                            className="cursor-pointer hover:text-red-500 transition-colors duration-200"
+                                className="cursor-pointer hover:text-red-500 transition-colors duration-200"
                                 onClick={handleDeleteMultiple}
                             />
                         )}
@@ -263,9 +275,7 @@ function BusinessLicense() {
                                 onClick={() => handleLayoutType("list")}
                             >
                                 <BsListUl className="size-4 sm:size-5" />
-                                <span className="ml-1 sm:ml-2">
-                                    List
-                                </span>
+                                <span className="ml-1 sm:ml-2">List</span>
                             </button>
                             <button
                                 className={`absolute transition-all duration-500 ease-in-out w-20 sm:w-24 md:w-28 bg-gradient-to-r shadow-sm h-7 sm:h-8 rounded-full ${
@@ -282,285 +292,313 @@ function BusinessLicense() {
                                 onClick={() => handleLayoutType("grid")}
                             >
                                 <BsFillGrid1X2Fill className="size-3 sm:size-4" />
-                                <span className="ml-1 sm:ml-2">
-                                    Grid
-                                </span>
+                                <span className="ml-1 sm:ml-2">Grid</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-            {isLoading ? <Loading /> : (
-            <InfiniteScroll
-                next={fetchNextPage}
-                hasMore={!isLastPage}
-                loader={<Loading />}
-                dataLength={data?.length || 0}
-            >
-                {layoutType === "grid" ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-                        {data?.map((item: BusinessLicenseDataApi) => (
-                            <div
-                                key={item.id}
-                                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                            >
-                                <div className="flex items-center justify-center border border-gray-200 h-32 sm:h-36 md:h-48">
-                                    <PreviewFile
-                                        typePreview="mini"
-                                        file={`http://${window.location.hostname}:6789/api/v1/uploads/` + item.file}
-                                        type={item.type}
-                                    />
-                                </div>
-                                <div className="px-2 py-2 sm:px-3 md:px-4 md:py-3 bg-gray-50">
-                                    <div className="flex justify-between items-center mb-1.5 sm:mb-2">
-                                        <h3
-                                            className="text-xs md:text-sm font-semibold text-gray-700 truncate"
-                                            title={item.name}
-                                        >
-                                            {item.name}
-                                        </h3>
-                                        <div className="relative w-5" ref={menuRef}>
-                                            <button
-                                                className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
-                                                onClick={(e) =>
-                                                    handleMenuClick(e, item.id)
-                                                }
-                                            >
-                                                <MdMoreVert className="h-4 w-4 sm:h-5 sm:w-5" />
-                                            </button>
-                                            {openMenuId === item.id && (
-                                                <div
-                                                    className="absolute right-0 mt-2 w-28 sm:w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-9999"
-                                                    onClick={(e) =>
-                                                        e.stopPropagation()
-                                                    }
-                                                >
-                                                    <div
-                                                        className="py-1"
-                                                        role="menu"
-                                                    >
-                                                        <button
-                                                            onClick={() =>
-                                                                handleDownload(
-                                                                    item.id.toString(),
-                                                                )
-                                                            }
-                                                            className="block px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                                        >
-                                                            Tải xuống
-                                                        </button>
-                                                        <button
-                                                            className="w-full text-left px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-red-600 hover:bg-gray-100"
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                handleDelete(
-                                                                    item.id,
-                                                                );
-                                                            }}
-                                                        >
-                                                            Xóa
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gray-600 truncate mb-1 md:mb-2" title={item.company}>
-                                        {item.company}
-                                    </p>
-                                    <p className="text-xs text-gray-500 truncate mb-1 md:mb-2" title={item.address}>
-                                        {item.address}
-                                    </p>
-                                    <div className="bg-gray-50">
-                                        <p className="text-[10px] sm:text-xs text-gray-500 mb-1">
-                                            {dayjs(item.updated_at).format(
-                                                CONSTANTS.DATE_DEFAULT_FORMAT,
-                                            )}
-                                        </p>
-                                        <div className="flex justify-end mt-2 sm:mt-3">
-                                            <span className="text-[10px] sm:text-xs px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-800 rounded-full">
-                                                {item.type}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full bg-white">
-                            <thead>
-                                <tr className="bg-gray-100 text-gray-600 uppercase text-xs md:text-sm leading-normal">
-                                    <th className="py-2 px-3 md:py-3 md:px-6 text-left w-12">
-                                        <input
-                                            type="checkbox"
-                                            className="size-4 cursor-pointer hover:text-medhealth-blue transition-colors duration-200"
-                                            onChange={toggleAllSelection}
-                                            checked={
-                                                selectedItems.length ===
-                                                data?.length && data?.length > 0
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <InfiniteScroll
+                    next={fetchNextPage}
+                    hasMore={!isLastPage}
+                    loader={<Loading />}
+                    dataLength={data?.length || 0}
+                >
+                    {layoutType === "grid" ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+                            {data?.map((item: BusinessLicenseDataApi) => (
+                                <div
+                                    key={item.id}
+                                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                                >
+                                    <div className="flex items-center justify-center border border-gray-200 h-32 sm:h-36 md:h-48">
+                                        <PreviewFile
+                                            typePreview="mini"
+                                            file={
+                                                `${host}/uploads/` + item.file
                                             }
+                                            type={item.type}
                                         />
-                                    </th>
-                                    <th className="py-2 px-3 md:py-3 md:px-6 text-left">
-                                        Tên
-                                    </th>
-                                    <th className="py-2 px-3 md:py-3 md:px-6 text-left hidden md:table-cell">
-                                        Doanh nghiệp
-                                    </th>
-                                    <th className="py-2 px-3 md:py-3 md:px-6 text-left hidden lg:table-cell">
-                                        Ngày sửa đổi
-                                    </th>
-                                    <th className="py-2 px-3 md:py-3 md:px-6 text-left hidden xl:table-cell">
-                                        Kích thước
-                                    </th>
-                                    <th className="py-2 px-3 md:py-3 md:px-6 text-center w-1/12"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="text-gray-600 text-xs md:text-sm font-light">
-                                {data?.map((item: BusinessLicenseDataApi) => (
-                                    <tr
-                                        key={item.id}
-                                        className="border-b border-gray-200 hover:bg-gray-100"
-                                    >
-                                        <td className="py-2 px-3 md:py-3 md:px-6 text-left">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedItems.includes(
-                                                    item.id,
-                                                )}
-                                                onChange={() =>
-                                                    toggleItemSelection(item.id)
-                                                }
-                                                className="size-4"
-                                            />
-                                        </td>
-                                        <td className="py-2 px-3 md:py-3 md:px-6 text-left whitespace-normal">
-                                            <div className="font-medium text-gray-900 break-words">
+                                    </div>
+                                    <div className="px-2 py-2 sm:px-3 md:px-4 md:py-3 bg-gray-50">
+                                        <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                                            <h3
+                                                className="text-xs md:text-sm font-semibold text-gray-700 truncate"
+                                                title={item.name}
+                                            >
                                                 {item.name}
-                                            </div>
-                                        </td>
-                                        <td className="py-2 px-3 md:py-3 md:px-6 text-left hidden md:table-cell">
-                                            <div className="text-gray-600 break-words">
-                                                {item.company}
-                                            </div>
-                                        </td>
-                                        <td className="py-2 px-3 md:py-3 md:px-6 text-left hidden lg:table-cell">
-                                            <div className="text-gray-600">
-                                                {dayjs(item.updated_at).format(
-                                                    CONSTANTS.DATE_DEFAULT_FORMAT,
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="py-2 px-3 md:py-3 md:px-6 text-left hidden xl:table-cell">
-                                            <div className="text-gray-600">
-                                                {item.size}
-                                            </div>
-                                        </td>
-                                        <td className="py-2 px-3 md:py-3 md:px-6 text-center">
-                                            <div className="flex item-center justify-center space-x-1 md:space-x-3">
+                                            </h3>
+                                            <div
+                                                className="relative w-5"
+                                                ref={menuRef}
+                                            >
                                                 <button
-                                                    className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
-                                                    onClick={() =>
-                                                        handlePreview(
-                                                            item.file,
-                                                            item.type,
+                                                    className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
+                                                    onClick={(e) =>
+                                                        handleMenuClick(
+                                                            e,
+                                                            item.id,
                                                         )
                                                     }
                                                 >
-                                                    <MdRemoveRedEye className="size-4" />
+                                                    <MdMoreVert className="h-4 w-4 sm:h-5 sm:w-5" />
                                                 </button>
-                                                <button
-                                                    onClick={() =>
-                                                        handleDownload(item.id)
-                                                    }
-                                                    className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
-                                                >
-                                                    <MdFileDownload className="size-4" />
-                                                </button>
-                                                <div
-                                                    className="relative"
-                                                    ref={menuRef}
-                                                >
-                                                    <button
-                                                        className=" hover:bg-gray-100 rounded-full"
+                                                {openMenuId === item.id && (
+                                                    <div
+                                                        className="absolute right-0 mt-2 w-28 sm:w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-9999"
                                                         onClick={(e) =>
-                                                            handleMenuClick(
-                                                                e,
+                                                            e.stopPropagation()
+                                                        }
+                                                    >
+                                                        <div
+                                                            className="py-1"
+                                                            role="menu"
+                                                        >
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleDownload(
+                                                                        item.id.toString(),
+                                                                    )
+                                                                }
+                                                                className="block px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                                            >
+                                                                Tải xuống
+                                                            </button>
+                                                            <button
+                                                                className="w-full text-left px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-red-600 hover:bg-gray-100"
+                                                                onClick={(
+                                                                    e,
+                                                                ) => {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    handleDelete(
+                                                                        item.id,
+                                                                    );
+                                                                }}
+                                                            >
+                                                                Xóa
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <p
+                                            className="text-xs text-gray-600 truncate mb-1 md:mb-2"
+                                            title={item.company}
+                                        >
+                                            {item.company}
+                                        </p>
+                                        <p
+                                            className="text-xs text-gray-500 truncate mb-1 md:mb-2"
+                                            title={item.address}
+                                        >
+                                            {item.address}
+                                        </p>
+                                        <div className="bg-gray-50">
+                                            <p className="text-[10px] sm:text-xs text-gray-500 mb-1">
+                                                {dayjs(item.updated_at).format(
+                                                    CONSTANTS.DATE_DEFAULT_FORMAT,
+                                                )}
+                                            </p>
+                                            <div className="flex justify-end mt-2 sm:mt-3">
+                                                <span className="text-[10px] sm:text-xs px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-800 rounded-full">
+                                                    {item.type}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full bg-white">
+                                <thead>
+                                    <tr className="bg-gray-100 text-gray-600 uppercase text-xs md:text-sm leading-normal">
+                                        <th className="py-2 px-3 md:py-3 md:px-6 text-left w-12">
+                                            <input
+                                                type="checkbox"
+                                                className="size-4 cursor-pointer hover:text-medhealth-blue transition-colors duration-200"
+                                                onChange={toggleAllSelection}
+                                                checked={
+                                                    selectedItems.length ===
+                                                        data?.length &&
+                                                    data?.length > 0
+                                                }
+                                            />
+                                        </th>
+                                        <th className="py-2 px-3 md:py-3 md:px-6 text-left">
+                                            Tên
+                                        </th>
+                                        <th className="py-2 px-3 md:py-3 md:px-6 text-left hidden md:table-cell">
+                                            Doanh nghiệp
+                                        </th>
+                                        <th className="py-2 px-3 md:py-3 md:px-6 text-left hidden lg:table-cell">
+                                            Ngày sửa đổi
+                                        </th>
+                                        <th className="py-2 px-3 md:py-3 md:px-6 text-left hidden xl:table-cell">
+                                            Kích thước
+                                        </th>
+                                        <th className="py-2 px-3 md:py-3 md:px-6 text-center w-1/12"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-gray-600 text-xs md:text-sm font-light">
+                                    {data?.map(
+                                        (item: BusinessLicenseDataApi) => (
+                                            <tr
+                                                key={item.id}
+                                                className="border-b border-gray-200 hover:bg-gray-100"
+                                            >
+                                                <td className="py-2 px-3 md:py-3 md:px-6 text-left">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedItems.includes(
+                                                            item.id,
+                                                        )}
+                                                        onChange={() =>
+                                                            toggleItemSelection(
                                                                 item.id,
                                                             )
                                                         }
-                                                    >
-                                                        <MdMoreVert className="size-5" />
-                                                    </button>
-                                                    {openMenuId === item.id && (
-                                                        <div
-                                                            className="fixed right-14 md:right-16 mt-2 min-w-36 bg-white rounded-md shadow-lg z-10000"
-                                                            onClick={(e) =>
-                                                                e.stopPropagation()
+                                                        className="size-4"
+                                                    />
+                                                </td>
+                                                <td className="py-2 px-3 md:py-3 md:px-6 text-left whitespace-normal">
+                                                    <div className="font-medium text-gray-900 break-words">
+                                                        {item.name}
+                                                    </div>
+                                                </td>
+                                                <td className="py-2 px-3 md:py-3 md:px-6 text-left hidden md:table-cell">
+                                                    <div className="text-gray-600 break-words">
+                                                        {item.company}
+                                                    </div>
+                                                </td>
+                                                <td className="py-2 px-3 md:py-3 md:px-6 text-left hidden lg:table-cell">
+                                                    <div className="text-gray-600">
+                                                        {dayjs(
+                                                            item.updated_at,
+                                                        ).format(
+                                                            CONSTANTS.DATE_DEFAULT_FORMAT,
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="py-2 px-3 md:py-3 md:px-6 text-left hidden xl:table-cell">
+                                                    <div className="text-gray-600">
+                                                        {item.size}
+                                                    </div>
+                                                </td>
+                                                <td className="py-2 px-3 md:py-3 md:px-6 text-center">
+                                                    <div className="flex item-center justify-center space-x-1 md:space-x-3">
+                                                        <button
+                                                            className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
+                                                            onClick={() =>
+                                                                handlePreview(
+                                                                    item.file,
+                                                                    item.type,
+                                                                )
                                                             }
                                                         >
-                                                            <div className="py-1">
-                                                                <button
-                                                                    onClick={() => {
-                                                                        handleUpdate(
-                                                                            item.id,
-                                                                        );
-                                                                    }}
-                                                                    disabled={
-                                                                        isPendingUpdateLicense
-                                                                    }
-                                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                >
-                                                                    {isPendingUpdateLicense
-                                                                        ? "Đang cập nhật..."
-                                                                        : "Thay thế"}
-                                                                </button>
-                                                                <input
-                                                                    type="file"
-                                                                    ref={
-                                                                        fileRef
-                                                                    }
-                                                                    accept={
-                                                                        CONSTANTS.ACCEPT_FILE
-                                                                    }
-                                                                    className="hidden"
-                                                                    onChange={
-                                                                        handleUpdateFile
-                                                                    }
-                                                                />
-                                                                <button
-                                                                    type="button"
+                                                            <MdRemoveRedEye className="size-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() =>
+                                                                handleDownload(
+                                                                    item.id,
+                                                                )
+                                                            }
+                                                            className="text-gray-500 hover:text-gray-700 transition-colors duration-300"
+                                                        >
+                                                            <MdFileDownload className="size-4" />
+                                                        </button>
+                                                        <div
+                                                            className="relative"
+                                                            ref={menuRef}
+                                                        >
+                                                            <button
+                                                                className=" hover:bg-gray-100 rounded-full"
+                                                                onClick={(e) =>
+                                                                    handleMenuClick(
+                                                                        e,
+                                                                        item.id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <MdMoreVert className="size-5" />
+                                                            </button>
+                                                            {openMenuId ===
+                                                                item.id && (
+                                                                <div
+                                                                    className="fixed right-14 md:right-16 mt-2 min-w-36 bg-white rounded-md shadow-lg z-10000"
                                                                     onClick={(
                                                                         e,
-                                                                    ) => {
-                                                                        e.stopPropagation();
-                                                                        handleDelete(
-                                                                            item.id,
-                                                                        );
-                                                                    }}
-                                                                    disabled={
-                                                                        isPendingRemoveLicense
+                                                                    ) =>
+                                                                        e.stopPropagation()
                                                                     }
-                                                                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                                                 >
-                                                                    {isPendingRemoveLicense
-                                                                        ? "Đang xóa..."
-                                                                        : "Xóa"}
-                                                                </button>
-                                                            </div>
+                                                                    <div className="py-1">
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                handleUpdate(
+                                                                                    item.id,
+                                                                                );
+                                                                            }}
+                                                                            disabled={
+                                                                                isPendingUpdateLicense
+                                                                            }
+                                                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                        >
+                                                                            {isPendingUpdateLicense
+                                                                                ? "Đang cập nhật..."
+                                                                                : "Thay thế"}
+                                                                        </button>
+                                                                        <input
+                                                                            type="file"
+                                                                            ref={
+                                                                                fileRef
+                                                                            }
+                                                                            accept={
+                                                                                CONSTANTS.ACCEPT_FILE
+                                                                            }
+                                                                            className="hidden"
+                                                                            onChange={
+                                                                                handleUpdateFile
+                                                                            }
+                                                                        />
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={(
+                                                                                e,
+                                                                            ) => {
+                                                                                e.stopPropagation();
+                                                                                handleDelete(
+                                                                                    item.id,
+                                                                                );
+                                                                            }}
+                                                                            disabled={
+                                                                                isPendingRemoveLicense
+                                                                            }
+                                                                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                        >
+                                                                            {isPendingRemoveLicense
+                                                                                ? "Đang xóa..."
+                                                                                : "Xóa"}
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ),
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </InfiniteScroll>
             )}
@@ -570,7 +608,7 @@ function BusinessLicense() {
                         <div className="p-4 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
                             <PreviewFile
                                 typePreview="full"
-                                file={`http://${window.location.hostname}:6789/api/v1/uploads/` + previewFile.file}
+                                file={`${host}/uploads/` + previewFile.file}
                                 type={previewFile.type}
                                 closePreview={closePreview}
                             />
