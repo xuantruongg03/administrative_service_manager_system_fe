@@ -24,6 +24,8 @@ import typeOfOrganizationService from "../services/typeOfOrganization";
 import { CONSTANTS } from "../utils/constants";
 import { REGEX } from "../utils/regex";
 import Loading from "./Loading";
+import PreviewFile from "../components/PreviewFile";
+import Modal from "../components/Modal";
 
 const getBusinessByIdReq = async (id: string) => {
     const response = await businessService.getBusinessById(id);
@@ -47,22 +49,33 @@ function EditBusiness() {
         formState: { errors },
         setValue,
     } = useForm<BusinessDataApiRequest>();
+    const [previewLicense, setPreviewLicense] = useState<boolean>(false);
+    const [filePrev, setFilePrev] = useState<string>("");
     const [showEmployeeModal, setShowEmployeeModal] = useState(false);
     const [showAddLicenseModal, setShowAddLicenseModal] = useState(false);
-    const [nameFireLicense, setNameFireLicense] = useState<string[]>([]);
-    const [nameBusinessLicense, setNameBusinessLicense] = useState<string[]>(
-        [],
-    );
-    const [nameSecurityLicense, setNameSecurityLicense] = useState<string[]>(
-        [],
-    );
+    const [nameFireLicense, setNameFireLicense] = useState<{
+        name: string;
+        link: string;
+    }[]>([]);
+    const [nameBusinessLicense, setNameBusinessLicense] = useState<{
+        name: string;
+        link: string;
+    }[]>([]);
+    const [nameSecurityLicense, setNameSecurityLicense] = useState<{
+        name: string;
+        link: string;
+    }[]>([]);
     const [otherLicenses, setOtherLicenses] = useState<
         {
-            name: string[];
+            licenses: {
+                name: string;
+                link: string;
+            }[];
             type: string;
         }[]
     >([]);
     const { id } = useParams();
+    const host = import.meta.env.VITE_API_URL;
     const [selectedType, setSelectedType] = useState("");
     const [
         selectedGenderLegalRepresentative,
@@ -134,27 +147,14 @@ function EditBusiness() {
             // Wait for all uploads to complete
             Promise.all(uploadPromises)
                 .then(() => {
-                    const fileNames = Array.from(files).map(file => file.name);
-                    
                     if (type === "Giấy phép kinh doanh") {
                         toast.success("Tải lên giấy phép kinh doanh thành công");
-                        setNameBusinessLicense([...nameBusinessLicense, ...fileNames]);
                     } else if (type === "Giấy phép PCCC") {
-                        toast.success("Tải lên giấy phép PCCC thành công");
-                        setNameFireLicense([...nameFireLicense, ...fileNames]);
+                        toast.success("Tải lên giấy phép PCCC thành công");;
                     } else if (type === "Giấy phép ANTT") {
                         toast.success("Tải lên giấy phép ANTT thành công");
-                        setNameSecurityLicense([...nameSecurityLicense, ...fileNames]);
                     } else {
                         toast.success("Tải lên giấy tờ thành công");
-                        // Handle other license types if needed
-                        setOtherLicenses(prevLicenses => 
-                            prevLicenses.map(license => 
-                                license.type === type 
-                                    ? { ...license, name: [...license.name, ...fileNames] }
-                                    : license
-                            )
-                        );
                     }
 
                     queryClient.invalidateQueries({
@@ -189,22 +189,22 @@ function EditBusiness() {
             toast.success("Xóa giấy tờ thành công");
             if (type === "Giấy phép kinh doanh") {
                 setNameBusinessLicense(
-                    nameBusinessLicense.filter((name) => name !== licenseName),
+                    nameBusinessLicense.filter((l) => l.name !== licenseName),
                 );
             } else if (type === "Giấy phép PCCC") {
                 setNameFireLicense(
-                    nameFireLicense.filter((name) => name !== licenseName),
+                    nameFireLicense.filter((l) => l.name !== licenseName),
                 );
             } else if (type === "Giấy phép ANTT") {
                 setNameSecurityLicense(
-                    nameSecurityLicense.filter((name) => name !== licenseName),
+                    nameSecurityLicense.filter((l) => l.name !== licenseName),
                 );
             } else {
                 setOtherLicenses(
                     otherLicenses.map((license) => ({
                         ...license,
-                        name: license.name.filter(
-                            (name) => name !== licenseName,
+                        licenses: license.licenses.filter(
+                            (l) => l.name !== licenseName,
                         ),
                     })),
                 );
@@ -243,7 +243,12 @@ function EditBusiness() {
                 license.type === CONSTANTS.LICENSE_TYPE.BUSINESS,
         );
         if (l) {
-            return l.licenses.map((license: LicenseOfType) => license.name);
+            return l.licenses.map((license: LicenseOfType) => {
+                return {
+                    name: license.name,
+                    link: license.file,
+                }
+            });
         }
         return [];
     }, [dataBusiness?.data?.licenses]);
@@ -254,7 +259,12 @@ function EditBusiness() {
                 license.type === CONSTANTS.LICENSE_TYPE.FIRE,
         );
         if (l) {
-            return l.licenses.map((license: LicenseOfType) => license.name);
+            return l.licenses.map((license: LicenseOfType) => {
+                return {
+                    name: license.name,
+                    link: license.file,
+                }
+            });
         }
         return [];
     }, [dataBusiness?.data?.licenses]);
@@ -265,7 +275,12 @@ function EditBusiness() {
                 license.type === CONSTANTS.LICENSE_TYPE.SECURITY,
         );
         if (l) {
-            return l.licenses.map((license: LicenseOfType) => license.name);
+            return l.licenses.map((license: LicenseOfType) => {
+                return {
+                    name: license.name,
+                    link: license.file,
+                }
+            });
         }
         return [];
     }, [dataBusiness?.data?.licenses]);
@@ -279,14 +294,24 @@ function EditBusiness() {
         );
         if (l) {
             return l.map((license: LicenseDataApi) => ({
-                name: license.licenses.map(
-                    (license: LicenseOfType) => license.name,
+                licenses: license.licenses.map(
+                    (license: LicenseOfType) => {
+                        return {
+                            name: license.name,
+                            link: license.file,
+                        }
+                    }
                 ),
                 type: license.type,
             }));
         }
         return [];
     }, [dataBusiness?.data?.licenses]);
+
+    const handlePreviewLicense = (link: string) => {
+        setFilePrev(link);
+        setPreviewLicense(true);
+    };
 
     useEffect(() => {
         setNameBusinessLicense(businessLicenseNames);
@@ -1370,6 +1395,7 @@ function EditBusiness() {
                                     isUpload={isPendingUploadLicenses}
                                     ref={businessLicenseInputRef}
                                     isRemove={isPendingRemoveLicense}
+                                    onPreviewLicense={handlePreviewLicense}
                                 />
                             </div>
                             <div className="md:col-span-1 col-span-2">
@@ -1402,6 +1428,7 @@ function EditBusiness() {
                                     isUpload={isPendingUploadLicenses}
                                     isRemove={isPendingRemoveLicense}
                                     ref={fireLicenseInputRef}
+                                    onPreviewLicense={handlePreviewLicense}
                                 />
                             </div>
                             <div className="md:col-span-1 col-span-2">
@@ -1434,6 +1461,7 @@ function EditBusiness() {
                                     isUpload={isPendingUploadLicenses}
                                     isRemove={isPendingRemoveLicense}
                                     ref={securityLicenseInputRef}
+                                    onPreviewLicense={handlePreviewLicense}
                                 />
                             </div>
                             {otherLicenses?.length > 0 && (
@@ -1459,7 +1487,7 @@ function EditBusiness() {
                                                 </div>
                                                 <BoxLicenses
                                                     nameBusinessLicense={
-                                                        license.name
+                                                        license.licenses
                                                     }
                                                     onUploadLicense={
                                                         handleUploadLicense
@@ -1483,6 +1511,9 @@ function EditBusiness() {
                                                             license.type
                                                         ] = el;
                                                     }}
+                                                    onPreviewLicense={
+                                                        handlePreviewLicense
+                                                    }
                                                 />
                                             </div>
                                         </Fragment>
@@ -1533,6 +1564,20 @@ function EditBusiness() {
                     </div>
                 </form>
             </div>
+            {previewLicense && (
+                <Modal>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999] p-4">
+                        <div className="p-4 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
+                            <PreviewFile
+                                typePreview="full"
+                                file={`${host}/uploads/` + filePrev}
+                                type=""
+                                closePreview={() => setPreviewLicense(false)}
+                            />
+                        </div>
+                    </div>
+                </Modal>
+            )}
             <EmployeeModal
                 show={showEmployeeModal}
                 onHide={() => setShowEmployeeModal(false)}

@@ -1,13 +1,16 @@
 import { Panel } from "primereact/panel";
 import { forwardRef, useState } from "react";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp, FaEye } from "react-icons/fa";
 import { FiUpload } from "react-icons/fi";
 import { LicenseDataApi, LicenseOfType } from "../interfaces/api";
 import { CONSTANTS } from "../utils/constants";
 import LoadingMini from "./LoadingMini";
 
 interface BoxLicensesProps {
-    nameBusinessLicense: string[];
+    nameBusinessLicense: {
+        name: string;
+        link: string;
+    }[];
     isPendingRemoveLicense?: boolean;
     isPendingUploadLicenses?: boolean;
     onUploadLicense: (
@@ -15,6 +18,7 @@ interface BoxLicensesProps {
         type: string,
     ) => void;
     onRemoveLicense: (licenseId: string, type: string, name: string) => void;
+    onPreviewLicense?: (link: string) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dataBusiness?: any;
     acceptFile: string;
@@ -67,20 +71,86 @@ const BoxLicenses = forwardRef<HTMLInputElement, BoxLicensesProps>(
                         >
                             <div className="flex flex-col gap-1">
                                 {props.nameBusinessLicense?.map(
-                                    (license: string, index: number) => (
+                                    (license: { name: string; link: string }, index: number) => (
                                         <div
                                             key={index}
                                             className="flex items-center justify-between py-2 px-3 hover:bg-gray-50 rounded-md group"
                                         >
                                             <span
                                                 className="text-sm truncate"
-                                                title={license}
+                                                title={license.name}
                                             >
-                                                {license}
+                                                {license.name}
                                             </span>
+                                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100">
+                                                <button
+                                                    type="button"
+                                                    className="text-gray-400 hover:text-blue-500 transition-colors"
+                                                    onClick={() => props.onPreviewLicense?.(license.link)}
+                                                >
+                                                    <FaEye className="size-3" />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                                    onClick={() => {
+                                                        const licenseId =
+                                                            props.dataBusiness?.data?.licenses
+                                                                ?.find(
+                                                                    (
+                                                                        l: LicenseDataApi,
+                                                                    ) =>
+                                                                        l.type ===
+                                                                        props.type,
+                                                                )
+                                                                ?.licenses?.find(
+                                                                    (
+                                                                        l: LicenseOfType,
+                                                                    ) =>
+                                                                        l.name ===
+                                                                        license.name,
+                                                                )?.id;
+                                                        props.onRemoveLicense(
+                                                            licenseId,
+                                                            props.type,
+                                                            license.name,
+                                                        );
+                                                    }}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ),
+                                )}
+                            </div>
+                        </Panel>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-4">
+                        {props.nameBusinessLicense?.length === 1 ? (
+                            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md w-full">
+                                <span
+                                    className="text-sm truncate hover:text-clip"
+                                    title={props.nameBusinessLicense[0].name}
+                                >
+                                    {props.nameBusinessLicense[0].name}
+                                </span>
+                                <div className="flex items-center flex-shrink-0 gap-2">
+                                    {props.isPendingRemoveLicense ? (
+                                        <LoadingMini />
+                                    ) : (
+                                        <>
                                             <button
                                                 type="button"
-                                                className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
+                                                className="text-gray-400 hover:text-blue-500 transition-colors"
+                                                onClick={() => props.onPreviewLicense?.(props.nameBusinessLicense[0].link)}
+                                            >
+                                                <FaEye className="size-3" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="text-red-500 hover:text-red-700 transition-colors"
                                                 onClick={() => {
                                                     const licenseId =
                                                         props.dataBusiness?.data?.licenses
@@ -96,68 +166,20 @@ const BoxLicenses = forwardRef<HTMLInputElement, BoxLicensesProps>(
                                                                     l: LicenseOfType,
                                                                 ) =>
                                                                     l.name ===
-                                                                    license,
+                                                                    props
+                                                                        .nameBusinessLicense[0].name,
                                                             )?.id;
                                                     props.onRemoveLicense(
                                                         licenseId,
                                                         props.type,
-                                                        license,
+                                                        props
+                                                            .nameBusinessLicense[0].name,
                                                     );
                                                 }}
                                             >
                                                 ×
                                             </button>
-                                        </div>
-                                    ),
-                                )}
-                            </div>
-                        </Panel>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-4">
-                        {props.nameBusinessLicense?.length === 1 ? (
-                            <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md w-full">
-                                <span
-                                    className="text-sm truncate hover:text-clip"
-                                    title={props.nameBusinessLicense[0]}
-                                >
-                                    {props.nameBusinessLicense[0]}
-                                </span>
-                                <div className="flex items-center flex-shrink-0 justify-between">
-                                    {props.isPendingRemoveLicense ? (
-                                        <LoadingMini />
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            className="text-red-500 hover:text-red-700 transition-colors"
-                                            onClick={() => {
-                                                const licenseId =
-                                                    props.dataBusiness?.data?.licenses
-                                                        ?.find(
-                                                            (
-                                                                l: LicenseDataApi,
-                                                            ) =>
-                                                                l.type ===
-                                                                props.type,
-                                                        )
-                                                        ?.licenses?.find(
-                                                            (
-                                                                l: LicenseOfType,
-                                                            ) =>
-                                                                l.name ===
-                                                                props
-                                                                    .nameBusinessLicense[0],
-                                                        )?.id;
-                                                props.onRemoveLicense(
-                                                    licenseId,
-                                                    props.type,
-                                                    props
-                                                        .nameBusinessLicense[0],
-                                                );
-                                            }}
-                                        >
-                                            ×
-                                        </button>
+                                        </>
                                     )}
                                 </div>
                             </div>

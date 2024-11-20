@@ -73,8 +73,8 @@ interface LicenseDataApi {
 interface LicenseOfType {
     id: string;
     status: string;
-    type: string;
     name: string;
+    file: string;
 }
 
 interface BusinessLicenseDataApi {
