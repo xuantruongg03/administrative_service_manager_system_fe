@@ -17,6 +17,11 @@
     @tailwind components;
     @tailwind utilities;
 }
+
+.hiddenCanvasElement {
+    display: none;
+}
+
 .Toastify {
     position: relative;
     z-index: 99999 !important;
