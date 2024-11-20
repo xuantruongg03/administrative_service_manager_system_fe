@@ -5,8 +5,8 @@ const init = ''
 const hovermapReducer = (state = init, action: Action) => {
     switch (action.type) {
         case 'SET_HOVERMAP':
-            state = action.payload as string
-            return state
+            return state === action.payload ? state : action.payload;   
+            // return state
         case 'RESET_HOVERMAP':
             state = ''
             return state

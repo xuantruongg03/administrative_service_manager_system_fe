@@ -110,6 +110,7 @@ function AddLicenseModal(props: AddLicenseModalProps) {
                                     type="file"
                                     id="file"
                                     className="hidden"
+                                    multiple
                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                     onChange={handleUploadLicense}
                                     ref={fileRef}

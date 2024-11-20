@@ -185,6 +185,7 @@ const BoxLicenses = forwardRef<HTMLInputElement, BoxLicensesProps>(
                     type="file"
                     id="business_license"
                     className="hidden"
+                    multiple
                     accept={CONSTANTS.ACCEPT_FILE}
                     ref={ref}
                     onChange={(e) => props.onUploadLicense(e, props.type)}

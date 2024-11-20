@@ -49,7 +49,7 @@ interface MapData {
 interface MapRenderProps {
     data: MapData[];
     className?: string;
-    hoveredItemId?: string | null;
+    hoveredItem: string | null;
 }
 
 interface PreviewFileProps {

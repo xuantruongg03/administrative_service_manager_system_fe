@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useDispatch } from "react-redux";
 import LoadingMini from "../components/LoadingMini";
 import MapRenderLeaflet from "../components/MapRenderLeaflet";
 import { BusinessMap } from "../interfaces";
@@ -22,11 +21,12 @@ const getMapMarker = async () => {
 function Maps() {
     const [listBusiness, setListBusiness] = useState<BusinessMap[]>([]);
     const [isLastPage, setIsLastPage] = useState(false);
-    const dispatch = useDispatch();
     const [selectedStreet, setSelectedStreet] = useState<string>("");
     const [selectedType, setSelectedType] = useState<string>("");
     const [filteredMarkers, setFilteredMarkers] = useState<BusinessMap[]>([]);
     const [filteredList, setFilteredList] = useState<BusinessMap[]>([]);
+    const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const { data, isLoading, fetchNextPage } = useInfiniteQuery({
         queryKey: ["business-map", selectedStreet, selectedType],
@@ -122,18 +122,25 @@ function Maps() {
 
     const handleMouseEnter = useCallback(
         (code: string) => {
-            dispatch({ type: "SET_HOVERMAP", payload: code });
+            if (!isHovered) {
+                setHoveredItem(code);
+                setIsHovered(true);
+            }
         },
-        [dispatch],
+        []
     );
+    
 
     const handleChangeStreet = (street: string) => {
         setSelectedStreet(street);
     };
 
     const handleMouseLeave = useCallback(() => {
-        dispatch({ type: "RESET_HOVERMAP" });
-    }, [dispatch]);
+        if (isHovered) {
+            setHoveredItem(null); 
+            setIsHovered(false);
+        }
+    }, [hoveredItem]);
 
     return (
         <div className="px-2 sm:px-4 w-full">
@@ -164,8 +171,8 @@ function Maps() {
             </div>
             {isLoading || isLoadingMapMarker ? <Loading /> : (
             <div className="flex flex-col lg:flex-row gap-3">
-                <div className="w-full lg:w-2/3 h-[400px] sm:h-[450px] xl:h-[500px] 2xl:h-[700px]">
-                    <MapRenderLeaflet data={selectedType || selectedStreet ? filteredMarkers : markerMemo} />
+                <div className="w-full lg:w-2/3 h-[400px] sm:h-[450px] 2xl:h-[550px] 3xl:h-[700px]">
+                    <MapRenderLeaflet hoveredItem={hoveredItem} data={selectedType || selectedStreet ? filteredMarkers : markerMemo} />
                 </div>
                 <div className="w-full lg:w-1/3 mt-4 lg:mt-0">
                     <div className="lg:ml-4">

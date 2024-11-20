@@ -110,8 +110,8 @@ function EditBusiness() {
         event: React.ChangeEvent<HTMLInputElement>,
         type: string,
     ) => {
-        const file = event.target.files?.[0];
-        if (file) {
+        const files = event.target.files;
+        if (files && files.length > 0) {
             const licenseTypeId = dataLicenseType?.data.find(
                 (licenseType: { id: string; name: string }) =>
                     licenseType.name === type,
@@ -121,35 +121,62 @@ function EditBusiness() {
                 toast.error("Không tìm thấy loại giấy phép");
                 return;
             }
-            uploadLicenses({
-                file,
-                id: id as string,
-                type: licenseTypeId,
-            }).then(() => {
-                if (type === "Giấy phép kinh doanh") {
-                    toast.success("Tải lên giấy phép kinh doanh thành công");
-                    setNameBusinessLicense([...nameBusinessLicense, file.name]);
-                } else if (type === "Giấy phép PCCC") {
-                    toast.success("Tải lên giấy phép PCCC thành công");
-                    setNameFireLicense([...nameFireLicense, file.name]);
-                } else if (type === "Giấy phép ANTT") {
-                    toast.success("Tải lên giấy phép ANTT thành công");
-                    setNameSecurityLicense([...nameSecurityLicense, file.name]);
-                } else {
-                    toast.success("Tải lên giấy tờ thành công");
-                }
-                queryClient.invalidateQueries({
-                    queryKey: ["getBusinessById", id],
+
+            // Create an array of promises for each file upload
+            const uploadPromises = Array.from(files).map(file => 
+                uploadLicenses({
+                    file,
+                    id: id as string,
+                    type: licenseTypeId,
+                })
+            );
+
+            // Wait for all uploads to complete
+            Promise.all(uploadPromises)
+                .then(() => {
+                    const fileNames = Array.from(files).map(file => file.name);
+                    
+                    if (type === "Giấy phép kinh doanh") {
+                        toast.success("Tải lên giấy phép kinh doanh thành công");
+                        setNameBusinessLicense([...nameBusinessLicense, ...fileNames]);
+                    } else if (type === "Giấy phép PCCC") {
+                        toast.success("Tải lên giấy phép PCCC thành công");
+                        setNameFireLicense([...nameFireLicense, ...fileNames]);
+                    } else if (type === "Giấy phép ANTT") {
+                        toast.success("Tải lên giấy phép ANTT thành công");
+                        setNameSecurityLicense([...nameSecurityLicense, ...fileNames]);
+                    } else {
+                        toast.success("Tải lên giấy tờ thành công");
+                        // Handle other license types if needed
+                        setOtherLicenses(prevLicenses => 
+                            prevLicenses.map(license => 
+                                license.type === type 
+                                    ? { ...license, name: [...license.name, ...fileNames] }
+                                    : license
+                            )
+                        );
+                    }
+
+                    queryClient.invalidateQueries({
+                        queryKey: ["getBusinessById", id],
+                    });
+
+                    // Reset input file
+                    if (type === "Giấy phép kinh doanh") {
+                        businessLicenseInputRef.current!.value = "";
+                    } else if (type === "Giấy phép PCCC") {
+                        fireLicenseInputRef.current!.value = "";
+                    } else if (type === "Giấy phép ANTT") {
+                        securityLicenseInputRef.current!.value = "";
+                    } else {
+                        const ref = otherLicenseRefs.current[type];
+                        if (ref) ref.value = "";
+                    }
+                })
+                .catch((error) => {
+                    toast.error("Có lỗi xảy ra khi tải lên giấy tờ");
+                    console.error("Upload error:", error);
                 });
-                // Reset input file
-                if (type === "Giấy phép kinh doanh") {
-                    businessLicenseInputRef.current!.value = "";
-                } else if (type === "Giấy phép PCCC") {
-                    fireLicenseInputRef.current!.value = "";
-                } else if (type === "Giấy phép ANTT") {
-                    securityLicenseInputRef.current!.value = "";
-                }
-            });
         }
     };
 

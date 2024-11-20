@@ -1,11 +1,9 @@
 import L from "leaflet";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BiSolidEditAlt } from "react-icons/bi";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { MapData, MapRenderProps } from "../interfaces/props";
-import RootState from "../interfaces/rootState";
 
 const iconDefault = L.icon({
     iconUrl: "src/assets/map_default.png",
@@ -46,32 +44,51 @@ function createCustomIcon(numberProblems: number, size: number) {
     });
 }
 
-function MarkerWithSmoothTransition({
+const MarkerWithSmoothTransition = React.memo(function MarkerWithSmoothTransition({
     item,
     offset,
+    hoveredItem
 }: {
     item: MapData;
     offset: [number, number];
+    hoveredItem: string | null;
 }) {
     const markerRef = useRef<L.Marker | null>(null);
     const [currentSize, setCurrentSize] = useState(30);
-    const isHovered = useSelector((state: RootState) => state.hovermap);
-    const targetSize = isHovered === item.code ? 37 : 30;
+    const animationRef = useRef<number>();
+    
+    const targetSize = useMemo(() => hoveredItem === item.code ? 37 : 30, [hoveredItem, item.code]);
+
+    useEffect(() => {
+        if (currentSize !== targetSize) {
+            const animate = () => {
+                setCurrentSize(current => {
+                    const newSize = current + (targetSize > current ? 2 : -2);
+                    
+                    if ((targetSize > current && newSize >= targetSize) || 
+                        (targetSize < current && newSize <= targetSize)) {
+                        return targetSize;
+                    }
+                    
+                    animationRef.current = requestAnimationFrame(animate);
+                    return newSize;
+                });
+            };
+            
+            animationRef.current = requestAnimationFrame(animate);
+            
+            return () => {
+                if (animationRef.current) {
+                    cancelAnimationFrame(animationRef.current);
+                }
+            };
+        }
+    }, [targetSize]);
+
     const icon = useMemo(
         () => createCustomIcon(item.number_of_problem, currentSize),
         [item.number_of_problem, currentSize],
     );
-
-    useEffect(() => {
-        if (currentSize !== targetSize) {
-            const animationFrame = requestAnimationFrame(() => {
-                const newSize =
-                    currentSize + (targetSize > currentSize ? 2 : -2); // Tăng step size
-                setCurrentSize(newSize);
-            });
-            return () => cancelAnimationFrame(animationFrame);
-        }
-    }, [currentSize, targetSize]);
 
     return (
         <Marker
@@ -128,9 +145,9 @@ function MarkerWithSmoothTransition({
             </Popup>
         </Marker>
     );
-}
+});
 
-function MultipleMarkers(props: { data: MapData[] }) {
+const MultipleMarkers = React.memo(function MultipleMarkers(props: { data: MapData[], hoveredItem: string | null }) {
     const memoizedData = useMemo(() => props.data, [props.data]);
     const coordinateGroups = useMemo(() => {
         const groups = new Map<string, MapData[]>();
@@ -144,7 +161,7 @@ function MultipleMarkers(props: { data: MapData[] }) {
         return groups;
     }, [memoizedData]);
 
-    const calculateOffset = (index: number, total: number): [number, number] => {
+    const calculateOffset = useCallback((index: number, total: number): [number, number] => {
         if (total === 1) return [0, 0];
         
         const angle = (index * (2 * Math.PI)) / total;
@@ -153,7 +170,7 @@ function MultipleMarkers(props: { data: MapData[] }) {
             Math.cos(angle) * radius,
             Math.sin(angle) * radius
         ];
-    };
+    }, []);
 
     return (
         <>
@@ -163,14 +180,15 @@ function MultipleMarkers(props: { data: MapData[] }) {
                         key={item.code}
                         item={item}
                         offset={calculateOffset(index, items.length)}
+                        hoveredItem={props.hoveredItem}
                     />
                 ))
             ))}
         </>
     );
-}
+});
 
-function MapRenderLeaflet(props: MapRenderProps) {
+const MapRenderLeaflet = React.memo(function MapRenderLeaflet(props: MapRenderProps) {
     const { data } = props;
     const [center, setCenter] = useState<[number, number]>([13.756459, 109.212256]);
     const [canGetLocation, setCanGetLocation] = useState(false);
@@ -208,10 +226,10 @@ function MapRenderLeaflet(props: MapRenderProps) {
                 <Marker position={[13.757004, 109.212351]} icon={iconHeadquater}>
                     <Popup>Trụ sở</Popup>
                 </Marker>
-                <MultipleMarkers data={data} />
+                <MultipleMarkers hoveredItem={props.hoveredItem} data={data} />
             </MapContainer>
         </div>
     );
-}
+});
 
 export default MapRenderLeaflet;
