@@ -169,7 +169,10 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                                                     <span className="text-right w-full block">{value.name}</span>
                                                 ) : key === "licenses" ? (
                                                     <span className="text-right w-full block">
-                                                        {Array.isArray(value) && value.map((license: {name: string}) => license.name.split("-")[1]).join(", ")}
+                                                        {value.length > 0 
+                                                            ? value.map((license: { type: string }) => license.type).join(", ")
+                                                            : "Không có giấy phép"
+                                                        }
                                                     </span>
                                                 ) : typeof value === 'object' ? (
                                                     JSON.stringify(value)

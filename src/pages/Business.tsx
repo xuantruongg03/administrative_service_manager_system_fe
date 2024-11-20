@@ -106,7 +106,7 @@ export default function Business() {
         if (selectedBusiness.length === nodes?.length) {
             setSelectedBusiness([]);
         } else {
-            setSelectedBusiness(nodes.map((node) => node.code));
+            setSelectedBusiness(nodes.map((node) => node.id));
         }
     };
 
@@ -119,10 +119,12 @@ export default function Business() {
     };
 
     const handleDeleteBusinessConfirm = async () => {
-        await deleteBusinessMutation(selectedBusiness);
-        queryClient.invalidateQueries({ queryKey: ["businesses"] });
-        setSelectedBusiness([]);
-        setIsYNModelOpen(false);
+        await deleteBusinessMutation(selectedBusiness).then(() => {
+            queryClient.invalidateQueries({ queryKey: ["businesses"] });
+            setSelectedBusiness([]);
+            setIsYNModelOpen(false);
+            toast.success("Xóa doanh nghiệp thành công");
+        });
     };
 
     // Prefetch next page
@@ -266,12 +268,12 @@ export default function Business() {
                                             className="form-checkbox size-4 text-blue-600"
                                             checked={
                                                 selectedBusiness.includes(
-                                                    rowData.code,
+                                                    rowData.id,
                                                 ) || false
                                             }
                                             onChange={() =>
                                                 handleCheckboxChange(
-                                                    rowData.code,
+                                                    rowData.id,
                                                 )
                                             }
                                         />

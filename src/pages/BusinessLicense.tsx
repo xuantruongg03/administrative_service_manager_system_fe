@@ -31,7 +31,7 @@ const getBusinessLicenseReq = async (params: {
 
 function BusinessLicense() {
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-    const [layoutType, setLayoutType] = useState<"grid" | "list">("list");
+    const [layoutType, setLayoutType] = useState<"grid" | "list">("grid");
     const [data, setData] = useState<BusinessLicenseDataApi[]>([]);
     const [isLastPage, setIsLastPage] = useState<boolean>(false);
     const [tempFileId, setTempFileId] = useState<string>("");
@@ -219,7 +219,7 @@ function BusinessLicense() {
     };
 
     return (
-        <div className="container px-4 w-full">
+        <div className=" px-4 w-full">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-xl md:text-2xl font-bold hover:cursor-pointer">
                     Tài liệu
@@ -304,11 +304,11 @@ function BusinessLicense() {
                 <InfiniteScroll
                     next={fetchNextPage}
                     hasMore={!isLastPage}
-                    loader={<Loading />}
+                    loader={<></>}
                     dataLength={data?.length || 0}
                 >
                     {layoutType === "grid" ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+                        <div className="grid grid-cols-1 mb-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
                             {data?.map((item: BusinessLicenseDataApi) => (
                                 <div
                                     key={item.id}
@@ -415,7 +415,7 @@ function BusinessLicense() {
                             ))}
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto mb-10">
                             <table className="min-w-full bg-white">
                                 <thead>
                                     <tr className="bg-gray-100 text-gray-600 uppercase text-xs md:text-sm leading-normal">
@@ -488,7 +488,7 @@ function BusinessLicense() {
                                                 </td>
                                                 <td className="py-2 px-3 md:py-3 md:px-6 text-left hidden xl:table-cell">
                                                     <div className="text-gray-600">
-                                                        {item.size}
+                                                        {item.size} KB
                                                     </div>
                                                 </td>
                                                 <td className="py-2 px-3 md:py-3 md:px-6 text-center">

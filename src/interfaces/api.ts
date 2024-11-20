@@ -17,6 +17,7 @@ interface BusinessDataApi {
     type_of_organization: string;
     updated_at: string;
     website: string;
+    id: string;
 }
 
 interface Person {

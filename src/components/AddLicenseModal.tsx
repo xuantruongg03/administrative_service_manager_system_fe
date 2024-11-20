@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
-import { FiUpload } from "react-icons/fi";
+import { useRef, useState, useEffect } from "react";
+import { FiUpload, FiEye } from "react-icons/fi";
 import { toast } from "react-toastify";
 import useUploadLicenses from "../hooks/useUploadLicenses";
 import { AddLicenseModalProps } from "../interfaces/props";
@@ -9,15 +9,16 @@ import licenseTypeService from "../services/licenseType";
 
 const getLicenseTypeReq = async () => {
     const response = await licenseTypeService.getLicenseType();
-    console.log("🚀 ~ getLicenseTypeReq ~ response:", response);
     return response;
 };
 
 function AddLicenseModal(props: AddLicenseModalProps) {
     const { show, onHide, businessId } = props;
     const [typeLicense, setTypeLicense] = useState("");
-    const [file, setFile] = useState<File | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
+    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
     const fileRef = useRef<HTMLInputElement>(null);
+    const [selectedPreview, setSelectedPreview] = useState<string | null>(null);
 
     const { uploadLicenses, isPending } = useUploadLicenses();
     const queryClient = useQueryClient();
@@ -28,13 +29,29 @@ function AddLicenseModal(props: AddLicenseModalProps) {
         enabled: show,
     });
 
+    useEffect(() => {
+        return () => {
+            previewUrls.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [previewUrls]);
+
     const handleUploadLicense = async (
         e: React.ChangeEvent<HTMLInputElement>,
     ) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setFile(file);
+        const selectedFiles = e.target.files;
+        if (selectedFiles) {
+            const filesArray = Array.from(selectedFiles);
+            setFiles(filesArray);
+            
+            const urls = filesArray.map(file => URL.createObjectURL(file));
+            setPreviewUrls(urls);
         }
+    };
+
+    const handleRemoveFile = (index: number) => {
+        setFiles(files.filter((_, i) => i !== index));
+        URL.revokeObjectURL(previewUrls[index]);
+        setPreviewUrls(previewUrls.filter((_, i) => i !== index));
     };
 
     const onSubmit = async () => {
@@ -42,19 +59,29 @@ function AddLicenseModal(props: AddLicenseModalProps) {
             toast.error("Vui lòng chọn loại giấy phép");
             return;
         }
-        if (!file) {
+        if (files.length === 0) {
             toast.error("Vui lòng tải lên file");
             return;
         }
-        await uploadLicenses({
-            file: file,
-            id: businessId,
-            type: typeLicense,
-        }).then(() => {
-            onHide();
-            toast.success("Thêm giấy phép thành công");
-            queryClient.invalidateQueries({ queryKey: ["getBusinessById"] });
-        });
+
+        // Upload files sequentially
+        for (const file of files) {
+            try {
+                await uploadLicenses({
+                    file: file,
+                    id: businessId,
+                    type: typeLicense,
+                });
+            } catch (error) {
+                console.log(error);
+                toast.error(`Lỗi khi tải lên file ${file.name}`);
+                continue;
+            }
+        }
+        
+        onHide();
+        toast.success("Thêm giấy phép thành công");
+        queryClient.invalidateQueries({ queryKey: ["getBusinessById"] });
     };
 
     if (isLoading && show) {
@@ -84,6 +111,7 @@ function AddLicenseModal(props: AddLicenseModalProps) {
                                         setTypeLicense(e.target.value)
                                     }
                                 >
+                                    <option value="">Chọn loại giấy phép</option>
                                     {licenseTypeData?.data?.map(
                                         (item: {
                                             id: string;
@@ -119,23 +147,44 @@ function AddLicenseModal(props: AddLicenseModalProps) {
                                     htmlFor="file"
                                     className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer w-full"
                                 >
-                                    {file ? (
-                                        <div className="flex items-center justify-between w-full gap-2">
-                                            <span
-                                                className="text-sm truncate hover:text-clip"
-                                                title={file.name}
-                                            >
-                                                {file.name}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                className="text-red-500 hover:text-red-700"
-                                                onClick={() => {
-                                                    setFile(null);
-                                                }}
-                                            >
-                                                ×
-                                            </button>
+                                    {files.length > 0 ? (
+                                        <div className="flex flex-col w-full gap-2">
+                                            {files.map((file, index) => (
+                                                <div key={index} className="flex items-center justify-between w-full gap-2 group">
+                                                    <div className="flex items-center gap-2 flex-1 text-sm truncate hover:text-clip">
+                                                        <span
+                                                            className="text-sm truncate hover:text-clip"
+                                                            title={file.name}
+                                                        >
+                                                            {file.name}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        {file.type.startsWith('image/') && (
+                                                            <button
+                                                                type="button"
+                                                                className="text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    setSelectedPreview(previewUrls[index]);
+                                                                }}
+                                                            >
+                                                                <FiEye className="size-4" />
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            className="text-red-500 hover:text-red-700"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                handleRemoveFile(index);
+                                                            }}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     ) : (
                                         <div
@@ -146,8 +195,7 @@ function AddLicenseModal(props: AddLicenseModalProps) {
                                         >
                                             <FiUpload className="size-4 flex-shrink-0" />
                                             <span className="text-sm">
-                                                Tải lên{" "}
-                                                {typeLicense.toLowerCase()}
+                                                Tải lên
                                             </span>
                                         </div>
                                     )}
@@ -177,6 +225,21 @@ function AddLicenseModal(props: AddLicenseModalProps) {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {selectedPreview && (
+                <div 
+                    className="fixed inset-0 z-[10002] bg-black bg-opacity-75 flex items-center justify-center"
+                    onClick={() => setSelectedPreview(null)}
+                >
+                    <div className="max-w-[90vw] max-h-[90vh]">
+                        <img 
+                            src={selectedPreview} 
+                            alt="Preview" 
+                            className="max-w-full max-h-[90vh] object-contain"
+                        />
                     </div>
                 </div>
             )}

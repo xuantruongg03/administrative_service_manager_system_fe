@@ -16,7 +16,7 @@ const CONSTANTS = {
     LIMIT_BUSINESS: window.innerWidth > 1700 ? 12 : 8,
     // LIMIT_BUSINESS: 12,
     LIMIT_EMPLOYEES: 7,
-    LIMIT_BUSINESS_LICENSE: 10,
+    LIMIT_BUSINESS_LICENSE: 9,
     INIT_POST: 0,
     DATE_DEFAULT: new Date().toISOString().split("T")[0],
     DATE_DEFAULT_FORMAT: "DD/MM/YYYY",

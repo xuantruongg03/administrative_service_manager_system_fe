@@ -119,7 +119,7 @@ function EditBusiness() {
         useRemoveLicense();
 
     //Functions
-    const handleUploadLicense = (
+    const handleUploadLicense = async (
         event: React.ChangeEvent<HTMLInputElement>,
         type: string,
     ) => {
@@ -135,48 +135,47 @@ function EditBusiness() {
                 return;
             }
 
-            // Create an array of promises for each file upload
-            const uploadPromises = Array.from(files).map(file => 
-                uploadLicenses({
-                    file,
-                    id: id as string,
-                    type: licenseTypeId,
-                })
-            );
-
-            // Wait for all uploads to complete
-            Promise.all(uploadPromises)
-                .then(() => {
-                    if (type === "Giấy phép kinh doanh") {
-                        toast.success("Tải lên giấy phép kinh doanh thành công");
-                    } else if (type === "Giấy phép PCCC") {
-                        toast.success("Tải lên giấy phép PCCC thành công");;
-                    } else if (type === "Giấy phép ANTT") {
-                        toast.success("Tải lên giấy phép ANTT thành công");
-                    } else {
-                        toast.success("Tải lên giấy tờ thành công");
-                    }
-
-                    queryClient.invalidateQueries({
-                        queryKey: ["getBusinessById", id],
+            try {
+                // Upload files sequentially
+                for (const file of Array.from(files)) {
+                    await uploadLicenses({
+                        file,
+                        id: id as string,
+                        type: licenseTypeId,
                     });
+                }
 
-                    // Reset input file
-                    if (type === "Giấy phép kinh doanh") {
-                        businessLicenseInputRef.current!.value = "";
-                    } else if (type === "Giấy phép PCCC") {
-                        fireLicenseInputRef.current!.value = "";
-                    } else if (type === "Giấy phép ANTT") {
-                        securityLicenseInputRef.current!.value = "";
-                    } else {
-                        const ref = otherLicenseRefs.current[type];
-                        if (ref) ref.value = "";
-                    }
-                })
-                .catch((error) => {
-                    toast.error("Có lỗi xảy ra khi tải lên giấy tờ");
-                    console.error("Upload error:", error);
+                // Show success message based on type
+                if (type === "Giấy phép kinh doanh") {
+                    toast.success("Tải lên giấy phép kinh doanh thành công");
+                } else if (type === "Giấy phép PCCC") {
+                    toast.success("Tải lên giấy phép PCCC thành công");
+                } else if (type === "Giấy phép ANTT") {
+                    toast.success("Tải lên giấy phép ANTT thành công");
+                } else {
+                    toast.success("Tải lên giấy tờ thành công");
+                }
+
+                // Invalidate queries to refresh data
+                queryClient.invalidateQueries({
+                    queryKey: ["getBusinessById", id],
                 });
+
+                // Reset input file
+                if (type === "Giấy phép kinh doanh") {
+                    businessLicenseInputRef.current!.value = "";
+                } else if (type === "Giấy phép PCCC") {
+                    fireLicenseInputRef.current!.value = "";
+                } else if (type === "Giấy phép ANTT") {
+                    securityLicenseInputRef.current!.value = "";
+                } else {
+                    const ref = otherLicenseRefs.current[type];
+                    if (ref) ref.value = "";
+                }
+            } catch (error) {
+                toast.error("Có lỗi xảy ra khi tải lên giấy tờ");
+                console.error("Upload error:", error);
+            }
         }
     };
 
@@ -1332,7 +1331,7 @@ function EditBusiness() {
                                             }
                                             {...register("status", {
                                                 required:
-                                                    "Trạng thái hoạt động là bắt buộc",
+                                                    "Trạng thái hoạt động là bắt bu��c",
                                             })}
                                         />
                                         <label
