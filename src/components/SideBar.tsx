@@ -106,7 +106,7 @@ function Sidebar() {
                 <div className="w-0.5 h-80  self-center"></div>
                 <div
                     className={`flex flex-col items-center h-full overflow-hidden bg-white transition-all duration-500 ease-in-out ${
-                        isShowBar ? "w-40" : "w-0"
+                        isShowBar ? "w-40 lg:w-60" : "w-0"
                     }`}
                 >
                     <div className="flex items-center justify-center w-full h-[4.7rem]">

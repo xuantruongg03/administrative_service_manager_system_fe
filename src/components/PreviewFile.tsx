@@ -75,7 +75,7 @@ function PreviewFile(props: PreviewFileProps) {
                                 onClick={handleViewClick}
                             >
                                 <MdRemoveRedEye className="mr-1 sm:mr-2" />
-                                <span>View</span>
+                                <span>Xem trước</span>
                             </button>
                         </div>
                     )}

@@ -5,7 +5,7 @@ function Docs() {
         <div className=" pt-20 ">
             {/* Fixed Header */}
             <div className="fixed top-20 left-7 right-0 bg-white border-b z-20">
-                <div className="max-w-7xl mx-auto px-4 py-4">
+                <div className="ml-14 px-4 py-4">
                     <h1 className="text-xl md:text-2xl font-bold">
                         Hướng dẫn sử dụng
                     </h1>
