@@ -56,6 +56,7 @@ function EditBusiness() {
     const [showEmployeeModal, setShowEmployeeModal] = useState(false);
     const [showAddLicenseModal, setShowAddLicenseModal] = useState(false);
     const [showEditMapModal, setShowEditMapModal] = useState(false);
+    const [showMapNotification, setShowMapNotification] = useState(false);
     const [nameFireLicense, setNameFireLicense] = useState<
         {
             name: string;
@@ -323,6 +324,8 @@ function EditBusiness() {
         setPreviewLicense(true);
     };
 
+    const addressInputRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         setNameBusinessLicense(businessLicenseNames);
         setNameFireLicense(fireLicenseNames);
@@ -353,6 +356,45 @@ function EditBusiness() {
         dataBusiness?.data?.owner.gender,
         setValue,
     ]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (addressInputRef.current) {
+                const rect = addressInputRef.current.getBoundingClientRect();
+                const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+                
+                if (isVisible && dataBusiness?.data) {
+                    const visitedBusinesses = JSON.parse(
+                        localStorage.getItem("visitedBusinesses") || "[]"
+                    );
+
+                    if (!visitedBusinesses.includes(dataBusiness.data.id)) {
+                        visitedBusinesses.push(dataBusiness.data.id);
+                        localStorage.setItem(
+                            "visitedBusinesses",
+                            JSON.stringify(visitedBusinesses)
+                        );
+
+                        setShowEditMapModal(true);
+                        setShowMapNotification(true);
+
+                        setTimeout(() => {
+                            setShowMapNotification(false);
+                        }, 5000);
+
+                        // Remove scroll listener after showing modal
+                        window.removeEventListener('scroll', handleScroll);
+                    }
+                }
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [dataBusiness?.data]);
 
     if (
         isLoadingBusiness ||
@@ -1125,7 +1167,7 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-3 col-span-2 relative">
+                            <div className="md:col-span-3 col-span-2 relative" ref={addressInputRef}>
                                 <label
                                     htmlFor="address"
                                     className="block text-sm font-medium text-gray-700 mb-1"
@@ -1136,16 +1178,20 @@ function EditBusiness() {
                                     <InputText
                                         id="address"
                                         className={`w-full pr-12 truncate p-3 text-sm ${
-                                            errors.address ? "border-red-500" : ""
+                                            errors.address
+                                                ? "border-red-500"
+                                                : ""
                                         }`}
-                                        defaultValue={dataBusiness?.data?.address}
+                                        defaultValue={
+                                            dataBusiness?.data?.address
+                                        }
                                         {...register("address", {
                                             required: "Địa chỉ là bắt buộc",
                                         })}
                                     />
                                     <BsPinMapFill
                                         onClick={handleOpenEditMapModal}
-                                        className="text-gray-600 size-4 hover:text-blue-600 cursor-pointer absolute right-5 top-1/2 -translate-y-1/2"
+                                        className={`${showEditMapModal ? "text-blue-600" : "text-gray-600"} size-4 hover:text-blue-600 cursor-pointer absolute right-5 top-1/2 -translate-y-1/2`}
                                     />
                                 </div>
                                 {errors.address && (
@@ -1153,19 +1199,31 @@ function EditBusiness() {
                                         {errors.address.message}
                                     </p>
                                 )}
-                                
+
                                 {showEditMapModal && (
                                     <>
-                                        <div 
-                                            className="fixed inset-0 z-[999]" 
-                                            onClick={() => setShowEditMapModal(false)}
+                                        <div
+                                            className="fixed inset-0 z-[999] animate-fade-in cursor-pointer"
+                                            onClick={() =>
+                                                setShowEditMapModal(false)
+                                            }
                                         />
                                         <EditMapModal
                                             idBusiness={dataBusiness?.data?.id}
                                             lat={dataBusiness?.data?.latitude}
                                             lon={dataBusiness?.data?.longitude}
                                             isShow={showEditMapModal}
-                                        />
+                                        >
+                                            {showMapNotification && (
+                                                <div className="absolute top-10 left-1/2 -translate-x-1/2 px-4 py-2 bg-gray-800 text-white text-sm rounded-md whitespace-nowrap z-[1001] animate-slide-in">
+                                                    <p>
+                                                        Đây có phải vị trí chính
+                                                        xác không?
+                                                    </p>
+                                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
+                                                </div>
+                                            )}
+                                        </EditMapModal>
                                     </>
                                 )}
                             </div>

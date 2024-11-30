@@ -46,17 +46,28 @@ export default {
                     "0%": { opacity: "0" },
                     "100%": { opacity: "1" },
                 },
+                modalShow: {
+                    "0%": {
+                        opacity: "0",
+                        // transform: "scale(0.95) translateY(10px)",
+                    },
+                    "100%": {
+                        opacity: "1",
+                        // transform: "scale(1) translateY(0)",
+                    },
+                },
             },
             animation: {
                 "zoom-in": "zoom-in 0.5s ease-out forwards",
                 "zoom-out": "zoom-out 0.3s ease-out forwards",
                 "fade-in": "fade-in 0.5s ease-out forwards",
+                "modal-show": "modalShow 1s ease-out",
             },
             zIndex: {
                 9999: "9999",
                 10000: "10000",
                 10001: "10001",
-            }
+            },
         },
     },
     plugins: [],

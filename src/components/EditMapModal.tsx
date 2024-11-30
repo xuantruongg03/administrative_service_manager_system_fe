@@ -2,7 +2,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import debounce from "lodash/debounce";
 import { forwardRef, useCallback, useState } from "react";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, Popup } from "react-leaflet";
 import { toast } from "react-toastify";
 import useUpdateLatLon from "../hooks/useUpdateLatLon";
 
@@ -11,6 +11,7 @@ interface EditMapModalProps {
     lat: string;
     lon: string;
     idBusiness: string;
+    children?: React.ReactNode;
 }
 
 const svgIcon = `
@@ -54,7 +55,9 @@ function DraggableMarker({
             draggable={true}
             eventHandlers={eventHandlers}
             icon={customIcon}
-        />
+        >
+            <Popup>Hello</Popup>
+        </Marker>
     );
 }
 
@@ -62,7 +65,8 @@ const EditMapModal = forwardRef<HTMLDivElement, EditMapModalProps>(({
     idBusiness, 
     lat, 
     lon, 
-    isShow 
+    isShow,
+    children
 }, ref) => {
     const { updateLatLon } = useUpdateLatLon();
 
@@ -90,12 +94,14 @@ const EditMapModal = forwardRef<HTMLDivElement, EditMapModalProps>(({
     return (
         <div 
             ref={ref}
-            className="absolute z-[1000] md:w-[350px] md:h-[250px] w-full h-[300px] rounded-lg overflow-hidden border border-gray-300 bg-white shadow-lg bottom-14 right-0"
+            className={`absolute z-[1000] md:w-[350px] md:h-[220px] w-full h-[300px] rounded-lg overflow-hidden border border-gray-300 bg-white shadow-lg bottom-14 right-3 ${isShow ? "animate-slide-in" : ""}`}
         >
+            {children}
             <MapContainer
                 center={position}
                 zoom={16}
                 scrollWheelZoom={true}
+                zoomControl={false}
                 style={{ width: "100%", height: "100%" }}
             >
                 <TileLayer
