@@ -380,7 +380,7 @@ function EditBusiness() {
 
                         setTimeout(() => {
                             setShowMapNotification(false);
-                        }, 5000);
+                        }, 3000);
 
                         // Remove scroll listener after showing modal
                         window.removeEventListener('scroll', handleScroll);
