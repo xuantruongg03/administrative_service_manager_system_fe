@@ -26,6 +26,8 @@ import { REGEX } from "../utils/regex";
 import Loading from "./Loading";
 import PreviewFile from "../components/PreviewFile";
 import Modal from "../components/Modal";
+import { BsPinMapFill } from "react-icons/bs";
+import EditMapModal from "../components/EditMapModal";
 
 const getBusinessByIdReq = async (id: string) => {
     const response = await businessService.getBusinessById(id);
@@ -53,18 +55,25 @@ function EditBusiness() {
     const [filePrev, setFilePrev] = useState<string>("");
     const [showEmployeeModal, setShowEmployeeModal] = useState(false);
     const [showAddLicenseModal, setShowAddLicenseModal] = useState(false);
-    const [nameFireLicense, setNameFireLicense] = useState<{
-        name: string;
-        link: string;
-    }[]>([]);
-    const [nameBusinessLicense, setNameBusinessLicense] = useState<{
-        name: string;
-        link: string;
-    }[]>([]);
-    const [nameSecurityLicense, setNameSecurityLicense] = useState<{
-        name: string;
-        link: string;
-    }[]>([]);
+    const [showEditMapModal, setShowEditMapModal] = useState(false);
+    const [nameFireLicense, setNameFireLicense] = useState<
+        {
+            name: string;
+            link: string;
+        }[]
+    >([]);
+    const [nameBusinessLicense, setNameBusinessLicense] = useState<
+        {
+            name: string;
+            link: string;
+        }[]
+    >([]);
+    const [nameSecurityLicense, setNameSecurityLicense] = useState<
+        {
+            name: string;
+            link: string;
+        }[]
+    >([]);
     const [otherLicenses, setOtherLicenses] = useState<
         {
             licenses: {
@@ -119,6 +128,10 @@ function EditBusiness() {
         useRemoveLicense();
 
     //Functions
+    const handleOpenEditMapModal = () => {
+        setShowEditMapModal(true);
+    };
+
     const handleUploadLicense = async (
         event: React.ChangeEvent<HTMLInputElement>,
         type: string,
@@ -246,7 +259,7 @@ function EditBusiness() {
                 return {
                     name: license.name,
                     link: license.file,
-                }
+                };
             });
         }
         return [];
@@ -262,7 +275,7 @@ function EditBusiness() {
                 return {
                     name: license.name,
                     link: license.file,
-                }
+                };
             });
         }
         return [];
@@ -278,7 +291,7 @@ function EditBusiness() {
                 return {
                     name: license.name,
                     link: license.file,
-                }
+                };
             });
         }
         return [];
@@ -293,14 +306,12 @@ function EditBusiness() {
         );
         if (l) {
             return l.map((license: LicenseDataApi) => ({
-                licenses: license.licenses.map(
-                    (license: LicenseOfType) => {
-                        return {
-                            name: license.name,
-                            link: license.file,
-                        }
-                    }
-                ),
+                licenses: license.licenses.map((license: LicenseOfType) => {
+                    return {
+                        name: license.name,
+                        link: license.file,
+                    };
+                }),
                 type: license.type,
             }));
         }
@@ -1114,27 +1125,48 @@ function EditBusiness() {
                                     </p>
                                 )}
                             </div>
-                            <div className="md:col-span-3 col-span-2">
+                            <div className="md:col-span-3 col-span-2 relative">
                                 <label
                                     htmlFor="address"
                                     className="block text-sm font-medium text-gray-700 mb-1"
                                 >
                                     Địa chỉ *
                                 </label>
-                                <InputText
-                                    id="address"
-                                    className={`w-full p-3 text-sm ${
-                                        errors.address ? "border-red-500" : ""
-                                    }`}
-                                    defaultValue={dataBusiness?.data?.address}
-                                    {...register("address", {
-                                        required: "Địa chỉ là bắt buộc",
-                                    })}
-                                />
+                                <div className="relative">
+                                    <InputText
+                                        id="address"
+                                        className={`w-full pr-12 truncate p-3 text-sm ${
+                                            errors.address ? "border-red-500" : ""
+                                        }`}
+                                        defaultValue={dataBusiness?.data?.address}
+                                        {...register("address", {
+                                            required: "Địa chỉ là bắt buộc",
+                                        })}
+                                    />
+                                    <BsPinMapFill
+                                        onClick={handleOpenEditMapModal}
+                                        className="text-gray-600 size-4 hover:text-blue-600 cursor-pointer absolute right-5 top-1/2 -translate-y-1/2"
+                                    />
+                                </div>
                                 {errors.address && (
                                     <p className="text-red-500 text-sm mt-1">
                                         {errors.address.message}
                                     </p>
+                                )}
+                                
+                                {showEditMapModal && (
+                                    <>
+                                        <div 
+                                            className="fixed inset-0 z-[999]" 
+                                            onClick={() => setShowEditMapModal(false)}
+                                        />
+                                        <EditMapModal
+                                            idBusiness={dataBusiness?.data?.id}
+                                            lat={dataBusiness?.data?.latitude}
+                                            lon={dataBusiness?.data?.longitude}
+                                            isShow={showEditMapModal}
+                                        />
+                                    </>
                                 )}
                             </div>
                             <div className="md:col-span-1 col-span-2">
@@ -1331,7 +1363,7 @@ function EditBusiness() {
                                             }
                                             {...register("status", {
                                                 required:
-                                                    "Trạng thái hoạt động là bắt bu��c",
+                                                    "Trạng thái hoạt động là bắt buc",
                                             })}
                                         />
                                         <label

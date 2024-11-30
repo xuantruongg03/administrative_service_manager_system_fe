@@ -41,6 +41,11 @@ const getMapMarker = async () => {
     return response;
 }
 
+const updateLatLon = async (params: { latitude: number, longitude: number, businessId: string }) => {
+    const response = await axiosClient.patch(`/businesses/${params.businessId}/update-lat-lon`, { latitude: params.latitude, longitude: params.longitude });
+    return response;
+}
+
 const businessService = {
     getBusiness,
     addBusinessByExcel,
@@ -50,6 +55,7 @@ const businessService = {
     updateBusiness,
     getBusinessMap,
     getMapMarker,
+    updateLatLon,
 }
 
 export default businessService;
