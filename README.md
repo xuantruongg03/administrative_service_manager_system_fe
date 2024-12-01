@@ -1,50 +1,93 @@
-# React + TypeScript + Vite
+# Administrative Services Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Introduction
 
-Currently, two official plugins are available:
+A React and TypeScript-based web application designed for managing business administrative services. The system provides tools for data analytics, business management, and document handling.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Directory Structure
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+src/
+├── components/      # Reusable components
+├── pages/          # Main application pages
+├── utils/          # Utility functions
+├── services/       # API services
+└── assets/         # Static resources
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Core Features
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### 1. Analytics Dashboard
+- Statistical data visualization
+- Time range filtering options:
+  - This Month
+  - This Quarter
+  - This Year
+  - Custom Date Range
+- Interactive performance metrics
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+### 2. Business Management
+- CRUD operations for business entities
+- Excel data import/export
+- Advanced search and filtering
+- Detailed business profile management
+- Bulk operations support
+
+### 3. Map Integration
+- Business location visualization
+- Current location detection
+- Interactive markers with business details
+- Cluster view for multiple businesses
+- Location-based filtering
+
+### 4. Document Management
+- Document upload/download functionality
+- Support for multiple file formats
+- Document preview capability
+- License status tracking
+- Business-specific document organization
+
+### 5. Employee Management
+- Employee information management
+- Bulk import via Excel
+- Position and role tracking
+- Contact information management
+- Employee history tracking
+
+## User Interface
+
+### Design Elements
+- Responsive layout using Tailwind CSS
+- Mobile-first approach
+- Custom scrollbar implementation
+- PrimeReact component integration
+
+### Navigation
+- Sidebar menu for main features
+- Quick access toolbar
+- Breadcrumb navigation
+- Context-sensitive actions
+
+## Support Features
+
+### Help Center
+- Common issue solutions
+- Troubleshooting guides
+- FAQ section
+- System requirements
+- Contact support information
+
+### Documentation
+- User guides
+- Step-by-step tutorials
+- Data import/export guidelines
+- Best practices
+- Important notices
+
+## System Requirements
+- Modern web browser
+- Internet connection
+- Location services enabled (for map features)
+- Minimum screen resolution: 320px
+
+For detailed instructions and technical documentation, please refer to the in-app documentation section.
