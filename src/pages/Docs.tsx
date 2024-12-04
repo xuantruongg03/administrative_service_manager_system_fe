@@ -91,7 +91,7 @@ function Docs() {
                                         </ul>
                                         <div className="mt-4">
                                             <a
-                                                href="src/assets/template/template_upload_businesses.xlsx"
+                                                href="/assets/template/template_upload_businesses.xlsx"
                                                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                             >
                                                 <svg
@@ -142,8 +142,8 @@ function Docs() {
                                     <div className="">
                                         <SliderImages
                                             images={[
-                                                "src/assets/docs/upload_business/step_1.jpg",
-                                                "src/assets/docs/upload_business/step_2.png",
+                                                "/assets/docs/upload_business/step_1.jpg",
+                                                "/assets/docs/upload_business/step_2.png",
                                             ]}
                                         />
                                     </div>
@@ -211,7 +211,7 @@ function Docs() {
                                     <div className="">
                                         <SliderImages
                                             images={[
-                                                "src/assets/docs/edit_business/step_1.png",
+                                                "/assets/docs/edit_business/step_1.png",
                                             ]}
                                         />
                                     </div>
@@ -255,7 +255,7 @@ function Docs() {
                                                 nhập nhanh thông tin nhân viên
                                             </h5>
                                             <a
-                                                href="src/assets/template/template_upload_employees.xlsx"
+                                                href="/assets/template/template_upload_employees.xlsx"
                                                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                             >
                                                 <svg
@@ -278,10 +278,10 @@ function Docs() {
                                     <div className="">
                                         <SliderImages
                                             images={[
-                                                "src/assets/docs/edit_employees/step_1.png",
-                                                "src/assets/docs/edit_employees/step_2.png",
-                                                "src/assets/docs/edit_employees/step_3.png",
-                                                "src/assets/docs/edit_employees/upload_employees.png",
+                                                "/assets/docs/edit_employees/step_1.png",
+                                                "/assets/docs/edit_employees/step_2.png",
+                                                "/assets/docs/edit_employees/step_3.png",
+                                                "/assets/docs/edit_employees/upload_employees.png",
                                             ]}
                                         />
                                     </div>
@@ -337,7 +337,7 @@ function Docs() {
                                     <div className="">
                                         <SliderImages
                                             images={[
-                                                "src/assets/docs/upload_license/upload_multiple.png",
+                                                "/assets/docs/upload_license/upload_multiple.png",
                                             ]}
                                         />
                                     </div>
