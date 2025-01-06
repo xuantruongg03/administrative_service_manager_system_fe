@@ -46,6 +46,11 @@ const updateLatLon = async (params: { latitude: number, longitude: number, busin
     return response;
 }
 
+const deleteAllBusiness = async () => {
+    const response = await axiosClient.delete('/businesses/remove-all');
+    return response;
+}
+
 const businessService = {
     getBusiness,
     addBusinessByExcel,
@@ -56,6 +61,7 @@ const businessService = {
     getBusinessMap,
     getMapMarker,
     updateLatLon,
+    deleteAllBusiness,
 }
 
 export default businessService;

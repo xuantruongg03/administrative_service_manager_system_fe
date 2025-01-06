@@ -29,6 +29,8 @@ import FileUploadButton from "../ui/FileUploadButton";
 import { CONSTANTS } from "../utils/constants";
 import { formatDate } from "../utils/format";
 import Loading from "./Loading";
+import { Menu } from '@headlessui/react'
+import useDeleteAllBusiness from "../hooks/useDeleteAllBusiness";
 
 const getBusiness = async (params: {
     page: number;
@@ -48,6 +50,7 @@ export default function Business() {
     const [keyword, setKeyword] = useState<string>("");
     const debouncedKeyword = useDebounce(keyword, 1000);
     const [isYNModelOpen, setIsYNModelOpen] = useState(false);
+    const [isShowConfirmDeleteAll, setIsShowConfirmDeleteAll] = useState(false);
 
     const queryClient = useQueryClient();
 
@@ -123,7 +126,22 @@ export default function Business() {
             queryClient.invalidateQueries({ queryKey: ["businesses"] });
             setSelectedBusiness([]);
             setIsYNModelOpen(false);
-            toast.success("Xóa doanh nghiệp thành công");
+            toast.success("Xóa tất cả doanh nghiệp thành công");
+        });
+    };
+
+    const handleDeleteAll = () => {
+        setIsShowConfirmDeleteAll(true);
+    };
+
+    const { mutateAsync: deleteAllBusinessMutation } = useDeleteAllBusiness();
+
+    const handleDeleteAllConfirm = async () => {
+        await deleteAllBusinessMutation().then(() => {
+            queryClient.invalidateQueries({ queryKey: ["businesses"] });
+            setSelectedBusiness([]);
+            setIsShowConfirmDeleteAll(false);
+            toast.success("Xóa tất cả doanh nghiệp thành công");
         });
     };
 
@@ -185,7 +203,30 @@ export default function Business() {
                                     onClick={handleDeleteBusiness}
                                 />
                                 <FaCircleInfo className="cursor-pointer hover:text-blue-500 transition-colors duration-200" />
-                                <IoMdMore className="cursor-pointer size-6 hover:text-gray-700 transition-colors duration-200" />
+                                <div className="relative">
+                                    <Menu>
+                                        <Menu.Button className="flex items-center">
+                                            <IoMdMore className="cursor-pointer size-6 hover:text-gray-700 transition-colors duration-200" />
+                                        </Menu.Button>
+                                        <Menu.Items className="absolute left-0 mt-2 w-48 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                            <div className="px-1 py-1">
+                                                <Menu.Item>
+                                                    {({ active }) => (
+                                                        <button
+                                                            className={`${
+                                                                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                                                            } group flex w-full items-center rounded-md px-2 py-2 text-sm gap-2`}
+                                                            onClick={handleDeleteAll}
+                                                        >
+                                                            <BsTrash3Fill className="size-4" />
+                                                            Xóa tất cả
+                                                        </button>
+                                                    )}
+                                                </Menu.Item>
+                                            </div>
+                                        </Menu.Items>
+                                    </Menu>
+                                </div>
                             </div>
                             <div className="flex items-center gap-4">
                                 {isPendingCreateBusinessByExcel ? (
@@ -449,6 +490,15 @@ export default function Business() {
                 onConfirm={handleDeleteBusinessConfirm}
                 label="Xóa doanh nghiệp"
                 description="Bạn có chắc chắn muốn xóa doanh nghiệp này không?"
+                yesLabel="Xóa"
+                noLabel="Hủy"
+            />
+            <YNModel
+                isOpen={isShowConfirmDeleteAll}
+                onClose={() => setIsShowConfirmDeleteAll(false)}
+                onConfirm={handleDeleteAllConfirm}
+                label="Xóa tất cả doanh nghiệp"
+                description="Bạn có chắc chắn muốn xóa tất cả doanh nghiệp không?"
                 yesLabel="Xóa"
                 noLabel="Hủy"
             />
