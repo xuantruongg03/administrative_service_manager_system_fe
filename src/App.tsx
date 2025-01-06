@@ -19,7 +19,7 @@ const valueOptions = [
     {
         label: "month",
         value: `${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`,
-        labelDisplay: "Ngày",
+        labelDisplay: "Tháng",
     },
     {
         label: "quarter",
@@ -31,7 +31,7 @@ const valueOptions = [
     {
         label: "year",
         value: `${new Date().getFullYear()}`,
-        labelDisplay: "Tháng",
+        labelDisplay: "Năm",
     },
 ];
 
