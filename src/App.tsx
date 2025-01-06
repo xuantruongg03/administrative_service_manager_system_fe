@@ -18,7 +18,10 @@ const statisticReq = async (params: { timeRange: string; value: string }) => {
 const valueOptions = [
     {
         label: "month",
-        value: `${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`,
+        value: `${String(new Date().getMonth() + 1).padStart(
+            2,
+            "0",
+        )}/${new Date().getFullYear()}`,
         labelDisplay: "Tháng",
     },
     {
@@ -48,11 +51,11 @@ function App() {
                 timeRange,
                 value:
                     timeRange === "custom"
-                    ? `${dayjs(selectedDate?.[0]).format(
-                        CONSTANTS.DATE_FORMAT,
-                    )} - ${dayjs(selectedDate?.[1]).format(
-                        CONSTANTS.DATE_FORMAT,
-                    )}`
+                        ? `${dayjs(selectedDate?.[0]).format(
+                              CONSTANTS.DATE_FORMAT,
+                          )} - ${dayjs(selectedDate?.[1]).format(
+                              CONSTANTS.DATE_FORMAT,
+                          )}`
                         : valueOptions.find(
                               (option) => option.label === timeRange,
                           )?.value || "month",
@@ -135,7 +138,7 @@ function App() {
                         </Card>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mt-8">
                         <Card
                             title="Doanh nghiệp theo loại hình"
                             className="p-4 flex flex-col"
@@ -149,7 +152,9 @@ function App() {
                             ) : (
                                 <Chart
                                     type="pie"
-                                    data={statisticData?.business_type_statistics}
+                                    data={
+                                        statisticData?.business_type_statistics
+                                    }
                                     className="w-full h-[300px]"
                                     options={{
                                         maintainAspectRatio: false,
@@ -178,7 +183,73 @@ function App() {
                                 />
                             )}
                         </Card>
-                        <Card title="Xu hướng đăng ký doanh nghiệp" className="p-4">
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                        <Card
+                            title="Số lượng tài liệu theo loại"
+                            className="p-4"
+                        >
+                            {statisticData?.business_license_type_statistics?.datasets?.[0]?.data?.every(
+                                (value: number) => value === 0,
+                            ) ? (
+                                <div className="h-[300px] flex items-center justify-center text-gray-500">
+                                    Chưa có dữ liệu
+                                </div>
+                            ) : (
+                                <Chart
+                                    type="bar"
+                                    data={{
+                                        labels: statisticData
+                                            ?.business_license_type_statistics
+                                            ?.labels,
+                                        datasets: [
+                                            {
+                                                data: statisticData
+                                                    ?.business_license_type_statistics
+                                                    ?.datasets[0]?.data,
+                                                backgroundColor:
+                                                    statisticData
+                                                        ?.business_license_type_statistics
+                                                        ?.datasets[0]
+                                                        ?.backgroundColor,
+                                                label: "",
+                                            },
+                                        ],
+                                    }}
+                                    options={{
+                                        plugins: {
+                                            legend: {
+                                                display: false,
+                                            },
+                                        },
+                                    }}
+                                />
+                            )}
+                        </Card>
+                        <Card title="Trạng thái doanh nghiệp" className="p-4">
+                            {statisticData?.business_license_status_statistics?.datasets?.[0]?.data?.every(
+                                (value: number) => value === 0,
+                            ) ? (
+                                <div className="h-[300px] flex items-center justify-center text-gray-500">
+                                    Chưa có dữ liệu
+                                </div>
+                            ) : (
+                                <Chart
+                                    type="doughnut"
+                                    data={
+                                        statisticData?.business_license_status_statistics
+                                    }
+                                    style={{ height: "300px" }}
+                                />
+                            )}
+                        </Card>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mt-8">
+                        <Card
+                            title="Xu hướng đăng ký doanh nghiệp"
+                            className="p-4"
+                        >
                             {statisticData?.business_trend?.datasets?.[0]?.data?.every(
                                 (value: number) => value === 0,
                             ) ? (
@@ -198,7 +269,8 @@ function App() {
                                                     display: true,
                                                     text: valueOptions.find(
                                                         (option) =>
-                                                            option.label === timeRange,
+                                                            option.label ===
+                                                            timeRange,
                                                     )?.labelDisplay,
                                                 },
                                                 grid: {
@@ -223,55 +295,10 @@ function App() {
                                             },
                                         },
                                     }}
-                                    style={{ height: "400px", maxWidth: "100%" }}
-                                />
-                            )}
-                        </Card>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-                        <Card title="Số lượng tài liệu theo loại" className="p-4">
-                            {statisticData?.business_license_type_statistics?.datasets?.[0]?.data?.every(
-                                (value: number) => value === 0,
-                            ) ? (
-                                <div className="h-[300px] flex items-center justify-center text-gray-500">
-                                    Chưa có dữ liệu
-                                </div>
-                            ) : (
-                                <Chart
-                                    type="bar"
-                                    data={{
-                                        labels: statisticData?.business_license_type_statistics?.labels,
-                                        datasets: [{
-                                            data: statisticData?.business_license_type_statistics?.datasets[0]?.data,
-                                            backgroundColor: statisticData?.business_license_type_statistics?.datasets[0]?.backgroundColor,
-                                            label: ''
-                                        }]
+                                    style={{
+                                        height: "400px",
+                                        maxWidth: "100%",
                                     }}
-                                    options={{
-                                        plugins: {
-                                            legend: {
-                                                display: false
-                                            }
-                                        }
-                                    }}
-                                />
-                            )}
-                        </Card>
-                        <Card title="Trạng thái doanh nghiệp" className="p-4">
-                            {statisticData?.business_license_status_statistics?.datasets?.[0]?.data?.every(
-                                (value: number) => value === 0,
-                            ) ? (
-                                <div className="h-[300px] flex items-center justify-center text-gray-500">
-                                    Chưa có dữ liệu
-                                </div>
-                            ) : (
-                                <Chart
-                                    type="doughnut"
-                                    data={
-                                        statisticData?.business_license_status_statistics
-                                    }
-                                    style={{ height: "300px" }}
                                 />
                             )}
                         </Card>
