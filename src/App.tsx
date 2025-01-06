@@ -18,7 +18,7 @@ const statisticReq = async (params: { timeRange: string; value: string }) => {
 const valueOptions = [
     {
         label: "month",
-        value: `${new Date().getMonth() + 1}/${new Date().getFullYear()}`,
+        value: `${String(new Date().getMonth() + 1).padStart(2, '0')}/${new Date().getFullYear()}`,
         labelDisplay: "Ngày",
     },
     {

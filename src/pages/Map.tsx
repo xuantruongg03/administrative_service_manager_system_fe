@@ -171,7 +171,7 @@ function Maps() {
             </div>
             {isLoading || isLoadingMapMarker ? <Loading /> : (
             <div className="flex flex-col lg:flex-row gap-3">
-                <div className="w-full lg:w-2/3 2xl:h-[550px] min-[1600px]:h-[750px]">
+                <div className="w-full h-[400px] lg:w-2/3 2xl:h-[550px] min-[1600px]:h-[750px]">
                     <MapRenderLeaflet hoveredItem={hoveredItem} data={selectedType || selectedStreet ? filteredMarkers : markerMemo} />
                 </div>
                 <div className="w-full lg:w-1/3 mt-4 lg:mt-0">
