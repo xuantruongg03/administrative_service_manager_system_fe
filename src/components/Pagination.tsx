@@ -21,7 +21,7 @@ function Pagination(props: PaginationProps) {
                         <span className="font-medium">
                             {Math.min(
                                 props.currentPage * props.recordsPerPage -
-                                    props.recordsPerPage +
+                                props.recordsPerPage +
                                     1,
                                 props.totalRecords,
                             )}

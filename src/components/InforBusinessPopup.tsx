@@ -108,7 +108,7 @@ function InforBusinessPopup(props: InforBusinessPopupProps) {
                     <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
                         <div className="w-full lg:w-2/5">
                             {infoBusiness && Object.entries(infoBusiness)
-                            .filter(([key]) => key !== "employee" && key !== "status" && key !== "number_of_employees" && key !== "id")
+                            .filter(([key]) => key !== "employee" && key !== "status" && key !== "number_of_employees" && key !== "id" && key !== "longitude" && key !== "latitude")
                             .map(
                                 ([key, value]) => (
                                     <div
